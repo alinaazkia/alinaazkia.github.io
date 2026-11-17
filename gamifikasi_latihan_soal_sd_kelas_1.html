@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Ceria PPKn Kelas 1 SD - Aturan di Rumah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Tone.js for Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts: Fredoka (Ramah Anak) -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        /* Animasi Kartu */
+        .card-enter {
+            animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Animasi Getar saat salah */
+        .shake {
+            animation: shakeAnim 0.4s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+
+        /* Animasi Bintang Melompat */
+        .bounce-star {
+            animation: bounceStar 0.5s ease;
+        }
+
+        @keyframes bounceStar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.4) rotate(15deg); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #60A5FA;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4 sm:p-6">
+
+    <!-- Container Utama -->
+    <div id="app" class="w-full max-w-2xl">
+        
+        <!-- Layar Mulai (Input Nama) -->
+        <div id="start-screen" class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-10 text-center border-4 border-sky-300 card-enter">
+            <div class="inline-block bg-amber-100 text-amber-600 px-4 py-1.5 rounded-full text-sm font-bold mb-4 shadow-sm">
+                🌟 LATIHAN SUMATIF PPKn KELAS 1 SD 🌟
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">
+                Tema: Aturan di Rumah 🏠
+            </h1>
+            <p class="text-slate-600 mb-6 text-base sm:text-lg">
+                Ayo kumpulkan bintang dengan menyelesaikan 15 Pilihan Ganda, 5 Isian Singkat, dan 5 Esai!
+            </p>
+
+            <!-- Ilustrasi SVG Sederhana -->
+            <div class="w-32 h-32 mx-auto mb-6 bg-sky-100 rounded-full flex items-center justify-center border-4 border-sky-200 shadow-inner">
+                <span class="text-6xl">🎒</span>
+            </div>
+
+            <div class="max-w-sm mx-auto space-y-4 mb-8 text-left">
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1 ml-1">Nama Lengkap:</label>
+                    <input type="text" id="student-name" placeholder="Ketik namamu di sini..." 
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-sky-400 focus:outline-none text-lg font-medium text-slate-700 transition">
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold mb-1 ml-1">Kelas:</label>
+                    <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 focus:border-sky-400 focus:outline-none text-lg font-medium text-slate-700 transition">
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" 
+                class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white font-bold text-xl rounded-2xl shadow-lg shadow-blue-200 transform transition active:scale-95 cursor-pointer">
+                🚀 Mulai Bermain!
+            </button>
+        </div>
+
+        <!-- Layar Kuis (Card Soal) -->
+        <div id="quiz-screen" class="hidden space-y-4">
+            
+            <!-- Header Skor & Progress -->
+            <div class="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-md border-2 border-white flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center font-bold text-lg">
+                        👦
+                    </div>
+                    <div>
+                        <p id="display-name" class="font-bold text-slate-800 leading-tight">Siswa Hebat</p>
+                        <p id="display-class" class="text-xs text-slate-500 font-medium">Kelas 1 SD</p>
+                    </div>
+                </div>
+
+                <!-- Papan Skor -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-amber-100 border-2 border-amber-300 px-4 py-1.5 rounded-xl flex items-center gap-2">
+                        <span id="star-icon" class="text-xl">⭐</span>
+                        <div>
+                            <span class="text-xs text-amber-700 font-bold block leading-none">SKOR</span>
+                            <span id="score-display" class="text-lg font-extrabold text-amber-600 leading-none">0</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSound()" id="sound-btn" class="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition" title="Suara">
+                        🔊
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="bg-white/60 rounded-full h-4 p-1 shadow-inner">
+                <div id="progress-bar" class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-300" style="width: 6.6%"></div>
+            </div>
+
+            <!-- Kartu Soal Utama -->
+            <div id="question-card" class="bg-white rounded-3xl shadow-xl p-6 sm:p-8 border-4 border-white relative overflow-hidden">
+                <!-- Kategori & Nomor Soal Badge -->
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-4">
+                    <div class="flex items-center gap-2">
+                        <span id="section-badge" class="bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                            A. Pilihan Ganda
+                        </span>
+                        <span id="question-number" class="bg-indigo-100 text-indigo-700 font-bold px-3.5 py-1 rounded-full text-sm">
+                            Soal 1 dari 25
+                        </span>
+                    </div>
+                    <span id="status-badge" class="hidden px-3 py-1 rounded-full text-xs font-bold"></span>
+                </div>
+
+                <!-- Teks Pertanyaan -->
+                <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-800 mb-6 leading-relaxed">
+                    Memuat soal...
+                </h2>
+
+                <!-- Wadah Jawaban Dinamis (Pilihan Ganda / Isian / Esai) -->
+                <div id="answer-area" class="space-y-3">
+                    <!-- Di-generate lewat JS -->
+                </div>
+
+                <!-- Feedback Banner (Muncul setelah menjawab) -->
+                <div id="feedback-box" class="hidden mt-6 p-4 rounded-2xl border-2 flex items-start gap-3 transition-all">
+                    <span id="feedback-emoji" class="text-3xl shrink-0">🎉</span>
+                    <div>
+                        <p id="feedback-title" class="font-bold text-base"></p>
+                        <p id="feedback-desc" class="text-sm opacity-95 mt-0.5"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Navigasi Next & Prev -->
+            <div class="flex items-center justify-between gap-4 pt-2">
+                <button id="prev-btn" onclick="prevQuestion()" 
+                    class="flex-1 sm:flex-none px-6 py-3.5 bg-white hover:bg-slate-50 text-slate-700 font-bold rounded-2xl shadow-md border-2 border-slate-200 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2">
+                    ⬅️ Sebelumnya
+                </button>
+
+                <!-- Indikator Titik Soal (Desktop) -->
+                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm">
+                    <!-- Dots di-generate lewat JS -->
+                </div>
+
+                <button id="next-btn" onclick="nextQuestion()" 
+                    class="flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2">
+                    Selanjutnya ➡️
+                </button>
+            </div>
+        </div>
+
+        <!-- Layar Hasil Akhir -->
+        <div id="result-screen" class="hidden bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-10 text-center border-4 border-amber-300 card-enter">
+            <div class="text-6xl mb-4 animate-bounce">🏆</div>
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-1">Hebat Sekali!</h2>
+            <p id="result-student-info" class="text-slate-600 font-medium mb-6">Kamu telah menyelesaikan semua soal!</p>
+
+            <div class="bg-gradient-to-br from-amber-50 to-orange-100 border-2 border-amber-200 rounded-3xl p-6 mb-6 max-w-sm mx-auto shadow-inner">
+                <p class="text-amber-800 font-bold text-sm uppercase tracking-wider mb-1">Nilai Akhir Kamu</p>
+                <div id="final-score" class="text-6xl font-black text-amber-500 mb-2">100</div>
+                <p id="final-stats" class="text-slate-700 font-semibold text-sm">Benar 15 dari 15 soal</p>
+            </div>
+
+            <div id="result-message" class="text-lg font-semibold text-slate-700 mb-8 max-w-md mx-auto">
+                Luar biasa! Kamu anak yang sangat patuh pada aturan di rumah! 🌟
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="reviewQuiz()" 
+                    class="px-6 py-3.5 bg-sky-100 hover:bg-sky-200 text-sky-700 font-bold rounded-2xl transition">
+                    🔍 Lihat Kembali Jawaban
+                </button>
+                <button onclick="restartQuiz()" 
+                    class="px-8 py-3.5 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-bold rounded-2xl shadow-lg transition">
+                    🔄 Main Lagi
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Peringatan Kustom (Pengganti alert) -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border-4 border-amber-300 card-enter">
+            <div class="text-4xl mb-3">🤔</div>
+            <h3 id="modal-title" class="text-xl font-bold text-slate-800 mb-2">Perhatian</h3>
+            <p id="modal-text" class="text-slate-600 mb-6">Isi pesan</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold rounded-xl transition">
+                Oke, Mengerti!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data Lengkap 25 Soal (15 Pilihan Ganda + 5 Isian Singkat + 5 Esai)
+        const questions = [
+            // === BAGIAN A: PILIHAN GANDA (1-15) ===
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '1',
+                q: "Aturan di rumah biasanya dibuat oleh ....",
+                options: ["teman", "ayah dan ibu", "kakak"],
+                answer: 1,
+                explanation: "Ayah dan ibu adalah orang tua yang membuat aturan agar keluarga tertib."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '2',
+                q: "Tujuan dibuatnya aturan di rumah adalah ....",
+                options: ["agar keluarga hidup tertib dan rukun", "agar kita bebas bermain", "agar tidak perlu belajar"],
+                answer: 0,
+                explanation: "Dengan aturan, semua anggota keluarga hidup rukun, damai, dan tertib."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '3',
+                q: "Contoh aturan di rumah adalah ....",
+                options: ["makan di meja makan", "berlari di dalam rumah", "menonton televisi seharian"],
+                answer: 0,
+                explanation: "Makan di meja makan dengan rapi adalah contoh aturan yang baik di rumah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '4',
+                q: "Semua anggota keluarga harus menaati aturan, karena ....",
+                options: ["agar rumah menjadi rapi", "agar tidak dimarahi", "agar bisa bermain terus"],
+                answer: 0,
+                explanation: "Menaati aturan membuat rumah menjadi rapi, nyaman, dan tertib."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '5',
+                q: "Jika melihat adik tidak menaati aturan, sebaiknya kita ....",
+                options: ["ikut melanggar aturan", "menasihati dengan baik", "membiarkannya"],
+                answer: 1,
+                explanation: "Sebagai kakak atau saudara yang baik, kita harus menasihati adik dengan lembut."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '6',
+                q: "Sebelum makan, kita harus ....",
+                options: ["mencuci tangan", "berlari", "menonton televisi"],
+                answer: 0,
+                explanation: "Mencuci tangan sebelum makan menjaga tubuh kita tetap sehat dan bersih dari kuman."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '7',
+                q: "Setelah selesai belajar, kita sebaiknya ....",
+                options: ["merapikan buku", "membiarkan buku berserakan", "langsung bermain tanpa membereskan buku"],
+                answer: 0,
+                explanation: "Merapikan buku setelah belajar membuat meja belajar tetap rapi."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '8',
+                q: "Waktu tidur malam yang baik adalah ....",
+                options: ["sampai larut malam", "sesuai aturan orang tua", "sepanjang malam tidak tidur"],
+                answer: 1,
+                explanation: "Tidur tepat waktu sesuai aturan orang tua membuat tubuh segar di pagi hari."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '9',
+                q: "Menjaga kebersihan rumah merupakan salah satu ....",
+                options: ["aturan keluarga", "tugas anak saja", "kegiatan di luar rumah"],
+                answer: 0,
+                explanation: "Kebersihan rumah adalah aturan dan tanggung jawab seluruh anggota keluarga."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '10',
+                q: "Kita harus meminta izin kepada orang tua jika ingin ....",
+                options: ["bermain di luar rumah", "pergi ke kamar", "makan sendiri"],
+                answer: 0,
+                explanation: "Meminta izin sebelum bermain ke luar rumah membuat orang tua tahu keberadaan kita."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '11',
+                q: "Aturan harus ditaati agar ....",
+                options: ["rumah menjadi berantakan", "keluarga hidup rukun", "kita bisa bermain terus"],
+                answer: 1,
+                explanation: "Ketaatan pada aturan menciptakan kerukunan di dalam keluarga."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '12',
+                q: "Berikut ini yang bukan contoh aturan di rumah adalah ....",
+                options: ["membantu orang tua", "membuang sampah pada tempatnya", "belajar di sekolah"],
+                answer: 2,
+                explanation: "Belajar di sekolah adalah kegiatan/aturan di sekolah, bukan di rumah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '13',
+                q: "Jika melanggar aturan, kita biasanya ....",
+                options: ["diberi hadiah", "ditegur atau dinasihati", "dibiarkan saja"],
+                answer: 1,
+                explanation: "Orang tua akan menegur atau menasihati agar kita tidak mengulangi kesalahan."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '14',
+                q: "Sikap yang baik ketika berada di rumah adalah ....",
+                options: ["patuh pada aturan", "membantah orang tua", "malas belajar"],
+                answer: 0,
+                explanation: "Anak yang baik selalu patuh pada aturan yang berlaku di rumah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '15',
+                q: "Manfaat menaati aturan di rumah adalah ....",
+                options: ["rumah menjadi tidak nyaman", "keluarga lebih bahagia", "kita menjadi malas"],
+                answer: 1,
+                explanation: "Jika semua tertib dan rukun, seluruh keluarga akan merasa nyaman dan bahagia."
+            },
+
+            // === BAGIAN B: ISIAN SINGKAT (1-5) ===
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '1',
+                q: "Aturan di rumah biasanya dibuat oleh ....",
+                placeholder: "Ketik jawabanmu (contoh: ayah dan ibu)...",
+                keywords: ["orang tua", "ayah", "ibu", "bapak", "mama", "papa"],
+                sampleAnswer: "orang tua (ayah dan ibu)",
+                explanation: "Jawaban yang tepat adalah orang tua / ayah dan ibu."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '2',
+                q: "Salah satu contoh aturan di rumah adalah merapikan .... setelah digunakan.",
+                placeholder: "Ketik benda yang dirapikan...",
+                keywords: ["mainan", "buku", "tempat tidur", "kasur", "alat tulis", "sepatu", "baju", "piring"],
+                sampleAnswer: "mainan / buku / tempat tidur",
+                explanation: "Setelah bermain atau belajar, kita harus merapikan mainan, buku, atau tempat tidur."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '3',
+                q: "Kita harus meminta .... jika ingin pergi ke luar rumah.",
+                placeholder: "Ketik kata yang tepat...",
+                keywords: ["izin", "ijin", "pamit"],
+                sampleAnswer: "izin",
+                explanation: "Kita wajib meminta izin atau berpamitan kepada orang tua sebelum keluar rumah."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '4',
+                q: "Menjaga kebersihan rumah adalah tanggung jawab .... keluarga.",
+                placeholder: "Ketik kata yang tepat...",
+                keywords: ["semua", "seluruh", "anggota"],
+                sampleAnswer: "semua / seluruh anggota",
+                explanation: "Menjaga kebersihan rumah adalah tanggung jawab semua anggota keluarga."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '5',
+                q: "Waktu tidur malam yang baik adalah sesuai aturan ....",
+                placeholder: "Ketik jawabanmu...",
+                keywords: ["orang tua", "ayah", "ibu", "keluarga", "rumah"],
+                sampleAnswer: "orang tua",
+                explanation: "Kita harus tidur malam tepat waktu sesuai aturan orang tua."
+            },
+
+            // === BAGIAN C: ESAI (1-5) ===
+            {
+                type: 'essay',
+                section: 'C. Esai',
+                numLabel: '1',
+                q: "Mengapa kita harus menaati aturan di rumah?",
+                placeholder: "Tulis alasanmu dengan kalimat sederhana...",
+                keywords: ["tertib", "rukun", "nyaman", "rapi", "damai", "bahagia", "disiplin"],
+                sampleAnswer: "Agar kehidupan di rumah menjadi tertib, rukun, rapi, dan nyaman.",
+                explanation: "Contoh jawaban benar: Agar keluarga hidup tertib, rukun, dan rumah menjadi nyaman."
+            },
+            {
+                type: 'essay',
+                section: 'C. Esai',
+                numLabel: '2',
+                q: "Apa yang akan terjadi jika kita tidak menaati aturan di rumah?",
+                placeholder: "Tulis akibat jika melanggar aturan...",
+                keywords: ["berantakan", "kacau", "ditegur", "dinasihati", "dimarahi", "tidak rukun", "bertengkar", "tidak nyaman"],
+                sampleAnswer: "Rumah menjadi berantakan, tidak nyaman, dan kita bisa ditegur orang tua.",
+                explanation: "Contoh jawaban benar: Rumah menjadi berantakan, suasana tidak nyaman, dan ditegur orang tua."
+            },
+            {
+                type: 'essay',
+                section: 'C. Esai',
+                numLabel: '3',
+                q: "Tuliskan dua contoh aturan yang berlaku di rumah!",
+                isDoubleInput: true,
+                keywords: ["makan", "tidur", "belajar", "izin", "pamit", "sampah", "rapi", "membersihkan", "menyapu", "cuci", "bantu", "sholat", "doa"],
+                sampleAnswer: "1. Mencuci tangan sebelum makan. 2. Merapikan mainan setelah bermain.",
+                explanation: "Contoh jawaban benar: 1) Merapikan tempat tidur/mainan, 2) Meminta izin saat keluar rumah."
+            },
+            {
+                type: 'essay',
+                section: 'C. Esai',
+                numLabel: '4',
+                q: "Apa yang kamu lakukan jika melihat anggota keluarga melanggar aturan?",
+                placeholder: "Tulis sikap baik yang kamu lakukan...",
+                keywords: ["nasihat", "nasehat", "ingatkan", "mengingatkan", "menegur", "baik", "sopan", "beri tahu", "kasih tahu"],
+                sampleAnswer: "Mengingatkan dan menasihatinya dengan bahasa yang baik dan sopan.",
+                explanation: "Contoh jawaban benar: Mengingatkan atau menasihatinya dengan baik dan sopan."
+            },
+            {
+                type: 'essay',
+                section: 'C. Esai',
+                numLabel: '5',
+                q: "Bagaimana cara kamu menjaga kebersihan rumah?",
+                placeholder: "Tulis cara menjaga kebersihan rumah...",
+                keywords: ["sapu", "menyapu", "pel", "mengepel", "sampah", "rapi", "merapikan", "bersih", "membersihkan", "cuci"],
+                sampleAnswer: "Membuang sampah pada tempatnya, menyapu lantai, dan merapikan mainan.",
+                explanation: "Contoh jawaban benar: Membuang sampah di tempat sampah, menyapu, dan merapikan barang."
+            }
+        ];
+
+        // State Aplikasi: menyimpan { value: any, isCorrect: boolean }
+        let currentIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let soundEnabled = true;
+        let studentName = "";
+        let studentClass = "";
+
+        // Audio Synthesizer menggunakan Tone.js
+        let synth;
+        function initAudio() {
+            if (!synth) {
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const now = Tone.now();
+                if (type === 'correct') {
+                    // Nada ceria naik (C5 - E5 - G5 - C6)
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.08);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.16);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.24);
+                } else if (type === 'wrong') {
+                    // Nada rendah lembut (E3 - C3)
+                    synth.triggerAttackRelease("E3", "8n", now);
+                    synth.triggerAttackRelease("C3", "4n", now + 0.15);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease("G4", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["C4", "E4", "G4", "C5"], "4n", now);
+                }
+            } catch (e) {
+                console.log("Audio error:", e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Efek Confetti
+        function triggerConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4']
+            });
+        }
+
+        // Modal Kustom
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // Mulai Kuis
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput) {
+                showModal("Nama Belum Diisi 😊", "Yuk, tulis nama lengkapmu dulu sebelum mulai bermain!");
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput || "1 SD";
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            renderDots();
+            renderQuestion();
+        }
+
+        // Hitung Skor (Skala 100)
+        // Hitung Skor (Skala 100 dari total 25 soal)
+        function calculateScore() {
+            let correctCount = 0;
+            userAnswers.forEach((ans) => {
+                if (ans && ans.isCorrect) {
+                    correctCount++;
+                }
+            });
+            return {
+                correct: correctCount,
+                points: Math.round((correctCount / questions.length) * 100)
+            };
+        }
+
+        function updateScoreUI(animate = false) {
+            const scoreData = calculateScore();
+            const scoreEl = document.getElementById('score-display');
+            scoreEl.innerText = scoreData.points;
+
+            if (animate) {
+                const starIcon = document.getElementById('star-icon');
+                starIcon.classList.remove('bounce-star');
+                void starIcon.offsetWidth; // trigger reflow
+                starIcon.classList.add('bounce-star');
+            }
+        }
+
+        // Render Indikator Titik Soal
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    currentIndex = idx;
+                    renderQuestion();
+                };
+                
+                let bgClass = 'bg-white/70 border-slate-300';
+                if (userAnswers[idx] !== null) {
+                    bgClass = userAnswers[idx].isCorrect 
+                        ? 'bg-emerald-400 border-emerald-500 text-white' 
+                        : 'bg-rose-400 border-rose-500 text-white';
+                }
+                if (idx === currentIndex) {
+                    bgClass += ' ring-2 ring-indigo-500 scale-125';
+                }
+
+                dot.className = `w-3 h-3 rounded-full border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `${q.section} - No. ${q.numLabel}`;
+                container.appendChild(dot);
+            });
+        }
+
+        // Render Kartu Soal
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const ansObj = userAnswers[currentIndex];
+            const isAnswered = ansObj !== null;
+
+            // Animasi kartu masuk
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-enter', 'shake');
+            void card.offsetWidth;
+            card.classList.add('card-enter');
+
+            // Update Badge Bagian, Nomor & Progress Bar
+            const sectionBadge = document.getElementById('section-badge');
+            sectionBadge.innerText = q.section;
+            if (q.type === 'mc') {
+                sectionBadge.className = "bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide";
+            } else if (q.type === 'short') {
+                sectionBadge.className = "bg-sky-100 text-sky-800 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide";
+            } else {
+                sectionBadge.className = "bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full text-xs uppercase tracking-wide";
+            }
+
+            document.getElementById('question-number').innerText = `No. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
+            const progressPercent = ((currentIndex + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            // Status Badge
+            const statusBadge = document.getElementById('status-badge');
+            if (isAnswered) {
+                statusBadge.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700";
+                    statusBadge.innerText = "✅ Benar";
+                } else {
+                    statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-700";
+                    statusBadge.innerText = "❌ Kurang Tepat";
+                }
+            } else {
+                statusBadge.classList.add('hidden');
+            }
+
+            // Teks Soal
+            document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
+
+            // Render Area Jawaban sesuai Tipe Soal
+            const answerArea = document.getElementById('answer-area');
+            answerArea.innerHTML = '';
+
+            if (q.type === 'mc') {
+                // === TIPE PILIHAN GANDA ===
+                const letters = ['a', 'b', 'c'];
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let btnStyle = "bg-slate-50 hover:bg-sky-50 border-slate-200 hover:border-sky-300 text-slate-700";
+                    let badgeStyle = "bg-white text-slate-600 border-slate-300";
+                    let iconRight = "";
+
+                    if (isAnswered) {
+                        if (idx === q.answer) {
+                            btnStyle = "bg-emerald-50 border-emerald-400 text-emerald-900 font-bold shadow-sm";
+                            badgeStyle = "bg-emerald-500 text-white border-emerald-500";
+                            iconRight = "✅";
+                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
+                            btnStyle = "bg-rose-50 border-rose-400 text-rose-900 font-semibold";
+                            badgeStyle = "bg-rose-500 text-white border-rose-500";
+                            iconRight = "❌";
+                        } else {
+                            btnStyle = "bg-slate-50/60 border-slate-200 text-slate-400 opacity-70";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between gap-3 ${btnStyle} ${!isAnswered ? 'cursor-pointer active:scale-[0.99]' : 'cursor-default'}`;
+                    
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3.5">
+                            <span class="w-9 h-9 rounded-xl border-2 flex items-center justify-center font-bold text-base shrink-0 uppercase ${badgeStyle}">
+                                ${letters[idx]}
+                            </span>
+                            <span class="text-base sm:text-lg">${optText}</span>
+                        </div>
+                        <span class="text-xl">${iconRight}</span>
+                    `;
+
+                    btn.onclick = () => submitMCAnswer(idx);
+                    answerArea.appendChild(btn);
+                });
+
+            } else if (q.type === 'short') {
+                // === TIPE ISIAN SINGKAT ===
+                const savedText = isAnswered ? ansObj.value : '';
+                answerArea.innerHTML = `
+                    <div class="space-y-3">
+                        <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
+                            placeholder="${q.placeholder}"
+                            onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                            class="w-full px-4 py-3.5 rounded-2xl border-2 ${isAnswered ? (ansObj.isCorrect ? 'border-emerald-400 bg-emerald-50 text-emerald-900' : 'border-rose-400 bg-rose-50 text-rose-900') : 'border-slate-300 focus:border-sky-400 bg-slate-50'} focus:outline-none text-lg font-medium transition">
+                        ${!isAnswered ? `
+                            <button onclick="submitTextAnswer()" class="w-full sm:w-auto px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl shadow-md transition cursor-pointer">
+                                ✔️ Cek Jawaban
+                            </button>
+                        ` : `
+                            <div class="text-sm font-semibold text-slate-600 bg-slate-100 px-4 py-2.5 rounded-xl">
+                                📌 Kunci Jawaban: <span class="text-emerald-700 font-bold">${q.sampleAnswer}</span>
+                            </div>
+                        `}
+                    </div>
+                `;
+                if (!isAnswered) {
+                    setTimeout(() => document.getElementById('short-input')?.focus(), 100);
+                }
+
+            } else if (q.type === 'essay') {
+                // === TIPE ESAI ===
+                if (q.isDoubleInput) {
+                    const val1 = isAnswered ? ansObj.value[0] : '';
+                    const val2 = isAnswered ? ansObj.value[1] : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-500">1.</span>
+                                <input type="text" id="essay-input-1" value="${val1}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="Contoh aturan pertama..."
+                                    class="w-full px-4 py-3 rounded-2xl border-2 ${isAnswered ? (ansObj.isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-rose-400 bg-rose-50') : 'border-slate-300 focus:border-purple-400 bg-slate-50'} focus:outline-none text-base font-medium">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-500">2.</span>
+                                <input type="text" id="essay-input-2" value="${val2}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="Contoh aturan kedua..."
+                                    onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                                    class="w-full px-4 py-3 rounded-2xl border-2 ${isAnswered ? (ansObj.isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-rose-400 bg-rose-50') : 'border-slate-300 focus:border-purple-400 bg-slate-50'} focus:outline-none text-base font-medium">
+                            </div>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="w-full sm:w-auto px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-md transition cursor-pointer">
+                                    ✔️ Kirim Jawaban
+                                </button>
+                            ` : `
+                                <div class="text-sm font-semibold text-slate-600 bg-slate-100 px-4 py-2.5 rounded-xl">
+                                    📌 Contoh Jawaban Benar: <span class="text-emerald-700 font-bold">${q.sampleAnswer}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else {
+                    const savedEssay = isAnswered ? ansObj.value : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${q.placeholder}"
+                                class="w-full px-4 py-3 rounded-2xl border-2 ${isAnswered ? (ansObj.isCorrect ? 'border-emerald-400 bg-emerald-50 text-emerald-900' : 'border-rose-400 bg-rose-50 text-rose-900') : 'border-slate-300 focus:border-purple-400 bg-slate-50'} focus:outline-none text-base font-medium transition">${savedEssay}</textarea>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="w-full sm:w-auto px-6 py-3 bg-purple-500 hover:bg-purple-600 text-white font-bold rounded-xl shadow-md transition cursor-pointer">
+                                    ✔️ Kirim Jawaban
+                                </button>
+                            ` : `
+                                <div class="text-sm font-semibold text-slate-600 bg-slate-100 px-4 py-2.5 rounded-xl">
+                                    📌 Contoh Jawaban Benar: <span class="text-emerald-700 font-bold">${q.sampleAnswer}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }
+            }
+
+            // Render Feedback Box jika sudah dijawab
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                feedbackBox.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    feedbackBox.className = "mt-6 p-4 rounded-2xl border-2 bg-emerald-50 border-emerald-200 text-emerald-800 flex items-start gap-3";
+                    document.getElementById('feedback-emoji').innerText = "🎉";
+                    document.getElementById('feedback-title').innerText = "Hore! Jawabanmu Hebat!";
+                } else {
+                    feedbackBox.className = "mt-6 p-4 rounded-2xl border-2 bg-amber-50 border-amber-200 text-amber-900 flex items-start gap-3";
+                    document.getElementById('feedback-emoji').innerText = "💡";
+                    document.getElementById('feedback-title').innerText = "Yuk Belajar Lagi!";
+                }
+                document.getElementById('feedback-desc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Update Tombol Prev & Next
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerHTML = "Selesai & Lihat Skor 🏆";
+                nextBtn.className = "flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-bold rounded-2xl shadow-lg shadow-orange-200 transition flex items-center justify-center gap-2";
+            } else {
+                nextBtn.innerHTML = "Selanjutnya ➡️";
+                nextBtn.className = "flex-1 sm:flex-none px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-200 transition flex items-center justify-center gap-2";
+            }
+
+            renderDots();
+        }
+
+        // Proses Hasil Jawaban (Suara, Confetti, Skor)
+        function finalizeAnswer(value, isCorrect) {
+            userAnswers[currentIndex] = { value, isCorrect };
+
+            if (isCorrect) {
+                playSound('correct');
+                triggerConfetti();
+                updateScoreUI(true);
+            } else {
+                playSound('wrong');
+                const card = document.getElementById('question-card');
+                card.classList.add('shake');
+                updateScoreUI(false);
+            }
+
+            renderQuestion();
+        }
+
+        // Submit Pilihan Ganda
+        function submitMCAnswer(selectedIndex) {
+            if (userAnswers[currentIndex] !== null) return;
+            const isCorrect = selectedIndex === questions[currentIndex].answer;
+            finalizeAnswer(selectedIndex, isCorrect);
+        }
+
+        // Submit Isian Singkat & Esai
+        function submitTextAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            const q = questions[currentIndex];
+
+            if (q.isDoubleInput) {
+                const v1 = document.getElementById('essay-input-1').value.trim();
+                const v2 = document.getElementById('essay-input-2').value.trim();
+                if (!v1 || !v2) {
+                    showModal("Belum Lengkap 📝", "Isi kedua contoh aturan di rumah terlebih dahulu ya!");
+                    return;
+                }
+                const combined = (v1 + " " + v2).toLowerCase();
+                const isCorrect = q.keywords.some(kw => combined.includes(kw));
+                finalizeAnswer([v1, v2], isCorrect);
+            } else {
+                const inputEl = q.type === 'short' ? document.getElementById('short-input') : document.getElementById('essay-input');
+                const rawVal = inputEl.value.trim();
+                if (!rawVal) {
+                    showModal("Jawaban Kosong ✏️", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
+                    return;
+                }
+                const lowerVal = rawVal.toLowerCase();
+                const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
+                finalizeAnswer(rawVal, isCorrect);
+            }
+        }
+
+        // Navigasi Next & Prev
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                playSound('click');
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                // Cek apakah semua soal sudah dijawab
+                const unansweredIndex = userAnswers.findIndex(ans => ans === null);
+                if (unansweredIndex !== -1) {
+                    const missingQ = questions[unansweredIndex];
+                    showModal(
+                        "Ada Soal yang Terlewat! 📝", 
+                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu jawab. Yuk, kita lengkapi dulu!`
+                    );
+                    currentIndex = unansweredIndex;
+                    renderQuestion();
+                    return;
+                }
+                showResultScreen();
+            }
+        }
+
+        // Layar Hasil Akhir
+        function showResultScreen() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const scoreData = calculateScore();
+            document.getElementById('result-student-info').innerText = `${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-score').innerText = scoreData.points;
+            document.getElementById('final-stats').innerText = `Menjawab benar ${scoreData.correct} dari ${questions.length} soal`;
+
+            let msg = "";
+            if (scoreData.points === 100) {
+                msg = "Sempurna! Kamu bintang kelas yang selalu menaati aturan di rumah! 🌟🏆";
+                triggerConfetti();
+                setTimeout(triggerConfetti, 500);
+            } else if (scoreData.points >= 80) {
+                msg = "Hebat sekali! Pemahamanmu tentang aturan di rumah sudah sangat baik! 👏😊";
+                triggerConfetti();
+            } else if (scoreData.points >= 60) {
+                msg = "Bagus! Terus berlatih lagi ya agar nilaimu semakin tinggi! 💪📚";
+            } else {
+                msg = "Jangan menyerah! Ayo coba main lagi dan baca soalnya dengan teliti ya! 🌈✨";
+            }
+            document.getElementById('result-message').innerText = msg;
+            playSound('finish');
+        }
+
+        // Lihat Kembali Jawaban
+        function reviewQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentIndex = 0;
+            renderQuestion();
+        }
+
+        // Ulangi Kuis dari Awal
+        function restartQuiz() {
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            updateScoreUI(false);
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            playSound('click');
+            renderQuestion();
+        }
+    </script>
+</body>
+</html>
