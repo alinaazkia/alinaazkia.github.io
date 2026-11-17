@@ -9,11 +9,8 @@
     <meta name="apple-mobile-web-app-title" content="Minecraft Literasi SD">
     <title>Minecraft Quiz: Literasi Digital Kelas 1 SD</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- Tone.js for 8-Bit Chiptune Sound Effects -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Google Fonts: VT323 / Silkscreen & Fredoka untuk keterbacaan anak SD -->
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -32,14 +29,11 @@
             font-family: 'Fredoka', sans-serif;
             min-height: 100vh;
             user-select: none;
-            /* Latar belakang langit & blok tanah Minecraft dengan pola piksel CSS murni */
             background-color: #78A7FF;
             background-image: 
-                /* Awan piksel */
                 radial-gradient(circle at 20% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 6%, transparent 6.5%),
                 radial-gradient(circle at 25% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 8%, transparent 8.5%),
                 radial-gradient(circle at 80% 22%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 7%, transparent 7.5%),
-                /* Gradasi langit ke cakrawala */
                 linear-gradient(180deg, #639BFF 0%, #99C2FF 65%, #5D9C42 65%, #4A8233 70%, #866043 70%, #6B4B33 100%);
             background-attachment: fixed;
         }
@@ -49,7 +43,6 @@
             letter-spacing: -0.5px;
         }
 
-        /* Pola Tekstur Blok Tanah & Rumput untuk Kartu */
         .mc-panel {
             background-color: #C6C6C6;
             border: 4px solid #1E1E1E;
@@ -70,7 +63,6 @@
             border-bottom: 4px solid #3B281A;
         }
 
-        /* Tombol Klasik Minecraft (3D Bevel) */
         .mc-btn {
             font-family: 'Silkscreen', monospace;
             background-color: #7D7D7D;
@@ -106,7 +98,6 @@
             cursor: not-allowed;
         }
 
-        /* Tombol Hijau Rumput / Emerald */
         .mc-btn-green {
             background-color: #5D9C42;
             box-shadow: 
@@ -123,7 +114,6 @@
                 0 4px 0px #1E1E1E;
         }
 
-        /* Tombol Emas / Gold Block */
         .mc-btn-gold {
             background-color: #EAB308;
             color: #1E1E1E;
@@ -138,7 +128,14 @@
             background-color: #FACC15;
         }
 
-        /* Slot Inventory / Pilihan Jawaban */
+        .mc-btn-red {
+            background-color: #C93838;
+            box-shadow: 
+                inset 3px 3px 0px #F27979,
+                inset -3px -3px 0px #7A1C1C,
+                0 4px 0px #1E1E1E;
+        }
+
         .mc-slot {
             background-color: #8B8B8B;
             border: 3px solid #1E1E1E;
@@ -178,7 +175,6 @@
                 inset -3px -3px 0px #7A1C1C !important;
         }
 
-        /* Input Kotak Minecraft */
         .mc-input {
             background-color: #1E1E1E;
             color: #FFFFFF;
@@ -192,7 +188,6 @@
             outline: none;
         }
 
-        /* Animasi Kartu */
         .card-enter {
             animation: popBlock 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
@@ -216,12 +211,9 @@
 </head>
 <body class="flex flex-col items-center justify-center p-3 sm:p-6">
 
-    <!-- Container Utama -->
     <div id="app" class="w-full max-w-2xl">
         
-        <!-- LAYAR MULAI (START SCREEN) -->
         <div id="start-screen" class="mc-panel overflow-hidden card-enter">
-            <!-- Header Blok Rumput & Tanah -->
             <div class="mc-dirt-header p-6 text-center text-white">
                 <div class="inline-block bg-black/50 border-2 border-emerald-400 text-emerald-300 font-mc px-3 py-1 text-xs sm:text-sm mb-3">
                     ⛏️ LKPD LITERASI DIGITAL KELAS 1 SD ⛏️
@@ -232,23 +224,35 @@
             </div>
 
             <div class="p-6 sm:p-8 text-center">
-                <!-- Karakter Piksel SVG -->
+                <div id="saved-progress-banner" class="hidden bg-[#1E1E1E] border-4 border-emerald-500 p-4 mb-6 text-left shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="font-mc text-xs text-emerald-400 block">💾 PROGRES TERSIMPAN (1 MINGGU):</span>
+                            <p id="saved-progress-info" class="text-white font-bold text-base mt-0.5"></p>
+                            <p id="saved-progress-detail" class="text-slate-300 text-xs mt-0.5"></p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="resumeSavedQuiz()" class="mc-btn mc-btn-gold px-4 py-2.5 text-xs cursor-pointer">
+                                ▶ LANJUTKAN
+                            </button>
+                            <button onclick="discardSavedQuiz()" class="mc-btn mc-btn-red px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="w-28 h-28 mx-auto mb-5 bg-[#8B8B8B] border-4 border-[#1E1E1E] shadow-[inset_4px_4px_0_#373737,inset_-4px_-4px_0_#FFF] flex items-center justify-center">
-                    <!-- Wajah karakter piksel ramah anak -->
                     <svg viewBox="0 0 16 16" class="w-20 h-20" shape-rendering="crispEdges">
-                        <!-- Rambut -->
                         <rect x="2" y="1" width="12" height="3" fill="#4A2E1B"/>
                         <rect x="2" y="4" width="2" height="2" fill="#4A2E1B"/>
                         <rect x="12" y="4" width="2" height="2" fill="#4A2E1B"/>
-                        <!-- Wajah -->
                         <rect x="2" y="4" width="12" height="10" fill="#F5C29B"/>
                         <rect x="4" y="4" width="8" height="2" fill="#F5C29B"/>
-                        <!-- Mata -->
                         <rect x="4" y="7" width="2" height="2" fill="#FFFFFF"/>
                         <rect x="5" y="7" width="1" height="2" fill="#3B82F6"/>
                         <rect x="10" y="7" width="2" height="2" fill="#FFFFFF"/>
                         <rect x="10" y="7" width="1" height="2" fill="#3B82F6"/>
-                        <!-- Mulut Senyum -->
                         <rect x="6" y="11" width="4" height="1" fill="#866043"/>
                         <rect x="5" y="10" width="1" height="1" fill="#866043"/>
                         <rect x="10" y="10" width="1" height="1" fill="#866043"/>
@@ -276,7 +280,6 @@
                     ▶ MULAI PETUALANGAN
                 </button>
 
-                <!-- Tombol Install PWA -->
                 <div id="pwa-install-container" class="hidden mt-4">
                     <button id="pwa-install-btn" onclick="installPWA()" 
                         class="mc-btn mc-btn-gold w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
@@ -286,10 +289,8 @@
             </div>
         </div>
 
-        <!-- LAYAR KUIS (QUIZ SCREEN) -->
         <div id="quiz-screen" class="hidden space-y-4">
             
-            <!-- HUD Top Bar ala Minecraft -->
             <div class="mc-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-11 h-11 bg-[#5D9C42] border-2 border-[#1E1E1E] flex items-center justify-center text-2xl shadow-inner">
@@ -297,14 +298,15 @@
                     </div>
                     <div>
                         <p id="display-name" class="font-bold text-slate-900 leading-tight text-base">Pemain 1</p>
-                        <p id="display-class" class="font-mc text-xs text-slate-700">Kelas 1 SD</p>
+                        <div class="flex items-center gap-2">
+                            <p id="display-class" class="font-mc text-xs text-slate-700">Kelas 1 SD</p>
+                            <span id="save-indicator" class="font-mc text-[10px] text-emerald-800 bg-emerald-200 px-1.5 py-0.5 border border-emerald-600">💾 TERSIMPAN</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Papan Emerald Skor & Suara -->
                 <div class="flex items-center gap-3">
                     <div class="bg-[#1E1E1E] border-2 border-[#555555] px-3.5 py-1.5 flex items-center gap-2.5">
-                        <!-- Ikon Emerald SVG -->
                         <svg viewBox="0 0 16 16" class="w-6 h-6" shape-rendering="crispEdges">
                             <rect x="5" y="2" width="6" height="12" fill="#17DD62"/>
                             <rect x="4" y="4" width="8" height="8" fill="#17DD62"/>
@@ -322,14 +324,11 @@
                 </div>
             </div>
 
-            <!-- XP Bar Minecraft -->
             <div class="bg-[#1E1E1E] border-2 border-[#1E1E1E] h-4 p-0.5 shadow-md">
                 <div id="progress-bar" class="bg-[#80FF20] h-full transition-all duration-300 shadow-[inset_0_-2px_0_#3E8A08]" style="width: 4%"></div>
             </div>
 
-            <!-- Kartu Soal Utama -->
             <div id="question-card" class="mc-panel overflow-hidden">
-                <!-- Header Kategori Soal -->
                 <div class="mc-dirt-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
                     <div class="flex items-center gap-2">
                         <span id="section-badge" class="bg-black/60 text-yellow-300 font-mc px-2.5 py-1 text-xs border border-yellow-400/50">
@@ -342,16 +341,13 @@
                     <span id="status-badge" class="hidden font-mc px-2.5 py-1 text-xs border-2 border-black"></span>
                 </div>
 
-                <!-- Isi Pertanyaan & Jawaban -->
                 <div class="p-5 sm:p-7">
                     <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-900 mb-5 leading-snug">
                         Memuat soal...
                     </h2>
 
-                    <!-- Wadah Jawaban Dinamis -->
                     <div id="answer-area" class="space-y-3"></div>
 
-                    <!-- Feedback Box ala Notifikasi Achievement Minecraft -->
                     <div id="feedback-box" class="hidden mt-6 bg-[#212121] border-4 border-[#555555] p-4 text-white flex items-start gap-3.5 shadow-lg">
                         <span id="feedback-emoji" class="text-3xl shrink-0">💎</span>
                         <div>
@@ -362,14 +358,12 @@
                 </div>
             </div>
 
-            <!-- Navigasi Hotbar Next & Prev -->
             <div class="flex items-center justify-between gap-3 pt-1">
                 <button id="prev-btn" onclick="prevQuestion()" 
                     class="mc-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
                     ◀ PREV
                 </button>
 
-                <!-- Indikator Kotak Soal (Desktop) -->
                 <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-black/40 p-1.5 border-2 border-[#1E1E1E]"></div>
 
                 <button id="next-btn" onclick="nextQuestion()" 
@@ -379,7 +373,6 @@
             </div>
         </div>
 
-        <!-- LAYAR HASIL AKHIR & PESAN PENTING -->
         <div id="result-screen" class="hidden mc-panel overflow-hidden card-enter">
             <div class="mc-dirt-header p-6 text-center text-white">
                 <div class="text-5xl mb-2 animate-bounce">🏆</div>
@@ -390,7 +383,6 @@
             </div>
 
             <div class="p-6 sm:p-8 text-center">
-                <!-- Papan Skor Akhir -->
                 <div class="bg-[#1E1E1E] border-4 border-[#555555] p-5 mb-6 max-w-sm mx-auto">
                     <p class="font-mc text-xs text-emerald-400 mb-1">TOTAL EMERALD SKOR</p>
                     <div id="final-score" class="font-mc text-5xl sm:text-6xl text-yellow-300 my-2">100</div>
@@ -399,7 +391,6 @@
 
                 <p id="result-message" class="text-lg font-bold text-slate-800 mb-6 max-w-md mx-auto"></p>
 
-                <!-- Kotak Pesan Penting dari LKPD -->
                 <div class="bg-[#FEF9C3] border-4 border-[#CA8A04] p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
                     <h3 class="font-mc text-sm text-amber-900 mb-2.5 flex items-center gap-2">
                         📜 PESAN PENTING UNTUKMU:
@@ -425,7 +416,6 @@
 
     </div>
 
-    <!-- Modal Peringatan Kustom Minecraft -->
     <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
         <div class="mc-panel p-6 max-w-sm w-full text-center card-enter">
             <div class="text-4xl mb-2">⚠️</div>
@@ -438,9 +428,10 @@
     </div>
 
     <script>
-        // === DATA LENGKAP 25 SOAL LKPD LITERASI DIGITAL KELAS 1 SD ===
+        const STORAGE_KEY = 'mc_literasi_sd1_state_v1';
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
         const questions = [
-            // --- A. PILIHAN GANDA (1-5) ---
             {
                 type: 'mc',
                 section: 'A. PILIHAN GANDA',
@@ -486,8 +477,6 @@
                 answer: 0,
                 explanation: "Menatap layar terlalu lama membuat mata lelah, perih, dan berair."
             },
-
-            // --- B. PILIHAN GANDA KOMPLEKS (6-10) ---
             {
                 type: 'mc_complex',
                 section: 'B. PILIHAN GANDA KOMPLEKS',
@@ -553,8 +542,6 @@
                 answers: [0, 2],
                 explanation: "Jaga jarak pandang yang aman dan istirahatkan mata agar mata tetap sehat."
             },
-
-            // --- C. ISIAN SINGKAT (11-15) ---
             {
                 type: 'short',
                 section: 'C. ISIAN SINGKAT',
@@ -605,8 +592,6 @@
                 sampleAnswer: "kebutuhan",
                 explanation: "Menggunakan gadget sesuai kebutuhan dan aturan orang tua adalah tanda anak yang bijak."
             },
-
-            // --- D. MENJODOHKAN (16-20) ---
             {
                 type: 'match',
                 section: 'D. MENJODOHKAN',
@@ -621,7 +606,7 @@
                     "d. Alat untuk bermain game.",
                     "e. Alat untuk berkomunikasi jarak jauh."
                 ],
-                answer: 4, // e
+                answer: 4,
                 explanation: "HP digunakan sebagai alat untuk berkomunikasi jarak jauh (menelepon atau berkirim pesan)."
             },
             {
@@ -638,7 +623,7 @@
                     "d. Alat untuk bermain game.",
                     "e. Alat untuk berkomunikasi jarak jauh."
                 ],
-                answer: 0, // a
+                answer: 0,
                 explanation: "Laptop adalah komputer jinjing yang biasa digunakan untuk belajar, mengetik, dan mencari informasi."
             },
             {
@@ -655,7 +640,7 @@
                     "d. Alat untuk bermain game.",
                     "e. Alat untuk berkomunikasi jarak jauh."
                 ],
-                answer: 1, // b
+                answer: 1,
                 explanation: "Televisi berfungsi untuk menonton tayangan video, film anak, dan berita."
             },
             {
@@ -672,7 +657,7 @@
                     "d. Alat untuk bermain game.",
                     "e. Alat untuk berkomunikasi jarak jauh."
                 ],
-                answer: 2, // c
+                answer: 2,
                 explanation: "Headphone dipasang di telinga untuk mendengarkan musik atau suara dengan jelas."
             },
             {
@@ -689,11 +674,9 @@
                     "d. Alat untuk bermain game.",
                     "e. Alat untuk berkomunikasi jarak jauh."
                 ],
-                answer: 3, // d
+                answer: 3,
                 explanation: "Game controller (stik game) adalah alat untuk mengendalikan permainan saat bermain game."
             },
-
-            // --- E. ESAI (21-25) ---
             {
                 type: 'essay',
                 section: 'E. ESAI',
@@ -746,20 +729,121 @@
             }
         ];
 
-        // State Aplikasi
         let currentIndex = 0;
         let userAnswers = new Array(questions.length).fill(null);
-        let tempComplexSelection = []; // Menyimpan pilihan sementara untuk Pilihan Ganda Kompleks
+        let tempComplexSelection = [];
         let soundEnabled = true;
         let studentName = "";
         let studentClass = "";
+        let isQuizCompleted = false;
 
-        // === AUDIO 8-BIT CHIPTUNE (TONE.JS) ===
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function saveQuizState() {
+            if (isQuizCompleted) return;
+            try {
+                const payload = {
+                    studentName,
+                    studentClass,
+                    currentIndex,
+                    userAnswers,
+                    savedAt: Date.now(),
+                    expiresAt: Date.now() + ONE_WEEK_MS
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) {
+                    indicator.innerText = '💾 TERSIMPAN';
+                }
+            } catch (e) {}
+        }
+
+        function loadQuizState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || !data.expiresAt || Date.now() > data.expiresAt) {
+                    clearQuizState();
+                    return null;
+                }
+                if (!Array.isArray(data.userAnswers) || data.userAnswers.length !== questions.length) {
+                    clearQuizState();
+                    return null;
+                }
+                return data;
+            } catch (e) {
+                clearQuizState();
+                return null;
+            }
+        }
+
+        function clearQuizState() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+        }
+
+        function checkSavedProgressOnLoad() {
+            const saved = loadQuizState();
+            const banner = document.getElementById('saved-progress-banner');
+            if (!saved) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            const answeredCount = saved.userAnswers.filter(a => a !== null).length;
+            const daysLeft = Math.max(1, Math.ceil((saved.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+
+            document.getElementById('saved-progress-info').innerText = `${saved.studentName} (${saved.studentClass})`;
+            document.getElementById('saved-progress-detail').innerText = `Terjawab ${answeredCount}/${questions.length} soal • Kartu No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
+            document.getElementById('student-name').value = saved.studentName;
+            document.getElementById('student-class').value = saved.studentClass;
+            banner.classList.remove('hidden');
+        }
+
+        function resumeSavedQuiz() {
+            const saved = loadQuizState();
+            if (!saved) {
+                checkSavedProgressOnLoad();
+                return;
+            }
+            studentName = saved.studentName;
+            studentClass = saved.studentClass;
+            userAnswers = saved.userAnswers;
+            currentIndex = saved.currentIndex || 0;
+            tempComplexSelection = [];
+            isQuizCompleted = false;
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function discardSavedQuiz() {
+            clearQuizState();
+            document.getElementById('saved-progress-banner').classList.add('hidden');
+            document.getElementById('student-name').value = '';
+            playSound('click');
+        }
+
         let synth;
         function initAudio() {
-            if (!synth) {
+            if (!synth && typeof Tone !== 'undefined') {
                 synth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: "square" }, // Gelombang kotak khas game retro/8-bit
+                    oscillator: { type: "square" },
                     envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
                 }).toDestination();
                 synth.volume.value = -10;
@@ -770,20 +854,18 @@
             if (!soundEnabled) return;
             try {
                 initAudio();
+                if (!synth) return;
                 if (Tone.context.state !== 'running') Tone.start();
                 const now = Tone.now();
                 if (type === 'correct') {
-                    // Efek suara XP Orb / Level Up
                     synth.triggerAttackRelease("E5", "16n", now);
                     synth.triggerAttackRelease("G5", "16n", now + 0.07);
                     synth.triggerAttackRelease("E6", "16n", now + 0.14);
                     synth.triggerAttackRelease("C6", "8n", now + 0.21);
                 } else if (type === 'wrong') {
-                    // Efek suara blok pecah / gagal
                     synth.triggerAttackRelease("G3", "16n", now);
                     synth.triggerAttackRelease("D3", "8n", now + 0.1);
                 } else if (type === 'click') {
-                    // Efek suara klik menu Minecraft
                     synth.triggerAttackRelease("C5", "32n", now);
                 } else if (type === 'finish') {
                     synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now);
@@ -796,18 +878,18 @@
             document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
         }
 
-        // Efek Confetti Kotak Piksel Minecraft
         function triggerConfetti() {
-            confetti({
-                particleCount: 75,
-                spread: 75,
-                origin: { y: 0.6 },
-                shapes: ['square'], // Kotak piksel!
-                colors: ['#17DD62', '#FCEE4B', '#5D9C42', '#38BDF8', '#FFFFFF']
-            });
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 75,
+                    spread: 75,
+                    origin: { y: 0.6 },
+                    shapes: ['square'],
+                    colors: ['#17DD62', '#FCEE4B', '#5D9C42', '#38BDF8', '#FFFFFF']
+                });
+            }
         }
 
-        // Modal Kustom
         function showModal(title, text) {
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-text').innerText = text;
@@ -818,7 +900,6 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // Mulai Kuis
         function startQuiz() {
             const nameInput = document.getElementById('student-name').value.trim();
             const classInput = document.getElementById('student-class').value.trim();
@@ -830,6 +911,12 @@
 
             studentName = nameInput;
             studentClass = classInput || "1 SD";
+            userAnswers = new Array(questions.length).fill(null);
+            tempComplexSelection = [];
+            currentIndex = 0;
+            isQuizCompleted = false;
+
+            saveQuizState();
 
             document.getElementById('display-name').innerText = studentName;
             document.getElementById('display-class').innerText = "Kelas " + studentClass;
@@ -838,11 +925,11 @@
             document.getElementById('quiz-screen').classList.remove('hidden');
 
             playSound('click');
+            updateScoreUI();
             renderDots();
             renderQuestion();
         }
 
-        // Hitung Skor (Skala 100 dari 25 soal)
         function calculateScore() {
             let correctCount = 0;
             userAnswers.forEach(ans => {
@@ -859,7 +946,6 @@
             document.getElementById('score-display').innerText = scoreData.points;
         }
 
-        // Render Indikator Kotak Soal
         function renderDots() {
             const container = document.getElementById('dots-container');
             container.innerHTML = '';
@@ -868,6 +954,7 @@
                 dot.onclick = () => {
                     tempComplexSelection = [];
                     currentIndex = idx;
+                    saveQuizState();
                     renderQuestion();
                 };
                 
@@ -887,7 +974,6 @@
             });
         }
 
-        // Render Kartu Soal
         function renderQuestion() {
             const q = questions[currentIndex];
             const ansObj = userAnswers[currentIndex];
@@ -902,7 +988,6 @@
             document.getElementById('question-number').innerText = `NO. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
             document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
 
-            // Status Badge
             const statusBadge = document.getElementById('status-badge');
             if (isAnswered) {
                 statusBadge.classList.remove('hidden');
@@ -923,7 +1008,6 @@
             answerArea.innerHTML = '';
 
             if (q.type === 'mc') {
-                // === A. PILIHAN GANDA ===
                 const letters = ['a', 'b', 'c'];
                 q.options.forEach((optText, idx) => {
                     const btn = document.createElement('button');
@@ -950,7 +1034,7 @@
                             <span class="font-mc w-9 h-9 bg-black/40 border-2 border-black flex items-center justify-center text-yellow-300 text-base shrink-0 uppercase">
                                 ${letters[idx]}
                             </span>
-                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${escapeHTML(optText)}</span>
                         </div>
                         <span class="text-xl">${iconRight}</span>
                     `;
@@ -959,7 +1043,6 @@
                 });
 
             } else if (q.type === 'mc_complex') {
-                // === B. PILIHAN GANDA KOMPLEKS (CENTANG 2 JAWABAN) ===
                 const selectedList = isAnswered ? ansObj.value : tempComplexSelection;
 
                 q.options.forEach((optText, idx) => {
@@ -991,7 +1074,7 @@
                             <span class="font-mc w-9 h-9 bg-black/50 border-2 border-black flex items-center justify-center text-emerald-300 text-lg shrink-0">
                                 ${checkSymbol}
                             </span>
-                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${escapeHTML(optText)}</span>
                         </div>
                         <span class="text-xl">${rightBadge}</span>
                     `;
@@ -1008,13 +1091,12 @@
                 }
 
             } else if (q.type === 'match') {
-                // === D. MENJODOHKAN ===
                 answerArea.innerHTML = `
                     <div class="bg-[#1E1E1E] border-2 border-[#555555] p-3.5 mb-3 flex items-center gap-3 text-white">
                         <span class="text-3xl">${q.deviceIcon}</span>
                         <div>
                             <span class="font-mc text-[10px] text-emerald-400 block">NAMA ALAT:</span>
-                            <span class="font-bold text-lg text-yellow-300">${q.deviceName}</span>
+                            <span class="font-bold text-lg text-yellow-300">${escapeHTML(q.deviceName)}</span>
                         </div>
                     </div>
                 `;
@@ -1039,7 +1121,7 @@
 
                     btn.className = `w-full text-left p-3 sm:p-3.5 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
                     btn.innerHTML = `
-                        <span class="text-base font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                        <span class="text-base font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${escapeHTML(optText)}</span>
                         <span class="text-xl">${iconRight}</span>
                     `;
                     btn.onclick = () => submitMCAnswer(idx);
@@ -1047,12 +1129,11 @@
                 });
 
             } else if (q.type === 'short') {
-                // === C. ISIAN SINGKAT ===
-                const savedText = isAnswered ? ansObj.value : '';
+                const savedText = isAnswered ? escapeHTML(ansObj.value) : '';
                 answerArea.innerHTML = `
                     <div class="space-y-3">
                         <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
-                            placeholder="${q.placeholder}"
+                            placeholder="${escapeHTML(q.placeholder)}"
                             onkeydown="if(event.key === 'Enter') submitTextAnswer()"
                             class="mc-input w-full px-4 py-3.5 text-lg font-medium">
                         ${!isAnswered ? `
@@ -1061,7 +1142,7 @@
                             </button>
                         ` : `
                             <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                📌 Kunci Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                                📌 Kunci Jawaban: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
                             </div>
                         `}
                     </div>
@@ -1069,10 +1150,9 @@
                 if (!isAnswered) setTimeout(() => document.getElementById('short-input')?.focus(), 100);
 
             } else if (q.type === 'essay') {
-                // === E. ESAI ===
                 if (q.isDoubleInput) {
-                    const val1 = isAnswered ? ansObj.value[0] : '';
-                    const val2 = isAnswered ? ansObj.value[1] : '';
+                    const val1 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[0]) : '';
+                    const val2 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[1]) : '';
                     answerArea.innerHTML = `
                         <div class="space-y-3">
                             <div class="flex items-center gap-2">
@@ -1094,17 +1174,17 @@
                                 </button>
                             ` : `
                                 <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
                                 </div>
                             `}
                         </div>
                     `;
                 } else {
-                    const savedEssay = isAnswered ? ansObj.value : '';
+                    const savedEssay = isAnswered ? escapeHTML(ansObj.value) : '';
                     answerArea.innerHTML = `
                         <div class="space-y-3">
                             <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
-                                placeholder="${q.placeholder}"
+                                placeholder="${escapeHTML(q.placeholder)}"
                                 class="mc-input w-full px-4 py-3 text-base">${savedEssay}</textarea>
                             ${!isAnswered ? `
                                 <button onclick="submitTextAnswer()" class="mc-btn mc-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
@@ -1112,7 +1192,7 @@
                                 </button>
                             ` : `
                                 <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
                                 </div>
                             `}
                         </div>
@@ -1120,7 +1200,6 @@
                 }
             }
 
-            // Render Achievement Feedback Box
             const feedbackBox = document.getElementById('feedback-box');
             if (isAnswered) {
                 feedbackBox.classList.remove('hidden');
@@ -1136,7 +1215,6 @@
                 feedbackBox.classList.add('hidden');
             }
 
-            // Update Tombol Prev & Next
             document.getElementById('prev-btn').disabled = currentIndex === 0;
             const nextBtn = document.getElementById('next-btn');
             if (currentIndex === questions.length - 1) {
@@ -1150,9 +1228,9 @@
             renderDots();
         }
 
-        // Proses Hasil Jawaban
         function finalizeAnswer(value, isCorrect) {
             userAnswers[currentIndex] = { value, isCorrect };
+            saveQuizState();
             if (isCorrect) {
                 playSound('correct');
                 triggerConfetti();
@@ -1164,14 +1242,12 @@
             renderQuestion();
         }
 
-        // Submit Pilihan Ganda & Menjodohkan
         function submitMCAnswer(selectedIndex) {
             if (userAnswers[currentIndex] !== null) return;
             const isCorrect = selectedIndex === questions[currentIndex].answer;
             finalizeAnswer(selectedIndex, isCorrect);
         }
 
-        // Toggle & Submit Pilihan Ganda Kompleks
         function toggleComplexOption(idx) {
             if (userAnswers[currentIndex] !== null) return;
             playSound('click');
@@ -1180,7 +1256,7 @@
                 tempComplexSelection.splice(pos, 1);
             } else {
                 if (tempComplexSelection.length >= 2) {
-                    tempComplexSelection.shift(); // Maksimal 2 kotak centang
+                    tempComplexSelection.shift();
                 }
                 tempComplexSelection.push(idx);
             }
@@ -1200,7 +1276,6 @@
             finalizeAnswer(chosen, isCorrect);
         }
 
-        // Submit Isian Singkat & Esai
         function submitTextAnswer() {
             if (userAnswers[currentIndex] !== null) return;
             const q = questions[currentIndex];
@@ -1228,12 +1303,12 @@
             }
         }
 
-        // Navigasi Next & Prev
         function prevQuestion() {
             if (currentIndex > 0) {
                 playSound('click');
                 tempComplexSelection = [];
                 currentIndex--;
+                saveQuizState();
                 renderQuestion();
             }
         }
@@ -1243,6 +1318,7 @@
             tempComplexSelection = [];
             if (currentIndex < questions.length - 1) {
                 currentIndex++;
+                saveQuizState();
                 renderQuestion();
             } else {
                 const unansweredIndex = userAnswers.findIndex(ans => ans === null);
@@ -1253,6 +1329,7 @@
                         `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu kerjakan. Ayo selesaikan dulu!`
                     );
                     currentIndex = unansweredIndex;
+                    saveQuizState();
                     renderQuestion();
                     return;
                 }
@@ -1260,8 +1337,10 @@
             }
         }
 
-        // Layar Hasil Akhir
         function showResultScreen() {
+            isQuizCompleted = true;
+            clearQuizState();
+
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
 
@@ -1290,14 +1369,19 @@
         function reviewQuiz() {
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) indicator.innerText = '✅ SELESAI';
             currentIndex = 0;
             renderQuestion();
         }
 
         function restartQuiz() {
+            clearQuizState();
+            isQuizCompleted = false;
             userAnswers = new Array(questions.length).fill(null);
             tempComplexSelection = [];
             currentIndex = 0;
+            saveQuizState();
             updateScoreUI();
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
@@ -1305,11 +1389,10 @@
             renderQuestion();
         }
 
-        // === DUKUNGAN PWA (MANIFEST DINAMIS, SERVICE WORKER & INSTALL PROMPT) ===
         let deferredPrompt = null;
 
         function setupPWA() {
-            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#866043"/><rect width="16" height="4" fill="#5D9C42"/><rect x="2" y="4" width="2" height="2" fill="#5D9C42"/><rect x="7" y="4" width="3" height="2" fill="#5D9C42"/><rect x="13" y="4" width="2" height="2" fill="#5D9C42"/></svg>`;
+            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#866043"/><rect width="16" height="4" fill="#5D9C42"/><rect x="2" y="4" width="2" height="2" fill="#5D9C42"/><rect x="7" y="4" width="3" height="2" fill="#5D9C42"/><rect x="13" y="4" width="2" height="2" fill="#5D9C42"/></svg>';
             const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
 
             const appleIcon = document.createElement('link');
@@ -1339,24 +1422,7 @@
             document.head.appendChild(manifestLink);
 
             if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-                const swCode = `
-                    const CACHE_NAME = 'mc-literasi-sd1-v1';
-                    const URLS_TO_CACHE = ['./', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js'];
-                    self.addEventListener('install', e => {
-                        e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(URLS_TO_CACHE).catch(() => {})));
-                        self.skipWaiting();
-                    });
-                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-                    self.addEventListener('fetch', e => {
-                        e.respondWith(caches.match(e.request).then(res => res || fetch(e.request).then(netRes => {
-                            if (netRes && netRes.status === 200) {
-                                const clone = netRes.clone();
-                                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                            }
-                            return netRes;
-                        }).catch(() => caches.match('./'))));
-                    });
-                `;
+                const swCode = "const CACHE_NAME='mc-literasi-sd1-v2';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
                 const swBlob = new Blob([swCode], { type: 'application/javascript' });
                 navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
             }
@@ -1379,7 +1445,10 @@
             deferredPrompt = null;
         }
 
-        window.addEventListener('DOMContentLoaded', setupPWA);
+        window.addEventListener('DOMContentLoaded', () => {
+            setupPWA();
+            checkSavedProgressOnLoad();
+        });
     </script>
 </body>
 </html>
