@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#38BDF8">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Kuis PPKn SD">
     <title>Kuis Ceria PPKn Kelas 1 SD - Aturan di Rumah</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti Library -->
@@ -109,6 +113,14 @@
                 class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-sky-400 to-blue-500 hover:from-sky-500 hover:to-blue-600 text-white font-bold text-xl rounded-2xl shadow-lg shadow-blue-200 transform transition active:scale-95 cursor-pointer">
                 🚀 Mulai Bermain!
             </button>
+
+            <!-- Tombol Install PWA (Muncul jika browser mendukung instalasi aplikasi) -->
+            <div id="pwa-install-container" class="hidden mt-4">
+                <button id="pwa-install-btn" onclick="installPWA()" 
+                    class="w-full sm:w-auto px-6 py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold text-sm rounded-xl border-2 border-amber-300 transition inline-flex items-center justify-center gap-2 cursor-pointer">
+                    📲 Pasang Aplikasi (Offline)
+                </button>
+            </div>
         </div>
 
         <!-- Layar Kuis (Card Soal) -->
@@ -962,6 +974,122 @@
             playSound('click');
             renderQuestion();
         }
+
+        // === DUKUNGAN PWA (MANIFEST DINAMIS, SERVICE WORKER & INSTALL PROMPT) ===
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            // 1. Ikon Aplikasi SVG (Encode URL agar tanpa base64)
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#38BDF8"/><circle cx="256" cy="256" r="180" fill="#FEF08A"/><text x="50%" y="56%" font-size="220" text-anchor="middle" dominant-baseline="middle">🏠</text></svg>`;
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+            // Tambahkan Apple Touch Icon
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = iconUrl;
+            document.head.appendChild(appleIcon);
+
+            // 2. Buat Web App Manifest secara dinamis via Blob
+            const manifestData = {
+                name: "Kuis Ceria PPKn Kelas 1 SD",
+                short_name: "Kuis PPKn",
+                description: "Latihan Soal Sumatif PPKn Kelas 1 SD - Tema Aturan di Rumah",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#FFDEE9",
+                theme_color: "#38BDF8",
+                orientation: "portrait-primary",
+                icons: [
+                    {
+                        src: iconUrl,
+                        sizes: "192x192",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    },
+                    {
+                        src: iconUrl,
+                        sizes: "512x512",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+
+            // 3. Daftarkan Service Worker Inline untuk Caching & Mode Offline
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = `
+                    const CACHE_NAME = 'kuis-ppkn-sd1-v1';
+                    const URLS_TO_CACHE = [
+                        './',
+                        'https://cdn.tailwindcss.com',
+                        'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js',
+                        'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js',
+                        'https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap'
+                    ];
+
+                    self.addEventListener('install', (event) => {
+                        event.waitUntil(
+                            caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE).catch(() => {}))
+                        );
+                        self.skipWaiting();
+                    });
+
+                    self.addEventListener('activate', (event) => {
+                        event.waitUntil(self.clients.claim());
+                    });
+
+                    self.addEventListener('fetch', (event) => {
+                        event.respondWith(
+                            caches.match(event.request).then((cachedResponse) => {
+                                if (cachedResponse) return cachedResponse;
+                                return fetch(event.request).then((networkResponse) => {
+                                    if (networkResponse && networkResponse.status === 200) {
+                                        const responseClone = networkResponse.clone();
+                                        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                                    }
+                                    return networkResponse;
+                                }).catch(() => caches.match('./'));
+                            })
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl).catch(() => {
+                    // Abaikan jika dijalankan di lingkungan sandbox/iframe terbatas
+                });
+            }
+        }
+
+        // Tangkap event beforeinstallprompt dari browser
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-container').classList.remove('hidden');
+        });
+
+        // Fungsi ketika tombol Pasang Aplikasi diklik
+        async function installPWA() {
+            if (!deferredPrompt) {
+                showModal("Info Instalasi 📲", "Gunakan menu browser (ikon titik tiga / bagikan) lalu pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('pwa-install-container').classList.add('hidden');
+            }
+            deferredPrompt = null;
+        }
+
+        // Jalankan inisialisasi PWA saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', setupPWA);
     </script>
 </body>
 </html>
