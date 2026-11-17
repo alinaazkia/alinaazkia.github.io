@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5D9C42">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Minecraft Literasi SD">
+    <title>Minecraft Quiz: Literasi Digital Kelas 1 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Tone.js for 8-Bit Chiptune Sound Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <!-- Google Fonts: VT323 / Silkscreen & Fredoka untuk keterbacaan anak SD -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mc-grass: #5D9C42;
+            --mc-grass-dark: #3E6E2B;
+            --mc-dirt: #866043;
+            --mc-dirt-dark: #593E2A;
+            --mc-stone: #8B8B8B;
+            --mc-stone-dark: #555555;
+            --mc-wood: #A07449;
+            --mc-emerald: #17DD62;
+            --mc-gold: #FCEE4B;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            user-select: none;
+            /* Latar belakang langit & blok tanah Minecraft dengan pola piksel CSS murni */
+            background-color: #78A7FF;
+            background-image: 
+                /* Awan piksel */
+                radial-gradient(circle at 20% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 6%, transparent 6.5%),
+                radial-gradient(circle at 25% 15%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.85) 8%, transparent 8.5%),
+                radial-gradient(circle at 80% 22%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 7%, transparent 7.5%),
+                /* Gradasi langit ke cakrawala */
+                linear-gradient(180deg, #639BFF 0%, #99C2FF 65%, #5D9C42 65%, #4A8233 70%, #866043 70%, #6B4B33 100%);
+            background-attachment: fixed;
+        }
+
+        .font-mc {
+            font-family: 'Silkscreen', monospace;
+            letter-spacing: -0.5px;
+        }
+
+        /* Pola Tekstur Blok Tanah & Rumput untuk Kartu */
+        .mc-panel {
+            background-color: #C6C6C6;
+            border: 4px solid #1E1E1E;
+            box-shadow: 
+                inset 4px 4px 0px #FFFFFF,
+                inset -4px -4px 0px #555555,
+                0 10px 0px rgba(0, 0, 0, 0.35);
+            border-radius: 6px;
+        }
+
+        .mc-dirt-header {
+            background-color: #866043;
+            background-image: 
+                linear-gradient(90deg, rgba(0,0,0,0.08) 50%, transparent 50%),
+                linear-gradient(rgba(0,0,0,0.08) 50%, transparent 50%);
+            background-size: 16px 16px;
+            border-top: 8px solid #5D9C42;
+            border-bottom: 4px solid #3B281A;
+        }
+
+        /* Tombol Klasik Minecraft (3D Bevel) */
+        .mc-btn {
+            font-family: 'Silkscreen', monospace;
+            background-color: #7D7D7D;
+            color: #FFFFFF;
+            text-shadow: 2px 2px 0px #383838;
+            border: 3px solid #1E1E1E;
+            box-shadow: 
+                inset 3px 3px 0px #B5B5B5,
+                inset -3px -3px 0px #4A4A4A,
+                0 4px 0px #1E1E1E;
+            transition: transform 0.08s ease, background-color 0.1s ease;
+            border-radius: 4px;
+        }
+
+        .mc-btn:hover:not(:disabled) {
+            background-color: #8E97C7;
+            box-shadow: 
+                inset 3px 3px 0px #BDC6F5,
+                inset -3px -3px 0px #545C8A,
+                0 4px 0px #1E1E1E;
+        }
+
+        .mc-btn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 
+                inset 3px 3px 0px #4A4A4A,
+                inset -3px -3px 0px #B5B5B5,
+                0 1px 0px #1E1E1E;
+        }
+
+        .mc-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Tombol Hijau Rumput / Emerald */
+        .mc-btn-green {
+            background-color: #5D9C42;
+            box-shadow: 
+                inset 3px 3px 0px #8AD468,
+                inset -3px -3px 0px #386325,
+                0 4px 0px #1E1E1E;
+        }
+
+        .mc-btn-green:hover:not(:disabled) {
+            background-color: #6BB34C;
+            box-shadow: 
+                inset 3px 3px 0px #9CE67A,
+                inset -3px -3px 0px #42752C,
+                0 4px 0px #1E1E1E;
+        }
+
+        /* Tombol Emas / Gold Block */
+        .mc-btn-gold {
+            background-color: #EAB308;
+            color: #1E1E1E;
+            text-shadow: 1px 1px 0px #FEF08A;
+            box-shadow: 
+                inset 3px 3px 0px #FEF08A,
+                inset -3px -3px 0px #A16207,
+                0 4px 0px #1E1E1E;
+        }
+
+        .mc-btn-gold:hover:not(:disabled) {
+            background-color: #FACC15;
+        }
+
+        /* Slot Inventory / Pilihan Jawaban */
+        .mc-slot {
+            background-color: #8B8B8B;
+            border: 3px solid #1E1E1E;
+            box-shadow: 
+                inset 3px 3px 0px #373737,
+                inset -3px -3px 0px #FFFFFF;
+            border-radius: 4px;
+            transition: all 0.12s ease;
+        }
+
+        .mc-slot:hover:not(:disabled) {
+            background-color: #9E9E9E;
+            transform: translateY(-2px);
+        }
+
+        .mc-slot-selected {
+            background-color: #639BFF !important;
+            color: #FFFFFF !important;
+            box-shadow: 
+                inset 3px 3px 0px #99C2FF,
+                inset -3px -3px 0px #2C5AA0 !important;
+        }
+
+        .mc-slot-correct {
+            background-color: #48A832 !important;
+            color: #FFFFFF !important;
+            box-shadow: 
+                inset 3px 3px 0px #85E06C,
+                inset -3px -3px 0px #256117 !important;
+        }
+
+        .mc-slot-wrong {
+            background-color: #C93838 !important;
+            color: #FFFFFF !important;
+            box-shadow: 
+                inset 3px 3px 0px #F27979,
+                inset -3px -3px 0px #7A1C1C !important;
+        }
+
+        /* Input Kotak Minecraft */
+        .mc-input {
+            background-color: #1E1E1E;
+            color: #FFFFFF;
+            border: 3px solid #555555;
+            box-shadow: inset 2px 2px 0px #000000;
+            border-radius: 4px;
+        }
+
+        .mc-input:focus {
+            border-color: #17DD62;
+            outline: none;
+        }
+
+        /* Animasi Kartu */
+        .card-enter {
+            animation: popBlock 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popBlock {
+            from { opacity: 0; transform: scale(0.94) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .shake {
+            animation: shakeAnim 0.35s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-3 sm:p-6">
+
+    <!-- Container Utama -->
+    <div id="app" class="w-full max-w-2xl">
+        
+        <!-- LAYAR MULAI (START SCREEN) -->
+        <div id="start-screen" class="mc-panel overflow-hidden card-enter">
+            <!-- Header Blok Rumput & Tanah -->
+            <div class="mc-dirt-header p-6 text-center text-white">
+                <div class="inline-block bg-black/50 border-2 border-emerald-400 text-emerald-300 font-mc px-3 py-1 text-xs sm:text-sm mb-3">
+                    ⛏️ LKPD LITERASI DIGITAL KELAS 1 SD ⛏️
+                </div>
+                <h1 class="font-mc text-2xl sm:text-3xl font-bold text-yellow-300 drop-shadow-[3px_3px_0px_#1E1E1E]">
+                    TEMA: GADGET DI RUMAH
+                </h1>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <!-- Karakter Piksel SVG -->
+                <div class="w-28 h-28 mx-auto mb-5 bg-[#8B8B8B] border-4 border-[#1E1E1E] shadow-[inset_4px_4px_0_#373737,inset_-4px_-4px_0_#FFF] flex items-center justify-center">
+                    <!-- Wajah karakter piksel ramah anak -->
+                    <svg viewBox="0 0 16 16" class="w-20 h-20" shape-rendering="crispEdges">
+                        <!-- Rambut -->
+                        <rect x="2" y="1" width="12" height="3" fill="#4A2E1B"/>
+                        <rect x="2" y="4" width="2" height="2" fill="#4A2E1B"/>
+                        <rect x="12" y="4" width="2" height="2" fill="#4A2E1B"/>
+                        <!-- Wajah -->
+                        <rect x="2" y="4" width="12" height="10" fill="#F5C29B"/>
+                        <rect x="4" y="4" width="8" height="2" fill="#F5C29B"/>
+                        <!-- Mata -->
+                        <rect x="4" y="7" width="2" height="2" fill="#FFFFFF"/>
+                        <rect x="5" y="7" width="1" height="2" fill="#3B82F6"/>
+                        <rect x="10" y="7" width="2" height="2" fill="#FFFFFF"/>
+                        <rect x="10" y="7" width="1" height="2" fill="#3B82F6"/>
+                        <!-- Mulut Senyum -->
+                        <rect x="6" y="11" width="4" height="1" fill="#866043"/>
+                        <rect x="5" y="10" width="1" height="1" fill="#866043"/>
+                        <rect x="10" y="10" width="1" height="1" fill="#866043"/>
+                    </svg>
+                </div>
+
+                <p class="text-slate-800 font-semibold text-base sm:text-lg mb-6">
+                    Kumpulkan <span class="text-emerald-700 font-bold">Emerald Skor</span> dengan menyelesaikan 25 misi soal tentang cara bijak memakai gadget di rumah!
+                </p>
+
+                <div class="max-w-sm mx-auto space-y-4 mb-7 text-left">
+                    <div>
+                        <label class="block font-mc text-xs text-slate-800 mb-1.5">NAMA PEMAIN:</label>
+                        <input type="text" id="student-name" placeholder="Ketik namamu..." 
+                            class="mc-input w-full px-4 py-3 text-lg font-medium">
+                    </div>
+                    <div>
+                        <label class="block font-mc text-xs text-slate-800 mb-1.5">KELAS:</label>
+                        <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
+                            class="mc-input w-full px-4 py-3 text-lg font-medium">
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="mc-btn mc-btn-green w-full sm:w-auto px-8 py-4 text-lg sm:text-xl cursor-pointer">
+                    ▶ MULAI PETUALANGAN
+                </button>
+
+                <!-- Tombol Install PWA -->
+                <div id="pwa-install-container" class="hidden mt-4">
+                    <button id="pwa-install-btn" onclick="installPWA()" 
+                        class="mc-btn mc-btn-gold w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
+                        📲 PASANG GAME (OFFLINE)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYAR KUIS (QUIZ SCREEN) -->
+        <div id="quiz-screen" class="hidden space-y-4">
+            
+            <!-- HUD Top Bar ala Minecraft -->
+            <div class="mc-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-[#5D9C42] border-2 border-[#1E1E1E] flex items-center justify-center text-2xl shadow-inner">
+                        ⛏️
+                    </div>
+                    <div>
+                        <p id="display-name" class="font-bold text-slate-900 leading-tight text-base">Pemain 1</p>
+                        <p id="display-class" class="font-mc text-xs text-slate-700">Kelas 1 SD</p>
+                    </div>
+                </div>
+
+                <!-- Papan Emerald Skor & Suara -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-[#1E1E1E] border-2 border-[#555555] px-3.5 py-1.5 flex items-center gap-2.5">
+                        <!-- Ikon Emerald SVG -->
+                        <svg viewBox="0 0 16 16" class="w-6 h-6" shape-rendering="crispEdges">
+                            <rect x="5" y="2" width="6" height="12" fill="#17DD62"/>
+                            <rect x="4" y="4" width="8" height="8" fill="#17DD62"/>
+                            <rect x="6" y="4" width="3" height="6" fill="#85FFAD"/>
+                            <rect x="8" y="8" width="3" height="4" fill="#0B8A3A"/>
+                        </svg>
+                        <div>
+                            <span class="font-mc text-[10px] text-emerald-400 block leading-none">SKOR</span>
+                            <span id="score-display" class="font-mc text-lg text-yellow-300 leading-none">0</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSound()" id="sound-btn" class="mc-btn px-3 py-2 text-base" title="Suara 8-Bit">
+                        🔊
+                    </button>
+                </div>
+            </div>
+
+            <!-- XP Bar Minecraft -->
+            <div class="bg-[#1E1E1E] border-2 border-[#1E1E1E] h-4 p-0.5 shadow-md">
+                <div id="progress-bar" class="bg-[#80FF20] h-full transition-all duration-300 shadow-[inset_0_-2px_0_#3E8A08]" style="width: 4%"></div>
+            </div>
+
+            <!-- Kartu Soal Utama -->
+            <div id="question-card" class="mc-panel overflow-hidden">
+                <!-- Header Kategori Soal -->
+                <div class="mc-dirt-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <span id="section-badge" class="bg-black/60 text-yellow-300 font-mc px-2.5 py-1 text-xs border border-yellow-400/50">
+                            A. PILIHAN GANDA
+                        </span>
+                        <span id="question-number" class="bg-white/90 text-slate-900 font-mc px-2.5 py-1 text-xs font-bold">
+                            NO. 1 (1/25)
+                        </span>
+                    </div>
+                    <span id="status-badge" class="hidden font-mc px-2.5 py-1 text-xs border-2 border-black"></span>
+                </div>
+
+                <!-- Isi Pertanyaan & Jawaban -->
+                <div class="p-5 sm:p-7">
+                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-900 mb-5 leading-snug">
+                        Memuat soal...
+                    </h2>
+
+                    <!-- Wadah Jawaban Dinamis -->
+                    <div id="answer-area" class="space-y-3"></div>
+
+                    <!-- Feedback Box ala Notifikasi Achievement Minecraft -->
+                    <div id="feedback-box" class="hidden mt-6 bg-[#212121] border-4 border-[#555555] p-4 text-white flex items-start gap-3.5 shadow-lg">
+                        <span id="feedback-emoji" class="text-3xl shrink-0">💎</span>
+                        <div>
+                            <p id="feedback-title" class="font-mc text-sm sm:text-base text-yellow-300"></p>
+                            <p id="feedback-desc" class="text-sm text-slate-200 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigasi Hotbar Next & Prev -->
+            <div class="flex items-center justify-between gap-3 pt-1">
+                <button id="prev-btn" onclick="prevQuestion()" 
+                    class="mc-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    ◀ PREV
+                </button>
+
+                <!-- Indikator Kotak Soal (Desktop) -->
+                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-black/40 p-1.5 border-2 border-[#1E1E1E]"></div>
+
+                <button id="next-btn" onclick="nextQuestion()" 
+                    class="mc-btn mc-btn-green flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    NEXT ▶
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYAR HASIL AKHIR & PESAN PENTING -->
+        <div id="result-screen" class="hidden mc-panel overflow-hidden card-enter">
+            <div class="mc-dirt-header p-6 text-center text-white">
+                <div class="text-5xl mb-2 animate-bounce">🏆</div>
+                <h2 class="font-mc text-2xl sm:text-3xl text-yellow-300 drop-shadow-[2px_2px_0_#1E1E1E]">
+                    MISI SELESAI!
+                </h2>
+                <p id="result-student-info" class="text-sm sm:text-base font-semibold text-white/95 mt-1"></p>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <!-- Papan Skor Akhir -->
+                <div class="bg-[#1E1E1E] border-4 border-[#555555] p-5 mb-6 max-w-sm mx-auto">
+                    <p class="font-mc text-xs text-emerald-400 mb-1">TOTAL EMERALD SKOR</p>
+                    <div id="final-score" class="font-mc text-5xl sm:text-6xl text-yellow-300 my-2">100</div>
+                    <p id="final-stats" class="text-slate-300 text-sm font-medium"></p>
+                </div>
+
+                <p id="result-message" class="text-lg font-bold text-slate-800 mb-6 max-w-md mx-auto"></p>
+
+                <!-- Kotak Pesan Penting dari LKPD -->
+                <div class="bg-[#FEF9C3] border-4 border-[#CA8A04] p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
+                    <h3 class="font-mc text-sm text-amber-900 mb-2.5 flex items-center gap-2">
+                        📜 PESAN PENTING UNTUKMU:
+                    </h3>
+                    <ul class="space-y-1.5 text-sm sm:text-base text-amber-950 font-semibold">
+                        <li>🟩 Gunakan gadget seperlunya.</li>
+                        <li>🟩 Jangan lupa belajar dan bermain bersama keluarga.</li>
+                        <li>🟩 Istirahatkan mata setelah menggunakan gadget.</li>
+                        <li>🟩 Mintalah izin orang tua sebelum menggunakan gadget.</li>
+                    </ul>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="reviewQuiz()" class="mc-btn px-6 py-3.5 text-sm cursor-pointer">
+                        🔍 LIHAT JAWABAN
+                    </button>
+                    <button onclick="restartQuiz()" class="mc-btn mc-btn-green px-7 py-3.5 text-sm cursor-pointer">
+                        🔄 MAIN LAGI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Peringatan Kustom Minecraft -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="mc-panel p-6 max-w-sm w-full text-center card-enter">
+            <div class="text-4xl mb-2">⚠️</div>
+            <h3 id="modal-title" class="font-mc text-lg text-slate-900 mb-2">PERHATIAN</h3>
+            <p id="modal-text" class="text-slate-800 font-medium mb-6"></p>
+            <button onclick="closeModal()" class="mc-btn mc-btn-gold w-full py-3 text-sm cursor-pointer">
+                OKE, MENGERTI!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // === DATA LENGKAP 25 SOAL LKPD LITERASI DIGITAL KELAS 1 SD ===
+        const questions = [
+            // --- A. PILIHAN GANDA (1-5) ---
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '1',
+                q: "Gadget adalah alat elektronik yang biasa kita gunakan untuk ....",
+                options: ["bermain dan belajar", "memasak nasi", "tidur"],
+                answer: 0,
+                explanation: "Gadget seperti HP, tablet, atau laptop berguna untuk membantu kita belajar dan bermain."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '2',
+                q: "Contoh gadget yang biasa ditemukan di rumah adalah ....",
+                options: ["buku", "televisi", "sendok"],
+                answer: 1,
+                explanation: "Televisi termasuk alat elektronik/gadget di rumah, sedangkan buku dan sendok bukan alat elektronik."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '3',
+                q: "Saat menggunakan gadget, kita harus ....",
+                options: ["duduk dengan baik", "berlari", "berbaring sembarangan"],
+                answer: 0,
+                explanation: "Duduk dengan tegak dan baik menjaga kesehatan tulang punggung dan mata kita."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '4',
+                q: "Kita sebaiknya menggunakan gadget ....",
+                options: ["sesuai kebutuhan", "sepanjang hari", "hanya ketika bermain"],
+                answer: 0,
+                explanation: "Gunakan gadget seperlunya saja agar tetap punya waktu untuk belajar dan beristirahat."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '5',
+                q: "Jika terlalu lama bermain gadget, mata kita bisa ....",
+                options: ["menjadi lelah", "semakin kuat", "semakin besar"],
+                answer: 0,
+                explanation: "Menatap layar terlalu lama membuat mata lelah, perih, dan berair."
+            },
+
+            // --- B. PILIHAN GANDA KOMPLEKS (6-10) ---
+            {
+                type: 'mc_complex',
+                section: 'B. PILIHAN GANDA KOMPLEKS',
+                numLabel: '6',
+                q: "Hal baik yang bisa kita lakukan saat menggunakan gadget adalah .... (Pilih jawaban yang benar)",
+                options: [
+                    "menonton video edukasi",
+                    "bermain game terus-menerus",
+                    "belajar membaca dan berhitung bersama orang tua"
+                ],
+                answers: [0, 2],
+                explanation: "Menonton video edukasi dan belajar bersama orang tua adalah kegiatan yang bermanfaat."
+            },
+            {
+                type: 'mc_complex',
+                section: 'B. PILIHAN GANDA KOMPLEKS',
+                numLabel: '7',
+                q: "Berikut ini cara menjaga keamanan saat menggunakan internet adalah .... (Pilih jawaban yang benar)",
+                options: [
+                    "tidak membagikan data pribadi",
+                    "mengeklik tautan sembarangan",
+                    "meminta pendampingan orang tua"
+                ],
+                answers: [0, 2],
+                explanation: "Jangan pernah membagikan nama lengkap, alamat, atau nomor HP sembarangan, dan selalu minta ditemani orang tua."
+            },
+            {
+                type: 'mc_complex',
+                section: 'B. PILIHAN GANDA KOMPLEKS',
+                numLabel: '8',
+                q: "Gadget dapat digunakan untuk .... (Pilih dua jawaban yang benar)",
+                options: [
+                    "belajar",
+                    "bermain permainan edukatif",
+                    "menggantikan waktu tidur malam"
+                ],
+                answers: [0, 1],
+                explanation: "Gadget bermanfaat untuk belajar dan bermain permainan edukatif yang mengasah otak."
+            },
+            {
+                type: 'mc_complex',
+                section: 'B. PILIHAN GANDA KOMPLEKS',
+                numLabel: '9',
+                q: "Hal yang tidak boleh dilakukan saat menggunakan gadget adalah .... (Pilih jawaban yang benar)",
+                options: [
+                    "berdiri terlalu dekat dengan layar",
+                    "mengatur volume suara",
+                    "menonton sampai larut malam"
+                ],
+                answers: [0, 2],
+                explanation: "Berdiri terlalu dekat dengan layar dan menonton sampai larut malam dapat merusak kesehatan mata dan tubuh."
+            },
+            {
+                type: 'mc_complex',
+                section: 'B. PILIHAN GANDA KOMPLEKS',
+                numLabel: '10',
+                q: "Agar mata tetap sehat saat menggunakan gadget, kita harus .... (Pilih jawaban yang benar)",
+                options: [
+                    "memberi jarak pandang yang cukup",
+                    "menggunakan gadget di tempat gelap",
+                    "mengistirahatkan mata secara berkala"
+                ],
+                answers: [0, 2],
+                explanation: "Jaga jarak pandang yang aman dan istirahatkan mata agar mata tetap sehat."
+            },
+
+            // --- C. ISIAN SINGKAT (11-15) ---
+            {
+                type: 'short',
+                section: 'C. ISIAN SINGKAT',
+                numLabel: '11',
+                q: "Gadget dapat kita gunakan untuk ....",
+                placeholder: "Contoh: belajar dan bermain...",
+                keywords: ["belajar", "bermain", "komunikasi", "informasi", "menonton"],
+                sampleAnswer: "belajar dan bermain",
+                explanation: "Gadget dapat digunakan untuk belajar, bermain permainan edukatif, dan berkomunikasi."
+            },
+            {
+                type: 'short',
+                section: 'C. ISIAN SINGKAT',
+                numLabel: '12',
+                q: "Saat menggunakan gadget, kita harus duduk dengan posisi ....",
+                placeholder: "Ketik posisi duduk yang benar...",
+                keywords: ["baik", "tegak", "rapi", "benar"],
+                sampleAnswer: "baik / tegak",
+                explanation: "Duduk dengan posisi baik atau tegak menjaga kesehatan tulang punggung."
+            },
+            {
+                type: 'short',
+                section: 'C. ISIAN SINGKAT',
+                numLabel: '13',
+                q: "Jangan menggunakan gadget terlalu lama agar mata tidak ....",
+                placeholder: "Ketik akibat pada mata...",
+                keywords: ["lelah", "sakit", "rusak", "perih", "merah"],
+                sampleAnswer: "lelah / sakit",
+                explanation: "Jika terlalu lama menatap layar, mata kita akan menjadi lelah dan sakit."
+            },
+            {
+                type: 'short',
+                section: 'C. ISIAN SINGKAT',
+                numLabel: '14',
+                q: "Sebelum tidur, sebaiknya kita menyimpan gadget di tempat ....",
+                placeholder: "Contoh: yang aman / meja...",
+                keywords: ["aman", "meja", "lemari", "orang tua", "luar kamar"],
+                sampleAnswer: "yang aman",
+                explanation: "Simpan gadget di tempat yang aman sebelum tidur agar tidak tertindih dan tidur lebih nyenyak."
+            },
+            {
+                type: 'short',
+                section: 'C. ISIAN SINGKAT',
+                numLabel: '15',
+                q: "Menggunakan gadget dengan bijak berarti menggunakannya sesuai ....",
+                placeholder: "Ketik kata yang tepat...",
+                keywords: ["kebutuhan", "aturan", "perlu", "waktunya"],
+                sampleAnswer: "kebutuhan",
+                explanation: "Menggunakan gadget sesuai kebutuhan dan aturan orang tua adalah tanda anak yang bijak."
+            },
+
+            // --- D. MENJODOHKAN (16-20) ---
+            {
+                type: 'match',
+                section: 'D. MENJODOHKAN',
+                numLabel: '16',
+                q: "Pasangkan fungsi alat teknologi berikut: 📱 HP",
+                deviceIcon: "📱",
+                deviceName: "HP (Handphone)",
+                options: [
+                    "a. Alat untuk belajar dan mencari informasi.",
+                    "b. Alat untuk menonton video dan berita.",
+                    "c. Alat untuk mendengarkan musik.",
+                    "d. Alat untuk bermain game.",
+                    "e. Alat untuk berkomunikasi jarak jauh."
+                ],
+                answer: 4, // e
+                explanation: "HP digunakan sebagai alat untuk berkomunikasi jarak jauh (menelepon atau berkirim pesan)."
+            },
+            {
+                type: 'match',
+                section: 'D. MENJODOHKAN',
+                numLabel: '17',
+                q: "Pasangkan fungsi alat teknologi berikut: 💻 Laptop",
+                deviceIcon: "💻",
+                deviceName: "Laptop",
+                options: [
+                    "a. Alat untuk belajar dan mencari informasi.",
+                    "b. Alat untuk menonton video dan berita.",
+                    "c. Alat untuk mendengarkan musik.",
+                    "d. Alat untuk bermain game.",
+                    "e. Alat untuk berkomunikasi jarak jauh."
+                ],
+                answer: 0, // a
+                explanation: "Laptop adalah komputer jinjing yang biasa digunakan untuk belajar, mengetik, dan mencari informasi."
+            },
+            {
+                type: 'match',
+                section: 'D. MENJODOHKAN',
+                numLabel: '18',
+                q: "Pasangkan fungsi alat teknologi berikut: 📺 Televisi",
+                deviceIcon: "📺",
+                deviceName: "Televisi",
+                options: [
+                    "a. Alat untuk belajar dan mencari informasi.",
+                    "b. Alat untuk menonton video dan berita.",
+                    "c. Alat untuk mendengarkan musik.",
+                    "d. Alat untuk bermain game.",
+                    "e. Alat untuk berkomunikasi jarak jauh."
+                ],
+                answer: 1, // b
+                explanation: "Televisi berfungsi untuk menonton tayangan video, film anak, dan berita."
+            },
+            {
+                type: 'match',
+                section: 'D. MENJODOHKAN',
+                numLabel: '19',
+                q: "Pasangkan fungsi alat teknologi berikut: 🎧 Headphone",
+                deviceIcon: "🎧",
+                deviceName: "Headphone",
+                options: [
+                    "a. Alat untuk belajar dan mencari informasi.",
+                    "b. Alat untuk menonton video dan berita.",
+                    "c. Alat untuk mendengarkan musik.",
+                    "d. Alat untuk bermain game.",
+                    "e. Alat untuk berkomunikasi jarak jauh."
+                ],
+                answer: 2, // c
+                explanation: "Headphone dipasang di telinga untuk mendengarkan musik atau suara dengan jelas."
+            },
+            {
+                type: 'match',
+                section: 'D. MENJODOHKAN',
+                numLabel: '20',
+                q: "Pasangkan fungsi alat teknologi berikut: 🎮 Game controller",
+                deviceIcon: "🎮",
+                deviceName: "Game controller",
+                options: [
+                    "a. Alat untuk belajar dan mencari informasi.",
+                    "b. Alat untuk menonton video dan berita.",
+                    "c. Alat untuk mendengarkan musik.",
+                    "d. Alat untuk bermain game.",
+                    "e. Alat untuk berkomunikasi jarak jauh."
+                ],
+                answer: 3, // d
+                explanation: "Game controller (stik game) adalah alat untuk mengendalikan permainan saat bermain game."
+            },
+
+            // --- E. ESAI (21-25) ---
+            {
+                type: 'essay',
+                section: 'E. ESAI',
+                numLabel: '21',
+                q: "Mengapa kita harus menggunakan gadget dengan bijak?",
+                placeholder: "Tulis alasanmu...",
+                keywords: ["sehat", "mata", "tidak rusak", "tidak kecanduan", "belajar", "waktu", "bermanfaat", "aman"],
+                sampleAnswer: "Agar mata tetap sehat, tidak kecanduan, dan waktu belajar tidak terganggu.",
+                explanation: "Menggunakan gadget dengan bijak menjaga kesehatan mata dan membuat kita tetap disiplin belajar."
+            },
+            {
+                type: 'essay',
+                section: 'E. ESAI',
+                numLabel: '22',
+                q: "Apa yang akan terjadi jika kita bermain gadget terlalu lama?",
+                placeholder: "Tulis akibat jika terlalu lama bermain gadget...",
+                keywords: ["lelah", "sakit", "mata", "malas", "lupa", "belajar", "tidur", "pusing"],
+                sampleAnswer: "Mata menjadi lelah atau sakit, malas belajar, dan kurang waktu istirahat.",
+                explanation: "Bermain gadget terlalu lama membuat mata lelah dan membuat kita lupa waktu belajar maupun istirahat."
+            },
+            {
+                type: 'essay',
+                section: 'E. ESAI',
+                numLabel: '23',
+                q: "Tuliskan dua cara menjaga keamanan saat menggunakan gadget!",
+                isDoubleInput: true,
+                keywords: ["izin", "orang tua", "ditemani", "data", "pribadi", "tautan", "link", "sembarangan", "password", "sandi", "aman"],
+                sampleAnswer: "1. Meminta izin dan pendampingan orang tua. 2. Tidak membagikan data pribadi atau mengeklik tautan sembarangan.",
+                explanation: "Cara aman: Meminta pendampingan orang tua, tidak membagikan data pribadi, dan tidak mengeklik tautan sembarangan."
+            },
+            {
+                type: 'essay',
+                section: 'E. ESAI',
+                numLabel: '24',
+                q: "Bagaimana cara kamu membagi waktu antara bermain gadget dan belajar?",
+                placeholder: "Tulis cara membagi waktumu...",
+                keywords: ["belajar dulu", "utamakan", "jadwal", "aturan", "seperlunya", "batasi", "setelah", "selesai"],
+                sampleAnswer: "Menyelesaikan tugas belajar terlebih dahulu, lalu bermain gadget seperlunya sesuai jadwal.",
+                explanation: "Utamakan belajar dan membantu orang tua terlebih dahulu sebelum bermain gadget."
+            },
+            {
+                type: 'essay',
+                section: 'E. ESAI',
+                numLabel: '25',
+                q: "Apa manfaat menggunakan gadget untuk belajar?",
+                placeholder: "Tulis manfaat gadget untuk belajar...",
+                keywords: ["ilmu", "informasi", "video", "edukasi", "membaca", "berhitung", "mudah", "pintar", "tahu"],
+                sampleAnswer: "Memudahkan mencari informasi, menonton video edukasi, dan berlatih membaca atau berhitung.",
+                explanation: "Gadget membantu kita menonton video pembelajaran, membaca cerita anak, dan menambah pengetahuan."
+            }
+        ];
+
+        // State Aplikasi
+        let currentIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let tempComplexSelection = []; // Menyimpan pilihan sementara untuk Pilihan Ganda Kompleks
+        let soundEnabled = true;
+        let studentName = "";
+        let studentClass = "";
+
+        // === AUDIO 8-BIT CHIPTUNE (TONE.JS) ===
+        let synth;
+        function initAudio() {
+            if (!synth) {
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "square" }, // Gelombang kotak khas game retro/8-bit
+                    envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 }
+                }).toDestination();
+                synth.volume.value = -10;
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (Tone.context.state !== 'running') Tone.start();
+                const now = Tone.now();
+                if (type === 'correct') {
+                    // Efek suara XP Orb / Level Up
+                    synth.triggerAttackRelease("E5", "16n", now);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.07);
+                    synth.triggerAttackRelease("E6", "16n", now + 0.14);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.21);
+                } else if (type === 'wrong') {
+                    // Efek suara blok pecah / gagal
+                    synth.triggerAttackRelease("G3", "16n", now);
+                    synth.triggerAttackRelease("D3", "8n", now + 0.1);
+                } else if (type === 'click') {
+                    // Efek suara klik menu Minecraft
+                    synth.triggerAttackRelease("C5", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Efek Confetti Kotak Piksel Minecraft
+        function triggerConfetti() {
+            confetti({
+                particleCount: 75,
+                spread: 75,
+                origin: { y: 0.6 },
+                shapes: ['square'], // Kotak piksel!
+                colors: ['#17DD62', '#FCEE4B', '#5D9C42', '#38BDF8', '#FFFFFF']
+            });
+        }
+
+        // Modal Kustom
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // Mulai Kuis
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput) {
+                showModal("NAMA BELUM DIISI!", "Tulis nama lengkapmu dulu sebelum memulai petualangan!");
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput || "1 SD";
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            renderDots();
+            renderQuestion();
+        }
+
+        // Hitung Skor (Skala 100 dari 25 soal)
+        function calculateScore() {
+            let correctCount = 0;
+            userAnswers.forEach(ans => {
+                if (ans && ans.isCorrect) correctCount++;
+            });
+            return {
+                correct: correctCount,
+                points: Math.round((correctCount / questions.length) * 100)
+            };
+        }
+
+        function updateScoreUI() {
+            const scoreData = calculateScore();
+            document.getElementById('score-display').innerText = scoreData.points;
+        }
+
+        // Render Indikator Kotak Soal
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    tempComplexSelection = [];
+                    currentIndex = idx;
+                    renderQuestion();
+                };
+                
+                let bgClass = 'bg-[#8B8B8B] border-[#373737]';
+                if (userAnswers[idx] !== null) {
+                    bgClass = userAnswers[idx].isCorrect 
+                        ? 'bg-[#17DD62] border-[#0B8A3A]' 
+                        : 'bg-[#EF4444] border-[#991B1B]';
+                }
+                if (idx === currentIndex) {
+                    bgClass += ' ring-2 ring-yellow-300 scale-125';
+                }
+
+                dot.className = `w-3 h-3 border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `${q.section} - No. ${q.numLabel}`;
+                container.appendChild(dot);
+            });
+        }
+
+        // Render Kartu Soal
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const ansObj = userAnswers[currentIndex];
+            const isAnswered = ansObj !== null;
+
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-enter', 'shake');
+            void card.offsetWidth;
+            card.classList.add('card-enter');
+
+            document.getElementById('section-badge').innerText = q.section;
+            document.getElementById('question-number').innerText = `NO. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+
+            // Status Badge
+            const statusBadge = document.getElementById('status-badge');
+            if (isAnswered) {
+                statusBadge.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    statusBadge.className = "font-mc px-2.5 py-1 text-xs bg-[#17DD62] text-slate-900 border-2 border-black font-bold";
+                    statusBadge.innerText = "✔ BENAR";
+                } else {
+                    statusBadge.className = "font-mc px-2.5 py-1 text-xs bg-[#EF4444] text-white border-2 border-black font-bold";
+                    statusBadge.innerText = "✖ KURANG TEPAT";
+                }
+            } else {
+                statusBadge.classList.add('hidden');
+            }
+
+            document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
+
+            const answerArea = document.getElementById('answer-area');
+            answerArea.innerHTML = '';
+
+            if (q.type === 'mc') {
+                // === A. PILIHAN GANDA ===
+                const letters = ['a', 'b', 'c'];
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let slotClass = "mc-slot text-white";
+                    let iconRight = "";
+
+                    if (isAnswered) {
+                        if (idx === q.answer) {
+                            slotClass = "mc-slot mc-slot-correct font-bold";
+                            iconRight = "💎";
+                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
+                            slotClass = "mc-slot mc-slot-wrong";
+                            iconRight = "❌";
+                        } else {
+                            slotClass = "mc-slot text-white/60 opacity-75";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="font-mc w-9 h-9 bg-black/40 border-2 border-black flex items-center justify-center text-yellow-300 text-base shrink-0 uppercase">
+                                ${letters[idx]}
+                            </span>
+                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                        </div>
+                        <span class="text-xl">${iconRight}</span>
+                    `;
+                    btn.onclick = () => submitMCAnswer(idx);
+                    answerArea.appendChild(btn);
+                });
+
+            } else if (q.type === 'mc_complex') {
+                // === B. PILIHAN GANDA KOMPLEKS (CENTANG 2 JAWABAN) ===
+                const selectedList = isAnswered ? ansObj.value : tempComplexSelection;
+
+                q.options.forEach((optText, idx) => {
+                    const isChecked = selectedList.includes(idx);
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let slotClass = isChecked ? "mc-slot mc-slot-selected" : "mc-slot text-white";
+                    let checkSymbol = isChecked ? "✓" : "";
+                    let rightBadge = "";
+
+                    if (isAnswered) {
+                        const isKey = q.answers.includes(idx);
+                        if (isKey) {
+                            slotClass = "mc-slot mc-slot-correct font-bold";
+                            checkSymbol = "✓";
+                            rightBadge = "💎";
+                        } else if (isChecked && !isKey) {
+                            slotClass = "mc-slot mc-slot-wrong";
+                            rightBadge = "❌";
+                        } else {
+                            slotClass = "mc-slot text-white/60 opacity-75";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="font-mc w-9 h-9 bg-black/50 border-2 border-black flex items-center justify-center text-emerald-300 text-lg shrink-0">
+                                ${checkSymbol}
+                            </span>
+                            <span class="text-base sm:text-lg font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                        </div>
+                        <span class="text-xl">${rightBadge}</span>
+                    `;
+                    btn.onclick = () => toggleComplexOption(idx);
+                    answerArea.appendChild(btn);
+                });
+
+                if (!isAnswered) {
+                    const submitBtn = document.createElement('button');
+                    submitBtn.className = "mc-btn mc-btn-gold w-full sm:w-auto px-6 py-3 text-sm mt-2 cursor-pointer";
+                    submitBtn.innerText = "✔ KUNCI JAWABAN";
+                    submitBtn.onclick = submitComplexAnswer;
+                    answerArea.appendChild(submitBtn);
+                }
+
+            } else if (q.type === 'match') {
+                // === D. MENJODOHKAN ===
+                answerArea.innerHTML = `
+                    <div class="bg-[#1E1E1E] border-2 border-[#555555] p-3.5 mb-3 flex items-center gap-3 text-white">
+                        <span class="text-3xl">${q.deviceIcon}</span>
+                        <div>
+                            <span class="font-mc text-[10px] text-emerald-400 block">NAMA ALAT:</span>
+                            <span class="font-bold text-lg text-yellow-300">${q.deviceName}</span>
+                        </div>
+                    </div>
+                `;
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let slotClass = "mc-slot text-white";
+                    let iconRight = "";
+
+                    if (isAnswered) {
+                        if (idx === q.answer) {
+                            slotClass = "mc-slot mc-slot-correct font-bold";
+                            iconRight = "💎";
+                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
+                            slotClass = "mc-slot mc-slot-wrong";
+                            iconRight = "❌";
+                        } else {
+                            slotClass = "mc-slot text-white/60 opacity-75";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-3 sm:p-3.5 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
+                    btn.innerHTML = `
+                        <span class="text-base font-semibold drop-shadow-[1px_1px_0_#1E1E1E]">${optText}</span>
+                        <span class="text-xl">${iconRight}</span>
+                    `;
+                    btn.onclick = () => submitMCAnswer(idx);
+                    answerArea.appendChild(btn);
+                });
+
+            } else if (q.type === 'short') {
+                // === C. ISIAN SINGKAT ===
+                const savedText = isAnswered ? ansObj.value : '';
+                answerArea.innerHTML = `
+                    <div class="space-y-3">
+                        <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
+                            placeholder="${q.placeholder}"
+                            onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                            class="mc-input w-full px-4 py-3.5 text-lg font-medium">
+                        ${!isAnswered ? `
+                            <button onclick="submitTextAnswer()" class="mc-btn mc-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                ✔ CEK JAWABAN
+                            </button>
+                        ` : `
+                            <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                📌 Kunci Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                            </div>
+                        `}
+                    </div>
+                `;
+                if (!isAnswered) setTimeout(() => document.getElementById('short-input')?.focus(), 100);
+
+            } else if (q.type === 'essay') {
+                // === E. ESAI ===
+                if (q.isDoubleInput) {
+                    const val1 = isAnswered ? ansObj.value[0] : '';
+                    const val2 = isAnswered ? ansObj.value[1] : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mc text-slate-900 font-bold">1.</span>
+                                <input type="text" id="essay-input-1" value="${val1}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="Cara aman pertama..."
+                                    class="mc-input w-full px-4 py-3 text-base">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-mc text-slate-900 font-bold">2.</span>
+                                <input type="text" id="essay-input-2" value="${val2}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="Cara aman kedua..."
+                                    onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                                    class="mc-input w-full px-4 py-3 text-base">
+                            </div>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="mc-btn mc-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ KIRIM JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else {
+                    const savedEssay = isAnswered ? ansObj.value : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${q.placeholder}"
+                                class="mc-input w-full px-4 py-3 text-base">${savedEssay}</textarea>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="mc-btn mc-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ KIRIM JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-[#1E1E1E] border-2 border-emerald-500 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban: <span class="text-yellow-300 font-bold">${q.sampleAnswer}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }
+            }
+
+            // Render Achievement Feedback Box
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                feedbackBox.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    document.getElementById('feedback-emoji').innerText = "💎";
+                    document.getElementById('feedback-title').innerText = "ACHIEVEMENT UNLOCKED! (+4 SKOR)";
+                } else {
+                    document.getElementById('feedback-emoji').innerText = "📖";
+                    document.getElementById('feedback-title').innerText = "YUK PELAJARI PENJELASANNYA!";
+                }
+                document.getElementById('feedback-desc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Update Tombol Prev & Next
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerText = "SELESAI 🏆";
+                nextBtn.className = "mc-btn mc-btn-gold flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            } else {
+                nextBtn.innerText = "NEXT ▶";
+                nextBtn.className = "mc-btn mc-btn-green flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            }
+
+            renderDots();
+        }
+
+        // Proses Hasil Jawaban
+        function finalizeAnswer(value, isCorrect) {
+            userAnswers[currentIndex] = { value, isCorrect };
+            if (isCorrect) {
+                playSound('correct');
+                triggerConfetti();
+            } else {
+                playSound('wrong');
+                document.getElementById('question-card').classList.add('shake');
+            }
+            updateScoreUI();
+            renderQuestion();
+        }
+
+        // Submit Pilihan Ganda & Menjodohkan
+        function submitMCAnswer(selectedIndex) {
+            if (userAnswers[currentIndex] !== null) return;
+            const isCorrect = selectedIndex === questions[currentIndex].answer;
+            finalizeAnswer(selectedIndex, isCorrect);
+        }
+
+        // Toggle & Submit Pilihan Ganda Kompleks
+        function toggleComplexOption(idx) {
+            if (userAnswers[currentIndex] !== null) return;
+            playSound('click');
+            const pos = tempComplexSelection.indexOf(idx);
+            if (pos > -1) {
+                tempComplexSelection.splice(pos, 1);
+            } else {
+                if (tempComplexSelection.length >= 2) {
+                    tempComplexSelection.shift(); // Maksimal 2 kotak centang
+                }
+                tempComplexSelection.push(idx);
+            }
+            renderQuestion();
+        }
+
+        function submitComplexAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            if (tempComplexSelection.length < 2) {
+                showModal("PILIH 2 KOTAK!", "Beri tanda centang (✓) pada 2 jawaban yang paling tepat ya!");
+                return;
+            }
+            const correctAns = questions[currentIndex].answers;
+            const isCorrect = correctAns.every(val => tempComplexSelection.includes(val));
+            const chosen = [...tempComplexSelection];
+            tempComplexSelection = [];
+            finalizeAnswer(chosen, isCorrect);
+        }
+
+        // Submit Isian Singkat & Esai
+        function submitTextAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            const q = questions[currentIndex];
+
+            if (q.isDoubleInput) {
+                const v1 = document.getElementById('essay-input-1').value.trim();
+                const v2 = document.getElementById('essay-input-2').value.trim();
+                if (!v1 || !v2) {
+                    showModal("BELUM LENGKAP!", "Isi kedua kotak jawaban terlebih dahulu ya!");
+                    return;
+                }
+                const combined = (v1 + " " + v2).toLowerCase();
+                const isCorrect = q.keywords.some(kw => combined.includes(kw));
+                finalizeAnswer([v1, v2], isCorrect);
+            } else {
+                const inputEl = q.type === 'short' ? document.getElementById('short-input') : document.getElementById('essay-input');
+                const rawVal = inputEl.value.trim();
+                if (!rawVal) {
+                    showModal("JAWABAN KOSONG!", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
+                    return;
+                }
+                const lowerVal = rawVal.toLowerCase();
+                const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
+                finalizeAnswer(rawVal, isCorrect);
+            }
+        }
+
+        // Navigasi Next & Prev
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                playSound('click');
+                tempComplexSelection = [];
+                currentIndex--;
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            tempComplexSelection = [];
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                renderQuestion();
+            } else {
+                const unansweredIndex = userAnswers.findIndex(ans => ans === null);
+                if (unansweredIndex !== -1) {
+                    const missingQ = questions[unansweredIndex];
+                    showModal(
+                        "ADA SOAL TERLEWAT!", 
+                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu kerjakan. Ayo selesaikan dulu!`
+                    );
+                    currentIndex = unansweredIndex;
+                    renderQuestion();
+                    return;
+                }
+                showResultScreen();
+            }
+        }
+
+        // Layar Hasil Akhir
+        function showResultScreen() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const scoreData = calculateScore();
+            document.getElementById('result-student-info').innerText = `${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-score').innerText = scoreData.points;
+            document.getElementById('final-stats').innerText = `Berhasil menjawab ${scoreData.correct} dari ${questions.length} misi soal`;
+
+            let msg = "";
+            if (scoreData.points === 100) {
+                msg = "LEGENDARY! Kamu juara literasi digital yang sangat bijak memakai gadget! 💎🏆";
+                triggerConfetti();
+                setTimeout(triggerConfetti, 450);
+            } else if (scoreData.points >= 80) {
+                msg = "HEBAT SEKALI! Kamu sudah paham cara menggunakan gadget dengan aman dan sehat! 🌟";
+                triggerConfetti();
+            } else if (scoreData.points >= 60) {
+                msg = "BAGUS! Terus berlatih lagi agar makin jago menjaga keamanan digital! ⛏️💪";
+            } else {
+                msg = "AYO COBA LAGI! Baca setiap petunjuk dengan teliti untuk mengumpulkan lebih banyak Emerald! 🟩";
+            }
+            document.getElementById('result-message').innerText = msg;
+            playSound('finish');
+        }
+
+        function reviewQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            currentIndex = 0;
+            renderQuestion();
+        }
+
+        function restartQuiz() {
+            userAnswers = new Array(questions.length).fill(null);
+            tempComplexSelection = [];
+            currentIndex = 0;
+            updateScoreUI();
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            playSound('click');
+            renderQuestion();
+        }
+
+        // === DUKUNGAN PWA (MANIFEST DINAMIS, SERVICE WORKER & INSTALL PROMPT) ===
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#866043"/><rect width="16" height="4" fill="#5D9C42"/><rect x="2" y="4" width="2" height="2" fill="#5D9C42"/><rect x="7" y="4" width="3" height="2" fill="#5D9C42"/><rect x="13" y="4" width="2" height="2" fill="#5D9C42"/></svg>`;
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = iconUrl;
+            document.head.appendChild(appleIcon);
+
+            const manifestData = {
+                name: "Minecraft Quiz: Literasi Digital SD",
+                short_name: "MC Literasi",
+                description: "LKPD Literasi Digital Kelas 1 SD - Tema Gadget di Rumah",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#78A7FF",
+                theme_color: "#5D9C42",
+                orientation: "portrait-primary",
+                icons: [
+                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = `
+                    const CACHE_NAME = 'mc-literasi-sd1-v1';
+                    const URLS_TO_CACHE = ['./', 'https://cdn.tailwindcss.com', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js'];
+                    self.addEventListener('install', e => {
+                        e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(URLS_TO_CACHE).catch(() => {})));
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(caches.match(e.request).then(res => res || fetch(e.request).then(netRes => {
+                            if (netRes && netRes.status === 200) {
+                                const clone = netRes.clone();
+                                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                            }
+                            return netRes;
+                        }).catch(() => caches.match('./'))));
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-container').classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                showModal("INFO INSTALASI", "Gunakan menu browser lalu pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') document.getElementById('pwa-install-container').classList.add('hidden');
+            deferredPrompt = null;
+        }
+
+        window.addEventListener('DOMContentLoaded', setupPWA);
+    </script>
+</body>
+</html>
