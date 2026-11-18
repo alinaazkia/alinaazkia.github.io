@@ -2,8 +2,19 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pustaka Sumatif 3 - Belajar Seru</title>
+    
+    <!-- Meta Tag PWA & Mobile Standalone Support -->
+    <meta name="theme-color" content="#FDF6E7">
+    <meta name="description" content="Aplikasi Pustaka Sumatif 3 Interaktif untuk Alina - Al-Islam, Literasi Digital, English, dan PPKn">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pustaka Alina">
+    <link id="pwaManifestLink" rel="manifest">
+    <link id="appleTouchIcon" rel="apple-touch-icon">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Fredoka (Bulat & Ceria seperti di referensi) & Plus Jakarta Sans -->
@@ -161,6 +172,11 @@
 
         <!-- Ikon Aksi Kanan Atas (Mirip Tombol Bulat di Pojok Kanan) -->
         <div class="flex items-center gap-2">
+            <!-- Tombol Install PWA (Muncul otomatis jika perangkat mendukung instalasi aplikasi) -->
+            <button id="pwaInstallBtn" onclick="installPWA()" title="Pasang Aplikasi" class="hidden items-center gap-1.5 px-3 h-10 rounded-full bg-[#2ECC71] hover:bg-[#27ae60] text-white font-kids font-bold text-xs shadow-sm transition active:scale-90">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Install App</span>
+            </button>
             <button onclick="openAllLinksModal()" title="Semua Tautan" class="w-10 h-10 rounded-full bg-[#FF7675] hover:bg-[#ff6362] text-white flex items-center justify-center shadow-sm transition active:scale-90">
                 <i data-lucide="folder-open" class="w-4 h-4"></i>
             </button>
@@ -728,8 +744,150 @@
             }
         });
 
+        // ==========================================
+        // KONFIGURASI PWA (MANIFEST, ICON & OFFLINE SERVICE WORKER)
+        // ==========================================
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            try {
+                // 1. Buat Ikon Aplikasi SVG Ceria & Konversi ke Data URL
+                const appIconSvg = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <rect width="512" height="512" rx="115" fill="#FFD426"/>
+                        <circle cx="256" cy="266" r="155" fill="#F59E0B"/>
+                        <circle cx="256" cy="266" r="120" fill="#FDE68A"/>
+                        <circle cx="212" cy="245" r="18" fill="#4A3B32"/>
+                        <circle cx="300" cy="245" r="18" fill="#4A3B32"/>
+                        <ellipse cx="256" cy="288" rx="28" ry="20" fill="#EE5253"/>
+                        <path d="M225 315 Q256 345 287 315" stroke="#4A3B32" stroke-width="14" stroke-linecap="round" fill="none"/>
+                    </svg>
+                `.trim();
+                const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(appIconSvg);
+
+                // Pasang Apple Touch Icon untuk perangkat iOS/iPadOS
+                const appleIconEl = document.getElementById('appleTouchIcon');
+                if (appleIconEl) appleIconEl.href = iconUrl;
+
+                // 2. Buat Web App Manifest secara dinamis dalam 1 file
+                const manifestData = {
+                    name: 'Pustaka Belajar Alina - Sumatif 3',
+                    short_name: 'Pustaka Alina',
+                    description: 'Aplikasi Buku Interaktif Sumatif 3 (Al-Islam, Literasi Digital, English, PPKn)',
+                    start_url: './index.html',
+                    scope: './',
+                    display: 'standalone',
+                    orientation: 'any',
+                    background_color: '#FDF6E7',
+                    theme_color: '#FFD426',
+                    icons: [
+                        {
+                            src: iconUrl,
+                            sizes: '192x192',
+                            type: 'image/svg+xml',
+                            purpose: 'any maskable'
+                        },
+                        {
+                            src: iconUrl,
+                            sizes: '512x512',
+                            type: 'image/svg+xml',
+                            purpose: 'any maskable'
+                        }
+                    ]
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+                const manifestUrl = URL.createObjectURL(manifestBlob);
+                const manifestLink = document.getElementById('pwaManifestLink');
+                if (manifestLink) manifestLink.href = manifestUrl;
+
+                // 3. Daftarkan Inline Service Worker untuk Cache Offline
+                if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+                    const swCode = `
+                        const CACHE_NAME = 'pustaka-alina-sumatif3-v1';
+                        const ASSETS_TO_CACHE = [
+                            './',
+                            './index.html',
+                            './alislam-sumatif-3.html',
+                            './digital-sumatif-3.html',
+                            './english-sumatif-3.html',
+                            './ppkn-sumatif-3.html'
+                        ];
+
+                        self.addEventListener('install', (event) => {
+                            event.waitUntil(
+                                caches.open(CACHE_NAME).then((cache) => {
+                                    return Promise.allSettled(
+                                        ASSETS_TO_CACHE.map(url => cache.add(url).catch(() => null))
+                                    );
+                                })
+                            );
+                            self.skipWaiting();
+                        });
+
+                        self.addEventListener('activate', (event) => {
+                            event.waitUntil(
+                                caches.keys().then((keys) => Promise.all(
+                                    keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+                                ))
+                            );
+                            self.clients.claim();
+                        });
+
+                        self.addEventListener('fetch', (event) => {
+                            if (event.request.method !== 'GET') return;
+                            event.respondWith(
+                                caches.match(event.request).then((cachedResponse) => {
+                                    const fetchPromise = fetch(event.request).then((networkResponse) => {
+                                        if (networkResponse && networkResponse.status === 200) {
+                                            const responseClone = networkResponse.clone();
+                                            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
+                                        }
+                                        return networkResponse;
+                                    }).catch(() => cachedResponse);
+
+                                    return cachedResponse || fetchPromise;
+                                })
+                            );
+                        });
+                    `;
+
+                    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                    const swUrl = URL.createObjectURL(swBlob);
+                    navigator.serviceWorker.register(swUrl).catch(() => {
+                        // Abaikan jika dijalankan langsung lewat file:// lokal tanpa server HTTP/HTTPS
+                    });
+                }
+            } catch (err) {
+                console.warn('Inisialisasi PWA dilewati:', err);
+            }
+        }
+
+        // Tangkap event instalasi PWA dari browser (Chrome/Edge/Android)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwaInstallBtn');
+            if (installBtn) {
+                installBtn.classList.remove('hidden');
+                installBtn.classList.add('flex');
+            }
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                const installBtn = document.getElementById('pwaInstallBtn');
+                if (installBtn) installBtn.classList.add('hidden');
+            }
+            deferredPrompt = null;
+        }
+
         // Jalankan saat halaman dimuat
         renderBookCards();
+        setupPWA();
     </script>
 </body>
 </html>
