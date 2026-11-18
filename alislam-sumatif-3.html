@@ -3,183 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00A2FF">
+    <meta name="theme-color" content="#047857">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Roblox Literasi SD">
-    <title>Roblox Quiz: Literasi Digital Kelas 1 SD</title>
+    <meta name="apple-mobile-web-app-title" content="Kuis Al Islam SD">
+    <title>Petualangan Gurun & Kurma: Al Islam Kelas 1 SD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --rbx-blue: #00A2FF;
-            --rbx-blue-dark: #0074BD;
-            --rbx-green: #00B06F;
-            --rbx-green-dark: #008252;
-            --rbx-red: #E2231A;
-            --rbx-yellow: #F5CD30;
-            --rbx-dark: #191B1D;
-            --rbx-panel: #232527;
+            --desert-sky: #FEF3C7;
+            --desert-sand-light: #FDE68A;
+            --desert-sand-mid: #F59E0B;
+            --desert-sand-dark: #D97706;
+            --oasis-emerald: #047857;
+            --oasis-teal: #0D9488;
+            --date-brown: #78350F;
         }
 
         body {
             font-family: 'Fredoka', sans-serif;
             min-height: 100vh;
             user-select: none;
-            background-color: #00A2FF;
-            /* Pola Roblox Studs / Baseplate klasik */
+            background-color: #FDE68A;
+            /* Latar belakang langit senja keemasan dan bukit pasir gurun */
             background-image: 
-                radial-gradient(rgba(255, 255, 255, 0.22) 22%, transparent 24%),
-                radial-gradient(rgba(0, 72, 128, 0.18) 25%, transparent 27%),
-                linear-gradient(180deg, #38BDF8 0%, #0284C7 60%, #16A34A 60%, #15803D 100%);
-            background-size: 36px 36px, 36px 36px, 100% 100%;
-            background-position: 0 0, 2px 2px, 0 0;
+                radial-gradient(circle at 85% 15%, rgba(251, 191, 36, 0.55) 0%, transparent 28%),
+                radial-gradient(ellipse at 20% 95%, #D97706 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 98%, #B45309 0%, transparent 60%),
+                linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 45%, #FCD34D 75%, #F59E0B 100%);
             background-attachment: fixed;
         }
 
-        .font-rbx {
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 0.3px;
+        .font-arab {
+            font-family: 'Amiri', serif;
         }
 
-        .rbx-panel {
-            background-color: #FFFFFF;
-            border: 4px solid #191B1D;
-            box-shadow: 0 10px 0px rgba(25, 27, 29, 0.35);
-            border-radius: 18px;
+        .desert-panel {
+            background-color: #FFFDF7;
+            border: 4px solid #78350F;
+            box-shadow: 0 10px 0px rgba(120, 53, 15, 0.28);
+            border-radius: 24px;
         }
 
-        .rbx-header {
-            background-color: #191B1D;
-            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 20%, transparent 22%);
-            background-size: 20px 20px;
-            border-bottom: 5px solid #00A2FF;
+        .oasis-header {
+            background: linear-gradient(135deg, #065F46 0%, #047857 50%, #0D9488 100%);
+            border-bottom: 5px solid #78350F;
+            position: relative;
         }
 
-        .rbx-btn {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 800;
-            background-color: #393B3D;
-            color: #FFFFFF;
-            border: 3px solid #191B1D;
-            box-shadow: 0 5px 0px #191B1D;
+        .desert-btn {
+            font-weight: 700;
+            background-color: #78350F;
+            color: #FFFBEB;
+            border: 3px solid #451A03;
+            box-shadow: 0 5px 0px #451A03;
             transition: transform 0.08s ease, background-color 0.12s ease, box-shadow 0.08s ease;
-            border-radius: 12px;
+            border-radius: 16px;
         }
 
-        .rbx-btn:hover:not(:disabled) {
-            background-color: #4B4E52;
+        .desert-btn:hover:not(:disabled) {
+            background-color: #92400E;
             transform: translateY(-1px);
         }
 
-        .rbx-btn:active:not(:disabled) {
+        .desert-btn:active:not(:disabled) {
             transform: translateY(4px);
-            box-shadow: 0 1px 0px #191B1D;
+            box-shadow: 0 1px 0px #451A03;
         }
 
-        .rbx-btn:disabled {
+        .desert-btn:disabled {
             opacity: 0.45;
             cursor: not-allowed;
         }
 
-        .rbx-btn-green {
-            background-color: #00B06F;
+        .desert-btn-emerald {
+            background-color: #059669;
             color: #FFFFFF;
-            border-color: #191B1D;
-            box-shadow: 0 5px 0px #005C3A;
+            border-color: #064E3B;
+            box-shadow: 0 5px 0px #064E3B;
         }
 
-        .rbx-btn-green:hover:not(:disabled) {
-            background-color: #00C87E;
+        .desert-btn-emerald:hover:not(:disabled) {
+            background-color: #10B981;
         }
 
-        .rbx-btn-blue {
-            background-color: #00A2FF;
+        .desert-btn-gold {
+            background-color: #F59E0B;
+            color: #451A03;
+            border-color: #78350F;
+            box-shadow: 0 5px 0px #78350F;
+        }
+
+        .desert-btn-gold:hover:not(:disabled) {
+            background-color: #FBBF24;
+        }
+
+        .desert-btn-red {
+            background-color: #DC2626;
             color: #FFFFFF;
-            border-color: #191B1D;
-            box-shadow: 0 5px 0px #005B91;
+            border-color: #7F1D1D;
+            box-shadow: 0 5px 0px #7F1D1D;
         }
 
-        .rbx-btn-blue:hover:not(:disabled) {
-            background-color: #26B1FF;
-        }
-
-        .rbx-btn-gold {
-            background-color: #F5CD30;
-            color: #191B1D;
-            border-color: #191B1D;
-            box-shadow: 0 5px 0px #9E7F0B;
-        }
-
-        .rbx-btn-gold:hover:not(:disabled) {
-            background-color: #FDE047;
-        }
-
-        .rbx-btn-red {
-            background-color: #E2231A;
-            color: #FFFFFF;
-            border-color: #191B1D;
-            box-shadow: 0 5px 0px #8A110C;
-        }
-
-        .rbx-slot {
-            background-color: #F3F4F6;
-            color: #191B1D;
-            border: 3px solid #191B1D;
-            box-shadow: 0 4px 0px #CBD5E1;
-            border-radius: 14px;
+        .option-slot {
+            background-color: #FEFCE8;
+            color: #451A03;
+            border: 3px solid #D97706;
+            box-shadow: 0 4px 0px #FDE68A;
+            border-radius: 18px;
             transition: all 0.12s ease;
         }
 
-        .rbx-slot:hover:not(:disabled) {
-            background-color: #E0F2FE;
-            border-color: #00A2FF;
+        .option-slot:hover:not(:disabled) {
+            background-color: #FEF3C7;
+            border-color: #059669;
             transform: translateY(-2px);
         }
 
-        .rbx-slot-selected {
-            background-color: #00A2FF !important;
+        .option-slot-correct {
+            background-color: #10B981 !important;
             color: #FFFFFF !important;
-            border-color: #191B1D !important;
-            box-shadow: 0 4px 0px #005B91 !important;
+            border-color: #064E3B !important;
+            box-shadow: 0 4px 0px #064E3B !important;
         }
 
-        .rbx-slot-correct {
-            background-color: #00B06F !important;
+        .option-slot-wrong {
+            background-color: #EF4444 !important;
             color: #FFFFFF !important;
-            border-color: #191B1D !important;
-            box-shadow: 0 4px 0px #005C3A !important;
+            border-color: #7F1D1D !important;
+            box-shadow: 0 4px 0px #7F1D1D !important;
         }
 
-        .rbx-slot-wrong {
-            background-color: #E2231A !important;
-            color: #FFFFFF !important;
-            border-color: #191B1D !important;
-            box-shadow: 0 4px 0px #8A110C !important;
+        .desert-input {
+            background-color: #FFFBEB;
+            color: #451A03;
+            border: 3px solid #D97706;
+            box-shadow: inset 0 3px 0px #FEF3C7;
+            border-radius: 14px;
         }
 
-        .rbx-input {
-            background-color: #F8FAFC;
-            color: #191B1D;
-            border: 3px solid #191B1D;
-            box-shadow: inset 0 3px 0px #E2E8F0;
-            border-radius: 12px;
-        }
-
-        .rbx-input:focus {
-            border-color: #00A2FF;
+        .desert-input:focus {
+            border-color: #059669;
             background-color: #FFFFFF;
             outline: none;
         }
 
         .card-enter {
-            animation: popBlock 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation: popSand 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        @keyframes popBlock {
-            from { opacity: 0; transform: scale(0.94) translateY(12px); }
+        @keyframes popSand {
+            from { opacity: 0; transform: scale(0.95) translateY(12px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
@@ -199,206 +176,258 @@
 
     <div id="app" class="w-full max-w-2xl">
         
-        <div id="start-screen" class="rbx-panel overflow-hidden card-enter">
-            <div class="rbx-header p-6 text-center text-white">
-                <div class="inline-flex items-center gap-2 bg-[#00A2FF]/20 border-2 border-[#00A2FF] text-sky-300 font-rbx px-3.5 py-1 rounded-full text-xs sm:text-sm mb-3">
-                    <!-- Ikon Roblox Tilted Square -->
-                    <span class="inline-block w-3.5 h-3.5 border-2 border-white rotate-12 bg-white/20"></span>
-                    ROBLOX OBBY: LITERASI DIGITAL SD
+        <!-- LAYAR AWAL -->
+        <div id="start-screen" class="desert-panel overflow-hidden card-enter">
+            <div class="oasis-header p-6 text-center text-white">
+                <div class="inline-flex items-center gap-2 bg-amber-400/20 border-2 border-amber-300 text-amber-200 font-bold px-4 py-1 rounded-full text-xs sm:text-sm mb-3">
+                    🌙 LATIHAN SUMATIF AL ISLAM • KELAS 1 SD
                 </div>
-                <h1 class="font-rbx text-2xl sm:text-3xl font-black text-white tracking-wide">
-                    TEMA: <span class="text-[#F5CD30]">GADGET DI RUMAH</span>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wide drop-shadow">
+                    Rukun Islam & <span class="text-amber-300">Syahadatain</span>
                 </h1>
+                <p class="text-emerald-100 text-xs sm:text-sm mt-1">
+                    Petualangan Unta di Gurun Oasis Mengumpulkan Kurma Manis!
+                </p>
             </div>
 
             <div class="p-6 sm:p-8 text-center">
-                <div id="saved-progress-banner" class="hidden bg-[#191B1D] border-4 border-[#00B06F] rounded-2xl p-4 mb-6 text-left shadow-lg">
+                <!-- Banner Lanjutkan Progres (LocalStorage 1 Minggu) -->
+                <div id="saved-progress-banner" class="hidden bg-amber-950 border-4 border-amber-400 rounded-2xl p-4 mb-6 text-left shadow-lg">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                            <span class="font-rbx text-xs text-[#00B06F] block">💾 CHECKPOINT TERSIMPAN (1 MINGGU):</span>
+                            <span class="text-xs font-bold text-amber-300 block">🌴 CATATAN SAFARI TERSIMPAN (1 MINGGU):</span>
                             <p id="saved-progress-info" class="text-white font-bold text-base mt-0.5"></p>
-                            <p id="saved-progress-detail" class="text-slate-300 text-xs mt-0.5"></p>
+                            <p id="saved-progress-detail" class="text-amber-200 text-xs mt-0.5"></p>
                         </div>
                         <div class="flex gap-2 shrink-0">
-                            <button onclick="resumeSavedQuiz()" class="rbx-btn rbx-btn-gold px-4 py-2.5 text-xs cursor-pointer">
+                            <button onclick="resumeSavedQuiz()" class="desert-btn desert-btn-gold px-4 py-2.5 text-xs cursor-pointer">
                                 ▶ LANJUTKAN
                             </button>
-                            <button onclick="discardSavedQuiz()" class="rbx-btn rbx-btn-red px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
+                            <button onclick="discardSavedQuiz()" class="desert-btn desert-btn-red px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
                                 🗑️
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Avatar Roblox Noob Klasik -->
-                <div class="w-28 h-28 mx-auto mb-5 bg-sky-100 rounded-2xl border-4 border-[#191B1D] shadow-[0_6px_0_#CBD5E1] flex items-center justify-center">
-                    <svg viewBox="0 0 64 64" class="w-22 h-22">
-                        <!-- Kepala Kuning Noob -->
-                        <rect x="18" y="6" width="28" height="22" rx="6" fill="#F5CD30" stroke="#191B1D" stroke-width="3"/>
-                        <!-- Mata & Senyum Roblox -->
-                        <circle cx="27" cy="16" r="2.2" fill="#191B1D"/>
-                        <circle cx="37" cy="16" r="2.2" fill="#191B1D"/>
-                        <path d="M27 21 Q32 25 37 21" stroke="#191B1D" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-                        <!-- Badan Biru Noob -->
-                        <rect x="16" y="29" width="32" height="20" rx="3" fill="#00A2FF" stroke="#191B1D" stroke-width="3"/>
-                        <!-- Tangan Kuning -->
-                        <rect x="7" y="29" width="8" height="19" rx="3" fill="#F5CD30" stroke="#191B1D" stroke-width="3"/>
-                        <rect x="49" y="29" width="8" height="19" rx="3" fill="#F5CD30" stroke="#191B1D" stroke-width="3"/>
-                        <!-- Kaki Hijau Noob -->
-                        <rect x="17" y="49" width="14" height="11" rx="2" fill="#00B06F" stroke="#191B1D" stroke-width="3"/>
-                        <rect x="33" y="49" width="14" height="11" rx="2" fill="#00B06F" stroke="#191B1D" stroke-width="3"/>
+                <!-- Ilustrasi SVG Unta Gurun, Pohon Kurma & Buah Kurma -->
+                <div class="w-40 h-32 mx-auto mb-5 bg-gradient-to-b from-amber-100 to-amber-200 rounded-3xl border-4 border-amber-700 shadow-inner flex items-center justify-center relative overflow-hidden">
+                    <svg viewBox="0 0 160 120" class="w-36 h-28">
+                        <!-- Matahari Gurun -->
+                        <circle cx="132" cy="24" r="13" fill="#FBBF24" />
+                        <!-- Bukit Pasir -->
+                        <path d="M0 95 Q45 75 95 92 T160 88 L160 120 L0 120 Z" fill="#F59E0B" />
+                        <path d="M0 105 Q60 90 120 104 T160 100 L160 120 L0 120 Z" fill="#D97706" />
+                        <!-- Pohon Kurma di Kanan -->
+                        <rect x="122" y="48" width="7" height="45" rx="3" fill="#78350F" />
+                        <path d="M125 50 Q105 35 96 48" stroke="#059669" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <path d="M125 50 Q112 26 105 32" stroke="#10B981" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <path d="M125 50 Q145 35 154 48" stroke="#059669" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <path d="M125 50 Q138 26 146 32" stroke="#10B981" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <!-- Tandan Buah Kurma -->
+                        <circle cx="120" cy="55" r="3" fill="#92400E"/>
+                        <circle cx="130" cy="55" r="3" fill="#92400E"/>
+                        <circle cx="125" cy="58" r="3" fill="#78350F"/>
+                        <!-- Unta Lucu -->
+                        <!-- Kaki Unta -->
+                        <rect x="44" y="74" width="5" height="24" rx="2" fill="#B45309" />
+                        <rect x="54" y="74" width="5" height="24" rx="2" fill="#92400E" />
+                        <rect x="74" y="74" width="5" height="24" rx="2" fill="#B45309" />
+                        <rect x="83" y="74" width="5" height="24" rx="2" fill="#92400E" />
+                        <!-- Badan & Punuk Unta -->
+                        <path d="M40 68 Q45 55 56 56 Q65 40 74 56 Q88 55 90 68 Q88 78 65 78 Q42 78 40 68 Z" fill="#D97706" stroke="#78350F" stroke-width="2"/>
+                        <!-- Leher & Kepala Unta -->
+                        <path d="M44 68 Q32 68 30 50 Q29 40 22 40 Q17 40 17 45 Q17 50 24 50 Q26 60 34 72" fill="#D97706" stroke="#78350F" stroke-width="2"/>
+                        <!-- Mata & Senyum Unta -->
+                        <circle cx="23" cy="43" r="1.8" fill="#451A03" />
+                        <path d="M18 47 Q21 49 23 47" stroke="#451A03" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                     </svg>
                 </div>
 
-                <p class="text-slate-700 font-semibold text-base sm:text-lg mb-6">
-                    Kumpulkan <span class="text-[#00B06F] font-extrabold">Robux Skor</span> dengan melewati 25 tahap Obby soal tentang cara bijak memakai gadget di rumah!
+                <p class="text-amber-950 font-semibold text-base sm:text-lg mb-6">
+                    Ayo kumpulkan <span class="text-amber-700 font-extrabold">25 Buah Kurma Manis 🌴</span> dengan menjawab semua soal Al Islam dengan benar!
                 </p>
 
                 <div class="max-w-sm mx-auto space-y-4 mb-7 text-left">
                     <div>
-                        <label class="block font-rbx text-xs text-slate-800 mb-1.5">USERNAME / NAMA PEMAIN:</label>
-                        <input type="text" id="student-name" placeholder="Ketik namamu..." 
-                            class="rbx-input w-full px-4 py-3 text-lg font-semibold">
+                        <label class="block text-xs font-bold text-amber-950 mb-1.5 uppercase">Nama Anak Shalih / Shalihah:</label>
+                        <input type="text" id="student-name" placeholder="Ketik namamu di sini..." 
+                            class="desert-input w-full px-4 py-3 text-lg font-semibold">
                     </div>
                     <div>
-                        <label class="block font-rbx text-xs text-slate-800 mb-1.5">KELAS:</label>
+                        <label class="block text-xs font-bold text-amber-950 mb-1.5 uppercase">Kelas:</label>
                         <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
-                            class="rbx-input w-full px-4 py-3 text-lg font-semibold">
+                            class="desert-input w-full px-4 py-3 text-lg font-semibold">
                     </div>
                 </div>
 
-                <button onclick="startQuiz()" class="rbx-btn rbx-btn-green w-full sm:w-auto px-9 py-4 text-lg sm:text-xl cursor-pointer">
-                    ▶ PLAY OBBY
+                <button onclick="startQuiz()" class="desert-btn desert-btn-emerald w-full sm:w-auto px-9 py-4 text-lg sm:text-xl cursor-pointer">
+                    🐪 MULAI SAFARI KURMA!
                 </button>
 
                 <div id="pwa-install-container" class="hidden mt-4">
                     <button id="pwa-install-btn" onclick="installPWA()" 
-                        class="rbx-btn rbx-btn-blue w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
+                        class="desert-btn desert-btn-gold w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
                         📲 PASANG APLIKASI (OFFLINE)
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- LAYAR KUIS -->
         <div id="quiz-screen" class="hidden space-y-4">
             
-            <div class="rbx-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+            <!-- Header Info Siswa & Keranjang Kurma -->
+            <div class="desert-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 bg-[#F5CD30] rounded-xl border-3 border-[#191B1D] flex items-center justify-center text-xl font-black shadow-sm">
-                        😊
+                    <div class="w-11 h-11 bg-amber-200 rounded-2xl border-2 border-amber-700 flex items-center justify-center text-2xl shadow-sm">
+                        🐪
                     </div>
                     <div>
-                        <p id="display-name" class="font-bold text-slate-900 leading-tight text-base">Pemain 1</p>
+                        <p id="display-name" class="font-bold text-amber-950 leading-tight text-base">Anak Hebat</p>
                         <div class="flex items-center gap-2 mt-0.5">
-                            <p id="display-class" class="font-rbx text-xs text-slate-600">Kelas 1 SD</p>
-                            <span id="save-indicator" class="font-rbx text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-500">💾 SAVED</span>
+                            <p id="display-class" class="text-xs font-bold text-amber-700">Kelas 1 SD</p>
+                            <span id="save-indicator" class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-500">💾 TERSIMPAN</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <div class="bg-[#191B1D] rounded-xl border-2 border-[#393B3D] px-3.5 py-1.5 flex items-center gap-2.5">
-                        <!-- Ikon Robux Hexagon -->
-                        <svg viewBox="0 0 24 24" class="w-6 h-6">
-                            <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" fill="none" stroke="#F5CD30" stroke-width="2.5"/>
-                            <rect x="9" y="9" width="6" height="6" fill="#F5CD30"/>
-                        </svg>
+                <div class="flex items-center gap-2.5">
+                    <!-- Keranjang Kurma -->
+                    <div class="bg-amber-950 rounded-2xl border-2 border-amber-600 px-3.5 py-1.5 flex items-center gap-2">
+                        <span class="text-2xl">🌴</span>
                         <div>
-                            <span class="font-rbx text-[10px] text-sky-400 block leading-none">ROBUX</span>
-                            <span id="score-display" class="font-rbx text-lg text-[#F5CD30] leading-none">0</span>
+                            <span class="text-[10px] font-bold text-amber-300 block leading-none">KURMA</span>
+                            <span id="dates-count" class="text-base font-extrabold text-white leading-none">0/25</span>
                         </div>
                     </div>
-                    <button onclick="toggleSound()" id="sound-btn" class="rbx-btn px-3 py-2 text-base" title="Suara Game">
+
+                    <!-- Skor Nilai -->
+                    <div class="bg-emerald-900 rounded-2xl border-2 border-emerald-500 px-3.5 py-1.5 flex items-center gap-2">
+                        <span class="text-xl">⭐</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-emerald-300 block leading-none">SKOR</span>
+                            <span id="score-display" class="text-base font-extrabold text-amber-300 leading-none">0</span>
+                        </div>
+                    </div>
+
+                    <button onclick="toggleSound()" id="sound-btn" class="desert-btn px-3 py-2 text-base" title="Suara">
                         🔊
                     </button>
                 </div>
             </div>
 
-            <!-- Obby Progress Bar -->
-            <div class="bg-[#191B1D] rounded-full border-3 border-[#191B1D] h-5 p-0.5 shadow-md">
-                <div id="progress-bar" class="bg-gradient-to-r from-[#00A2FF] to-[#00B06F] h-full rounded-full transition-all duration-300" style="width: 4%"></div>
+            <!-- Jalur Perjalanan Unta di Gurun (Progress Bar) -->
+            <div class="bg-amber-950/90 rounded-full border-3 border-amber-800 h-6 p-1 shadow-md relative flex items-center">
+                <div id="progress-bar" class="bg-gradient-to-r from-amber-400 via-yellow-400 to-emerald-400 h-full rounded-full transition-all duration-300 flex items-center justify-end pr-1" style="width: 6%">
+                    <span class="text-xs leading-none">🐪</span>
+                </div>
+                <span class="absolute right-2 text-xs" title="Oasis Tujuan">🏝️</span>
             </div>
 
-            <div id="question-card" class="rbx-panel overflow-hidden">
-                <div class="rbx-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
+            <!-- Kartu Soal -->
+            <div id="question-card" class="desert-panel overflow-hidden">
+                <div class="oasis-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
                     <div class="flex items-center gap-2">
-                        <span id="section-badge" class="bg-[#00A2FF] text-white font-rbx px-3 py-1 rounded-lg text-xs">
-                            A. PILIHAN GANDA
+                        <span id="section-badge" class="bg-amber-950 text-amber-200 font-bold px-3 py-1 rounded-lg text-xs uppercase">
+                            A. Pilihan Ganda
                         </span>
-                        <span id="question-number" class="bg-[#F5CD30] text-[#191B1D] font-rbx px-3 py-1 rounded-lg text-xs font-black">
-                            STAGE 1 (1/25)
+                        <span id="question-number" class="bg-amber-300 text-amber-950 font-extrabold px-3 py-1 rounded-lg text-xs">
+                            No. 1 (1/25)
                         </span>
                     </div>
-                    <span id="status-badge" class="hidden font-rbx px-3 py-1 rounded-lg text-xs border-2 border-black"></span>
+                    <span id="status-badge" class="hidden font-bold px-3 py-1 rounded-lg text-xs border-2 border-amber-950"></span>
                 </div>
 
                 <div class="p-5 sm:p-7">
-                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-900 mb-5 leading-snug">
+                    <!-- Kotak Lafaz Arab Khusus Soal Syahadatain -->
+                    <div id="arabic-box" class="hidden mb-4 bg-emerald-50 border-2 border-emerald-600 rounded-2xl p-3.5 text-center shadow-inner">
+                        <p id="arabic-text" class="font-arab text-2xl sm:text-3xl text-emerald-900 leading-loose" dir="rtl"></p>
+                        <p id="arabic-latin" class="text-xs sm:text-sm font-semibold text-emerald-700 mt-1 italic"></p>
+                    </div>
+
+                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-amber-950 mb-5 leading-snug">
                         Memuat soal...
                     </h2>
 
                     <div id="answer-area" class="space-y-3"></div>
 
-                    <div id="feedback-box" class="hidden mt-6 bg-[#191B1D] border-3 border-[#00A2FF] rounded-2xl p-4 text-white flex items-start gap-3.5 shadow-lg">
-                        <span id="feedback-emoji" class="text-3xl shrink-0">💎</span>
+                    <!-- Kotak Penjelasan & Hadiah Kurma -->
+                    <div id="feedback-box" class="hidden mt-6 bg-amber-950 border-3 border-amber-400 rounded-2xl p-4 text-white flex items-start gap-3.5 shadow-lg">
+                        <span id="feedback-emoji" class="text-3xl shrink-0">🌴</span>
                         <div>
-                            <p id="feedback-title" class="font-rbx text-sm sm:text-base text-[#F5CD30]"></p>
-                            <p id="feedback-desc" class="text-sm text-slate-200 mt-1 leading-relaxed"></p>
+                            <p id="feedback-title" class="font-bold text-sm sm:text-base text-amber-300"></p>
+                            <p id="feedback-desc" class="text-sm text-amber-100 mt-1 leading-relaxed"></p>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Navigasi Next & Prev -->
             <div class="flex items-center justify-between gap-3 pt-1">
                 <button id="prev-btn" onclick="prevQuestion()" 
-                    class="rbx-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
-                    ◀ PREV
+                    class="desert-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    ◀ SEBELUMNYA
                 </button>
 
-                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-[#191B1D]/85 p-2 rounded-xl border-2 border-[#191B1D]"></div>
+                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-amber-950/90 p-2 rounded-xl border-2 border-amber-800"></div>
 
                 <button id="next-btn" onclick="nextQuestion()" 
-                    class="rbx-btn rbx-btn-blue flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
-                    NEXT ▶
+                    class="desert-btn desert-btn-emerald flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    SELANJUTNYA ▶
                 </button>
             </div>
         </div>
 
-        <div id="result-screen" class="hidden rbx-panel overflow-hidden card-enter">
-            <div class="rbx-header p-6 text-center text-white">
-                <div class="text-5xl mb-2 animate-bounce">🏆</div>
-                <h2 class="font-rbx text-2xl sm:text-3xl text-[#F5CD30]">
-                    OBBY COMPLETED!
+        <!-- LAYAR HASIL AKHIR -->
+        <div id="result-screen" class="hidden desert-panel overflow-hidden card-enter">
+            <div class="oasis-header p-6 text-center text-white">
+                <div class="text-5xl mb-2 animate-bounce">🕌</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-300">
+                    ALHAMDULILLAH, SELESAI!
                 </h2>
-                <p id="result-student-info" class="text-sm sm:text-base font-semibold text-white/95 mt-1"></p>
+                <p id="result-student-info" class="text-sm sm:text-base font-semibold text-emerald-100 mt-1"></p>
             </div>
 
             <div class="p-6 sm:p-8 text-center">
-                <div class="bg-[#191B1D] rounded-2xl border-4 border-[#00A2FF] p-5 mb-6 max-w-sm mx-auto">
-                    <p class="font-rbx text-xs text-sky-400 mb-1">TOTAL ROBUX SKOR</p>
-                    <div id="final-score" class="font-rbx text-5xl sm:text-6xl text-[#F5CD30] my-2">100</div>
-                    <p id="final-stats" class="text-slate-300 text-sm font-medium"></p>
+                <div class="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6">
+                    <div class="bg-amber-950 rounded-2xl border-4 border-amber-400 p-4">
+                        <p class="text-xs font-bold text-amber-300 mb-1">KURMA TERKUMPUL</p>
+                        <div id="final-dates" class="text-3xl sm:text-4xl font-extrabold text-white my-1">25 🌴</div>
+                        <p class="text-amber-200 text-xs">Dari 25 buah kurma</p>
+                    </div>
+                    <div class="bg-emerald-950 rounded-2xl border-4 border-emerald-400 p-4">
+                        <p class="text-xs font-bold text-emerald-300 mb-1">NILAI AKHIR</p>
+                        <div id="final-score" class="text-3xl sm:text-4xl font-extrabold text-amber-300 my-1">100</div>
+                        <p id="final-stats" class="text-emerald-200 text-xs">Benar 25/25 soal</p>
+                    </div>
                 </div>
 
-                <p id="result-message" class="text-lg font-bold text-slate-800 mb-6 max-w-md mx-auto"></p>
+                <p id="result-message" class="text-lg font-bold text-amber-950 mb-6 max-w-md mx-auto"></p>
 
-                <div class="bg-sky-50 border-3 border-[#00A2FF] rounded-2xl p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
-                    <h3 class="font-rbx text-sm text-[#0074BD] mb-2.5 flex items-center gap-2">
-                        📜 PESAN PENTING UNTUKMU:
+                <!-- Ringkasan Hafalan Rukun Islam & Syahadatain -->
+                <div class="bg-amber-50 border-3 border-amber-700 rounded-2xl p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
+                    <h3 class="font-bold text-sm text-emerald-800 mb-2.5 flex items-center gap-2">
+                        📖 RINGKASAN RUKUN ISLAM & SYAHADATAIN:
                     </h3>
-                    <ul class="space-y-1.5 text-sm sm:text-base text-slate-800 font-semibold">
-                        <li>🟦 Gunakan gadget seperlunya.</li>
-                        <li>🟦 Jangan lupa belajar dan bermain bersama keluarga.</li>
-                        <li>🟦 Istirahatkan mata setelah menggunakan gadget.</li>
-                        <li>🟦 Mintalah izin orang tua sebelum menggunakan gadget.</li>
-                    </ul>
+                    <ol class="list-decimal list-inside space-y-1 text-xs sm:text-sm text-amber-950 font-semibold mb-3">
+                        <li>Mengucap dua kalimat <b>Syahadat</b></li>
+                        <li>Mendirikan <b>Salat</b> (5 waktu sehari semalam)</li>
+                        <li>Berpuasa di bulan <b>Ramadan</b></li>
+                        <li>Membayar <b>Zakat</b></li>
+                        <li>Menunaikan ibadah <b>Haji</b> ke Baitullah (Makkah)</li>
+                    </ol>
+                    <div class="bg-white p-3 rounded-xl border border-amber-300 text-xs text-amber-900 space-y-1">
+                        <p><b>Syahadat Tauhid:</b> <i>Asyhadu an laa ilaaha illallaah</i> (Aku bersaksi bahwa tiada Tuhan selain Allah).</p>
+                        <p><b>Syahadat Rasul:</b> <i>Wa asyhadu anna Muhammadar rasuulullaah</i> (Dan aku bersaksi bahwa Nabi Muhammad utusan Allah).</p>
+                    </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button onclick="reviewQuiz()" class="rbx-btn px-6 py-3.5 text-sm cursor-pointer">
+                    <button onclick="reviewQuiz()" class="desert-btn px-6 py-3.5 text-sm cursor-pointer">
                         🔍 LIHAT JAWABAN
                     </button>
-                    <button onclick="restartQuiz()" class="rbx-btn rbx-btn-green px-7 py-3.5 text-sm cursor-pointer">
+                    <button onclick="restartQuiz()" class="desert-btn desert-btn-emerald px-7 py-3.5 text-sm cursor-pointer">
                         🔄 MAIN LAGI
                     </button>
                 </div>
@@ -407,322 +436,273 @@
 
     </div>
 
+    <!-- Modal Peringatan -->
     <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-        <div class="rbx-panel p-6 max-w-sm w-full text-center card-enter">
-            <div class="text-4xl mb-2">⚠️</div>
-            <h3 id="modal-title" class="font-rbx text-lg text-slate-900 mb-2">PERHATIAN</h3>
-            <p id="modal-text" class="text-slate-700 font-medium mb-6"></p>
-            <button onclick="closeModal()" class="rbx-btn rbx-btn-gold w-full py-3 text-sm cursor-pointer">
+        <div class="desert-panel p-6 max-w-sm w-full text-center card-enter">
+            <div class="text-4xl mb-2">🐪</div>
+            <h3 id="modal-title" class="font-bold text-lg text-amber-950 mb-2">PERHATIAN</h3>
+            <p id="modal-text" class="text-amber-900 font-medium mb-6"></p>
+            <button onclick="closeModal()" class="desert-btn desert-btn-gold w-full py-3 text-sm cursor-pointer">
                 OKE, MENGERTI!
             </button>
         </div>
     </div>
 
     <script>
-        const STORAGE_KEY = 'rbx_literasi_sd1_state_v1';
+        const STORAGE_KEY = 'al_islam_gurun_kurma_sd1_v1';
         const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
         const questions = [
+            // === A. PILIHAN GANDA (1-15) ===
             {
                 type: 'mc',
-                section: 'A. PILIHAN GANDA',
+                section: 'A. Pilihan Ganda',
                 numLabel: '1',
-                q: "Gadget adalah alat elektronik yang biasa kita gunakan untuk ....",
-                options: ["bermain dan belajar", "memasak nasi", "tidur"],
-                answer: 0,
-                explanation: "Gadget seperti HP, tablet, atau laptop berguna untuk membantu kita belajar dan bermain."
-            },
-            {
-                type: 'mc',
-                section: 'A. PILIHAN GANDA',
-                numLabel: '2',
-                q: "Contoh gadget yang biasa ditemukan di rumah adalah ....",
-                options: ["buku", "televisi", "sendok"],
-                answer: 1,
-                explanation: "Televisi termasuk alat elektronik/gadget di rumah, sedangkan buku dan sendok bukan alat elektronik."
-            },
-            {
-                type: 'mc',
-                section: 'A. PILIHAN GANDA',
-                numLabel: '3',
-                q: "Saat menggunakan gadget, kita harus ....",
-                options: ["duduk dengan baik", "berlari", "berbaring sembarangan"],
-                answer: 0,
-                explanation: "Duduk dengan tegak dan baik menjaga kesehatan tulang punggung dan mata kita."
-            },
-            {
-                type: 'mc',
-                section: 'A. PILIHAN GANDA',
-                numLabel: '4',
-                q: "Kita sebaiknya menggunakan gadget ....",
-                options: ["sesuai kebutuhan", "sepanjang hari", "hanya ketika bermain"],
-                answer: 0,
-                explanation: "Gunakan gadget seperlunya saja agar tetap punya waktu untuk belajar dan beristirahat."
-            },
-            {
-                type: 'mc',
-                section: 'A. PILIHAN GANDA',
-                numLabel: '5',
-                q: "Jika terlalu lama bermain gadget, mata kita bisa ....",
-                options: ["menjadi lelah", "semakin kuat", "semakin besar"],
-                answer: 0,
-                explanation: "Menatap layar terlalu lama membuat mata lelah, perih, dan berair."
-            },
-            {
-                type: 'mc_complex',
-                section: 'B. PILIHAN GANDA KOMPLEKS',
-                numLabel: '6',
-                q: "Hal baik yang bisa kita lakukan saat menggunakan gadget adalah .... (Pilih jawaban yang benar)",
-                options: [
-                    "menonton video edukasi",
-                    "bermain game terus-menerus",
-                    "belajar membaca dan berhitung bersama orang tua"
-                ],
-                answers: [0, 2],
-                explanation: "Menonton video edukasi dan belajar bersama orang tua adalah kegiatan yang bermanfaat."
-            },
-            {
-                type: 'mc_complex',
-                section: 'B. PILIHAN GANDA KOMPLEKS',
-                numLabel: '7',
-                q: "Berikut ini cara menjaga keamanan saat menggunakan internet adalah .... (Pilih jawaban yang benar)",
-                options: [
-                    "tidak membagikan data pribadi",
-                    "mengeklik tautan sembarangan",
-                    "meminta pendampingan orang tua"
-                ],
-                answers: [0, 2],
-                explanation: "Jangan pernah membagikan nama lengkap, alamat, atau nomor HP sembarangan, dan selalu minta ditemani orang tua."
-            },
-            {
-                type: 'mc_complex',
-                section: 'B. PILIHAN GANDA KOMPLEKS',
-                numLabel: '8',
-                q: "Gadget dapat digunakan untuk .... (Pilih dua jawaban yang benar)",
-                options: [
-                    "belajar",
-                    "bermain permainan edukatif",
-                    "menggantikan waktu tidur malam"
-                ],
-                answers: [0, 1],
-                explanation: "Gadget bermanfaat untuk belajar dan bermain permainan edukatif yang mengasah otak."
-            },
-            {
-                type: 'mc_complex',
-                section: 'B. PILIHAN GANDA KOMPLEKS',
-                numLabel: '9',
-                q: "Hal yang tidak boleh dilakukan saat menggunakan gadget adalah .... (Pilih jawaban yang benar)",
-                options: [
-                    "berdiri terlalu dekat dengan layar",
-                    "mengatur volume suara",
-                    "menonton sampai larut malam"
-                ],
-                answers: [0, 2],
-                explanation: "Berdiri terlalu dekat dengan layar dan menonton sampai larut malam dapat merusak kesehatan mata dan tubuh."
-            },
-            {
-                type: 'mc_complex',
-                section: 'B. PILIHAN GANDA KOMPLEKS',
-                numLabel: '10',
-                q: "Agar mata tetap sehat saat menggunakan gadget, kita harus .... (Pilih jawaban yang benar)",
-                options: [
-                    "memberi jarak pandang yang cukup",
-                    "menggunakan gadget di tempat gelap",
-                    "mengistirahatkan mata secara berkala"
-                ],
-                answers: [0, 2],
-                explanation: "Jaga jarak pandang yang aman dan istirahatkan mata agar mata tetap sehat."
-            },
-            {
-                type: 'short',
-                section: 'C. ISIAN SINGKAT',
-                numLabel: '11',
-                q: "Gadget dapat kita gunakan untuk ....",
-                placeholder: "Contoh: belajar dan bermain...",
-                keywords: ["belajar", "bermain", "komunikasi", "informasi", "menonton"],
-                sampleAnswer: "belajar dan bermain",
-                explanation: "Gadget dapat digunakan untuk belajar, bermain permainan edukatif, dan berkomunikasi."
-            },
-            {
-                type: 'short',
-                section: 'C. ISIAN SINGKAT',
-                numLabel: '12',
-                q: "Saat menggunakan gadget, kita harus duduk dengan posisi ....",
-                placeholder: "Ketik posisi duduk yang benar...",
-                keywords: ["baik", "tegak", "rapi", "benar"],
-                sampleAnswer: "baik / tegak",
-                explanation: "Duduk dengan posisi baik atau tegak menjaga kesehatan tulang punggung."
-            },
-            {
-                type: 'short',
-                section: 'C. ISIAN SINGKAT',
-                numLabel: '13',
-                q: "Jangan menggunakan gadget terlalu lama agar mata tidak ....",
-                placeholder: "Ketik akibat pada mata...",
-                keywords: ["lelah", "sakit", "rusak", "perih", "merah"],
-                sampleAnswer: "lelah / sakit",
-                explanation: "Jika terlalu lama menatap layar, mata kita akan menjadi lelah dan sakit."
-            },
-            {
-                type: 'short',
-                section: 'C. ISIAN SINGKAT',
-                numLabel: '14',
-                q: "Sebelum tidur, sebaiknya kita menyimpan gadget di tempat ....",
-                placeholder: "Contoh: yang aman / meja...",
-                keywords: ["aman", "meja", "lemari", "orang tua", "luar kamar"],
-                sampleAnswer: "yang aman",
-                explanation: "Simpan gadget di tempat yang aman sebelum tidur agar tidak tertindih dan tidur lebih nyenyak."
-            },
-            {
-                type: 'short',
-                section: 'C. ISIAN SINGKAT',
-                numLabel: '15',
-                q: "Menggunakan gadget dengan bijak berarti menggunakannya sesuai ....",
-                placeholder: "Ketik kata yang tepat...",
-                keywords: ["kebutuhan", "aturan", "perlu", "waktunya"],
-                sampleAnswer: "kebutuhan",
-                explanation: "Menggunakan gadget sesuai kebutuhan dan aturan orang tua adalah tanda anak yang bijak."
-            },
-            {
-                type: 'match',
-                section: 'D. MENJODOHKAN',
-                numLabel: '16',
-                q: "Pasangkan fungsi alat teknologi berikut: 📱 HP",
-                deviceIcon: "📱",
-                deviceName: "HP (Handphone)",
-                options: [
-                    "a. Alat untuk belajar dan mencari informasi.",
-                    "b. Alat untuk menonton video dan berita.",
-                    "c. Alat untuk mendengarkan musik.",
-                    "d. Alat untuk bermain game.",
-                    "e. Alat untuk berkomunikasi jarak jauh."
-                ],
-                answer: 4,
-                explanation: "HP digunakan sebagai alat untuk berkomunikasi jarak jauh (menelepon atau berkirim pesan)."
-            },
-            {
-                type: 'match',
-                section: 'D. MENJODOHKAN',
-                numLabel: '17',
-                q: "Pasangkan fungsi alat teknologi berikut: 💻 Laptop",
-                deviceIcon: "💻",
-                deviceName: "Laptop",
-                options: [
-                    "a. Alat untuk belajar dan mencari informasi.",
-                    "b. Alat untuk menonton video dan berita.",
-                    "c. Alat untuk mendengarkan musik.",
-                    "d. Alat untuk bermain game.",
-                    "e. Alat untuk berkomunikasi jarak jauh."
-                ],
-                answer: 0,
-                explanation: "Laptop adalah komputer jinjing yang biasa digunakan untuk belajar, mengetik, dan mencari informasi."
-            },
-            {
-                type: 'match',
-                section: 'D. MENJODOHKAN',
-                numLabel: '18',
-                q: "Pasangkan fungsi alat teknologi berikut: 📺 Televisi",
-                deviceIcon: "📺",
-                deviceName: "Televisi",
-                options: [
-                    "a. Alat untuk belajar dan mencari informasi.",
-                    "b. Alat untuk menonton video dan berita.",
-                    "c. Alat untuk mendengarkan musik.",
-                    "d. Alat untuk bermain game.",
-                    "e. Alat untuk berkomunikasi jarak jauh."
-                ],
-                answer: 1,
-                explanation: "Televisi berfungsi untuk menonton tayangan video, film anak, dan berita."
-            },
-            {
-                type: 'match',
-                section: 'D. MENJODOHKAN',
-                numLabel: '19',
-                q: "Pasangkan fungsi alat teknologi berikut: 🎧 Headphone",
-                deviceIcon: "🎧",
-                deviceName: "Headphone",
-                options: [
-                    "a. Alat untuk belajar dan mencari informasi.",
-                    "b. Alat untuk menonton video dan berita.",
-                    "c. Alat untuk mendengarkan musik.",
-                    "d. Alat untuk bermain game.",
-                    "e. Alat untuk berkomunikasi jarak jauh."
-                ],
+                q: "Rukun Islam berjumlah ....",
+                options: ["3", "4", "5"],
                 answer: 2,
-                explanation: "Headphone dipasang di telinga untuk mendengarkan musik atau suara dengan jelas."
+                explanation: "Rukun Islam berjumlah 5 perkara: Syahadat, Salat, Puasa, Zakat, dan Haji."
             },
             {
-                type: 'match',
-                section: 'D. MENJODOHKAN',
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '2',
+                q: "Rukun Islam yang pertama adalah ....",
+                options: ["Salat", "Syahadat", "Puasa"],
+                answer: 1,
+                explanation: "Rukun Islam yang pertama adalah mengucapkan dua kalimat Syahadat."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '3',
+                q: "Kalimat syahadat merupakan rukun Islam yang ke ....",
+                options: ["satu", "dua", "tiga"],
+                answer: 0,
+                explanation: "Kalimat syahadat merupakan rukun Islam yang kesatu (pertama)."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '4',
+                q: "Kalimat syahadat terdiri dari ... kalimat.",
+                options: ["satu", "dua", "tiga"],
+                answer: 1,
+                explanation: "Syahadatain artinya dua kalimat syahadat, yaitu syahadat tauhid dan syahadat rasul."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '5',
+                q: "Syahadat artinya ....",
+                options: ["bersaksi", "bermain", "belajar"],
+                answer: 0,
+                explanation: "Syahadat artinya bersaksi atau pengakuan yang tulus di dalam hati dan lisan."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '6',
+                arabic: "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ",
+                latin: "Asyhadu an laa ilaaha illallaah",
+                q: "Syahadat tauhid menyatakan bahwa tidak ada Tuhan selain ....",
+                options: ["Malaikat", "Allah", "Manusia"],
+                answer: 1,
+                explanation: "Syahadat tauhid adalah kesaksian bahwa tiada Tuhan yang berhak disembah selain Allah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '7',
+                arabic: "وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ",
+                latin: "Wa asyhadu anna Muhammadar rasuulullaah",
+                q: "Syahadat rasul menyatakan bahwa Nabi Muhammad adalah ....",
+                options: ["raja", "utusan Allah", "malaikat"],
+                answer: 1,
+                explanation: "Syahadat rasul adalah kesaksian bahwa Nabi Muhammad saw. adalah utusan Allah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '8',
+                q: "Rukun Islam yang kedua adalah ....",
+                options: ["Salat", "Zakat", "Haji"],
+                answer: 0,
+                explanation: "Rukun Islam yang kedua adalah mendirikan Salat."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '9',
+                q: "Umat Islam wajib melaksanakan salat sebanyak ... waktu sehari.",
+                options: ["3", "4", "5"],
+                answer: 2,
+                explanation: "Salat wajib 5 waktu sehari semalam: Subuh, Zuhur, Asar, Magrib, dan Isya."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '10',
+                q: "Rukun Islam yang ketiga adalah ....",
+                options: ["Puasa", "Zakat", "Haji"],
+                answer: 0,
+                explanation: "Rukun Islam yang ketiga adalah berpuasa di bulan Ramadan."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '11',
+                q: "Puasa wajib dilaksanakan pada bulan ....",
+                options: ["Ramadan", "Syawal", "Muharam"],
+                answer: 0,
+                explanation: "Umat Islam wajib melaksanakan ibadah puasa pada bulan suci Ramadan."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '12',
+                q: "Rukun Islam yang kelima adalah ....",
+                options: ["Salat", "Zakat", "Haji"],
+                answer: 2,
+                explanation: "Rukun Islam yang kelima adalah menunaikan ibadah Haji bagi yang mampu."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '13',
+                q: "Ibadah haji dilaksanakan di kota ....",
+                options: ["Jakarta", "Makkah", "Surabaya"],
+                answer: 1,
+                explanation: "Ibadah haji dilaksanakan di Baitullah (Ka'bah) yang berada di kota Makkah."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '14',
+                q: "Zakat diberikan kepada orang yang ....",
+                options: ["membutuhkan", "sedang bermain", "sedang tidur"],
+                answer: 0,
+                explanation: "Zakat diberikan kepada fakir miskin dan orang-orang yang membutuhkan."
+            },
+            {
+                type: 'mc',
+                section: 'A. Pilihan Ganda',
+                numLabel: '15',
+                q: "Nabi dan rasul terakhir adalah ....",
+                options: ["Nabi Musa", "Nabi Isa", "Nabi Muhammad"],
+                answer: 2,
+                explanation: "Nabi Muhammad saw. adalah nabi dan rasul terakhir (penutup para nabi)."
+            },
+
+            // === B. ISIAN SINGKAT (16-20) ===
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '16',
+                q: "Rukun Islam yang pertama adalah ....",
+                placeholder: "Ketik jawabanmu...",
+                keywords: ["syahadat"],
+                sampleAnswer: "Syahadat",
+                explanation: "Rukun Islam yang pertama adalah mengucapkan dua kalimat Syahadat."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '17',
+                q: "Rukun Islam yang kedua adalah ....",
+                placeholder: "Ketik jawabanmu...",
+                keywords: ["salat", "sholat"],
+                sampleAnswer: "Salat",
+                explanation: "Rukun Islam yang kedua adalah mendirikan Salat."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '18',
+                q: "Kalimat syahadat terdiri dari syahadat tauhid dan syahadat ....",
+                placeholder: "Ketik jawabanmu...",
+                keywords: ["rasul", "rosul"],
+                sampleAnswer: "Rasul",
+                explanation: "Dua kalimat syahadat terdiri atas syahadat tauhid dan syahadat rasul."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
+                numLabel: '19',
+                q: "Puasa wajib dilaksanakan pada bulan ....",
+                placeholder: "Ketik nama bulan...",
+                keywords: ["ramadan", "ramadhan"],
+                sampleAnswer: "Ramadan",
+                explanation: "Puasa wajib dilaksanakan pada bulan Ramadan."
+            },
+            {
+                type: 'short',
+                section: 'B. Isian Singkat',
                 numLabel: '20',
-                q: "Pasangkan fungsi alat teknologi berikut: 🎮 Game controller",
-                deviceIcon: "🎮",
-                deviceName: "Game controller",
-                options: [
-                    "a. Alat untuk belajar dan mencari informasi.",
-                    "b. Alat untuk menonton video dan berita.",
-                    "c. Alat untuk mendengarkan musik.",
-                    "d. Alat untuk bermain game.",
-                    "e. Alat untuk berkomunikasi jarak jauh."
-                ],
-                answer: 3,
-                explanation: "Game controller (stik game) adalah alat untuk mengendalikan permainan saat bermain game."
+                q: "Ibadah haji dilaksanakan di kota ....",
+                placeholder: "Ketik nama kota...",
+                keywords: ["makkah", "mekah", "mekkah"],
+                sampleAnswer: "Makkah",
+                explanation: "Ibadah haji dilaksanakan di kota suci Makkah."
             },
+
+            // === C. ESAI (21-25) ===
             {
                 type: 'essay',
-                section: 'E. ESAI',
+                section: 'C. Esai',
                 numLabel: '21',
-                q: "Mengapa kita harus menggunakan gadget dengan bijak?",
-                placeholder: "Tulis alasanmu...",
-                keywords: ["sehat", "mata", "tidak rusak", "tidak kecanduan", "belajar", "waktu", "bermanfaat", "aman"],
-                sampleAnswer: "Agar mata tetap sehat, tidak kecanduan, dan waktu belajar tidak terganggu.",
-                explanation: "Menggunakan gadget dengan bijak menjaga kesehatan mata dan membuat kita tetap disiplin belajar."
+                q: "Sebutkan lima Rukun Islam secara berurutan!",
+                placeholder: "1. Syahadat, 2. Salat, 3. Puasa, 4. Zakat, 5. Haji",
+                keywords: ["syahadat", "salat", "sholat", "puasa", "zakat", "haji"],
+                sampleAnswer: "1. Syahadat, 2. Salat, 3. Puasa, 4. Zakat, 5. Haji",
+                explanation: "Lima Rukun Islam secara berurutan: 1. Syahadat, 2. Salat, 3. Puasa, 4. Zakat, 5. Haji."
             },
             {
                 type: 'essay',
-                section: 'E. ESAI',
+                section: 'C. Esai',
                 numLabel: '22',
-                q: "Apa yang akan terjadi jika kita bermain gadget terlalu lama?",
-                placeholder: "Tulis akibat jika terlalu lama bermain gadget...",
-                keywords: ["lelah", "sakit", "mata", "malas", "lupa", "belajar", "tidur", "pusing"],
-                sampleAnswer: "Mata menjadi lelah atau sakit, malas belajar, dan kurang waktu istirahat.",
-                explanation: "Bermain gadget terlalu lama membuat mata lelah dan membuat kita lupa waktu belajar maupun istirahat."
+                arabic: "أَشْهَدُ أَنْ لَا إِلَٰهَ إِلَّا اللَّهُ",
+                q: "Tuliskan bunyi syahadat tauhid!",
+                placeholder: "Asyhadu an laa ilaaha illallaah...",
+                keywords: ["asyhadu", "laa ilaaha", "la ilaha", "illallah", "tiada tuhan", "selain allah"],
+                sampleAnswer: "Asyhadu an laa ilaaha illallaah (Aku bersaksi bahwa tiada Tuhan selain Allah).",
+                explanation: "Bunyi syahadat tauhid: 'Asyhadu an laa ilaaha illallaah'."
             },
             {
                 type: 'essay',
-                section: 'E. ESAI',
+                section: 'C. Esai',
                 numLabel: '23',
-                q: "Tuliskan dua cara menjaga keamanan saat menggunakan gadget!",
-                isDoubleInput: true,
-                keywords: ["izin", "orang tua", "ditemani", "data", "pribadi", "tautan", "link", "sembarangan", "password", "sandi", "aman"],
-                sampleAnswer: "1. Meminta izin dan pendampingan orang tua. 2. Tidak membagikan data pribadi atau mengeklik tautan sembarangan.",
-                explanation: "Cara aman: Meminta pendampingan orang tua, tidak membagikan data pribadi, dan tidak mengeklik tautan sembarangan."
+                arabic: "وَأَشْهَدُ أَنَّ مُحَمَّدًا رَسُولُ اللَّهِ",
+                q: "Tuliskan bunyi syahadat rasul!",
+                placeholder: "Wa asyhadu anna Muhammadar rasuulullaah...",
+                keywords: ["muhammad", "rasulullah", "rosulullah", "utusan allah"],
+                sampleAnswer: "Wa asyhadu anna Muhammadar rasuulullaah (Dan aku bersaksi bahwa Nabi Muhammad utusan Allah).",
+                explanation: "Bunyi syahadat rasul: 'Wa asyhadu anna Muhammadar rasuulullaah'."
             },
             {
                 type: 'essay',
-                section: 'E. ESAI',
+                section: 'C. Esai',
                 numLabel: '24',
-                q: "Bagaimana cara kamu membagi waktu antara bermain gadget dan belajar?",
-                placeholder: "Tulis cara membagi waktumu...",
-                keywords: ["belajar dulu", "utamakan", "jadwal", "aturan", "seperlunya", "batasi", "setelah", "selesai"],
-                sampleAnswer: "Menyelesaikan tugas belajar terlebih dahulu, lalu bermain gadget seperlunya sesuai jadwal.",
-                explanation: "Utamakan belajar dan membantu orang tua terlebih dahulu sebelum bermain gadget."
+                q: "Siapakah nabi terakhir umat Islam?",
+                placeholder: "Ketik nama nabi terakhir...",
+                keywords: ["muhammad"],
+                sampleAnswer: "Nabi Muhammad saw.",
+                explanation: "Nabi terakhir umat Islam adalah Nabi Muhammad saw."
             },
             {
                 type: 'essay',
-                section: 'E. ESAI',
+                section: 'C. Esai',
                 numLabel: '25',
-                q: "Apa manfaat menggunakan gadget untuk belajar?",
-                placeholder: "Tulis manfaat gadget untuk belajar...",
-                keywords: ["ilmu", "informasi", "video", "edukasi", "membaca", "berhitung", "mudah", "pintar", "tahu"],
-                sampleAnswer: "Memudahkan mencari informasi, menonton video edukasi, dan berlatih membaca atau berhitung.",
-                explanation: "Gadget membantu kita menonton video pembelajaran, membaca cerita anak, dan menambah pengetahuan."
+                q: "Mengapa umat Islam harus melaksanakan Rukun Islam?",
+                placeholder: "Tulis alasanmu...",
+                keywords: ["allah", "iman", "pahala", "surga", "taat", "wajib", "muslim", "selamat", "ridha", "rida"],
+                sampleAnswer: "Sebagai bukti keimanan dan ketaatan kepada Allah Swt. agar mendapat pahala dan selamat dunia akhirat.",
+                explanation: "Umat Islam melaksanakan Rukun Islam sebagai bentuk ketaatan kepada Allah Swt. dan bukti keimanan seorang muslim."
             }
         ];
 
         let currentIndex = 0;
         let userAnswers = new Array(questions.length).fill(null);
-        let tempComplexSelection = [];
         let soundEnabled = true;
         let studentName = "";
         let studentClass = "";
@@ -750,7 +730,7 @@
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
                 const indicator = document.getElementById('save-indicator');
                 if (indicator) {
-                    indicator.innerText = '💾 SAVED';
+                    indicator.innerText = '💾 TERSIMPAN';
                 }
             } catch (e) {}
         }
@@ -793,7 +773,7 @@
             const daysLeft = Math.max(1, Math.ceil((saved.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
 
             document.getElementById('saved-progress-info').innerText = `${saved.studentName} (${saved.studentClass})`;
-            document.getElementById('saved-progress-detail').innerText = `Stage ${answeredCount}/${questions.length} selesai • Checkpoint No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
+            document.getElementById('saved-progress-detail').innerText = `${answeredCount}/${questions.length} soal dikerjakan • Terakhir No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
             document.getElementById('student-name').value = saved.studentName;
             document.getElementById('student-class').value = saved.studentClass;
             banner.classList.remove('hidden');
@@ -809,7 +789,6 @@
             studentClass = saved.studentClass;
             userAnswers = saved.userAnswers;
             currentIndex = saved.currentIndex || 0;
-            tempComplexSelection = [];
             isQuizCompleted = false;
 
             document.getElementById('display-name').innerText = studentName;
@@ -835,7 +814,7 @@
             if (!synth && typeof Tone !== 'undefined') {
                 synth = new Tone.PolySynth(Tone.Synth, {
                     oscillator: { type: "triangle" },
-                    envelope: { attack: 0.01, decay: 0.12, sustain: 0.1, release: 0.25 }
+                    envelope: { attack: 0.01, decay: 0.14, sustain: 0.1, release: 0.3 }
                 }).toDestination();
                 synth.volume.value = -8;
             }
@@ -849,19 +828,18 @@
                 if (Tone.context.state !== 'running') Tone.start();
                 const now = Tone.now();
                 if (type === 'correct') {
-                    // Efek suara Roblox Checkpoint / Win chime
+                    // Nada ceria mengumpulkan kurma
                     synth.triggerAttackRelease("C5", "16n", now);
-                    synth.triggerAttackRelease("E5", "16n", now + 0.06);
-                    synth.triggerAttackRelease("G5", "16n", now + 0.12);
-                    synth.triggerAttackRelease("C6", "8n", now + 0.18);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.08);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.16);
+                    synth.triggerAttackRelease("C6", "8n", now + 0.24);
                 } else if (type === 'wrong') {
-                    // Efek suara Oof / reset lembut
-                    synth.triggerAttackRelease("F3", "16n", now);
-                    synth.triggerAttackRelease("C3", "8n", now + 0.1);
+                    synth.triggerAttackRelease("E3", "16n", now);
+                    synth.triggerAttackRelease("C3", "8n", now + 0.12);
                 } else if (type === 'click') {
-                    synth.triggerAttackRelease("G5", "32n", now);
+                    synth.triggerAttackRelease("G4", "32n", now);
                 } else if (type === 'finish') {
-                    synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now);
+                    synth.triggerAttackRelease(["C5", "E5", "G5", "B5", "C6"], "4n", now);
                 }
             } catch (e) {}
         }
@@ -874,10 +852,10 @@
         function triggerConfetti() {
             if (typeof confetti === 'function') {
                 confetti({
-                    particleCount: 80,
+                    particleCount: 85,
                     spread: 75,
                     origin: { y: 0.6 },
-                    colors: ['#00A2FF', '#00B06F', '#F5CD30', '#E2231A', '#FFFFFF']
+                    colors: ['#10B981', '#F59E0B', '#FBBF24', '#047857', '#FFFBEB']
                 });
             }
         }
@@ -897,14 +875,13 @@
             const classInput = document.getElementById('student-class').value.trim();
 
             if (!nameInput) {
-                showModal("USERNAME BELUM DIISI!", "Tulis namamu dulu sebelum masuk ke Obby!");
+                showModal("NAMA BELUM DIISI!", "Tulis namamu dulu sebelum memulai safari mengumpulkan kurma!");
                 return;
             }
 
             studentName = nameInput;
             studentClass = classInput || "1 SD";
             userAnswers = new Array(questions.length).fill(null);
-            tempComplexSelection = [];
             currentIndex = 0;
             isQuizCompleted = false;
 
@@ -935,6 +912,7 @@
 
         function updateScoreUI() {
             const scoreData = calculateScore();
+            document.getElementById('dates-count').innerText = `${scoreData.correct}/${questions.length}`;
             document.getElementById('score-display').innerText = scoreData.points;
         }
 
@@ -944,24 +922,23 @@
             questions.forEach((q, idx) => {
                 const dot = document.createElement('button');
                 dot.onclick = () => {
-                    tempComplexSelection = [];
                     currentIndex = idx;
                     saveQuizState();
                     renderQuestion();
                 };
                 
-                let bgClass = 'bg-slate-600 border-slate-400';
+                let bgClass = 'bg-amber-800 border-amber-600';
                 if (userAnswers[idx] !== null) {
                     bgClass = userAnswers[idx].isCorrect 
-                        ? 'bg-[#00B06F] border-emerald-300' 
-                        : 'bg-[#E2231A] border-rose-300';
+                        ? 'bg-emerald-400 border-emerald-200' 
+                        : 'bg-rose-500 border-rose-300';
                 }
                 if (idx === currentIndex) {
-                    bgClass += ' ring-2 ring-[#F5CD30] scale-125';
+                    bgClass += ' ring-2 ring-amber-300 scale-125';
                 }
 
-                dot.className = `w-3 h-3 rounded-sm border transition-all cursor-pointer ${bgClass}`;
-                dot.title = `${q.section} - Stage ${q.numLabel}`;
+                dot.className = `w-3 h-3 rounded-full border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `${q.section} - No. ${q.numLabel}`;
                 container.appendChild(dot);
             });
         }
@@ -977,21 +954,32 @@
             card.classList.add('card-enter');
 
             document.getElementById('section-badge').innerText = q.section;
-            document.getElementById('question-number').innerText = `STAGE ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
-            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+            document.getElementById('question-number').innerText = `No. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
+            const pct = Math.max(6, ((currentIndex + 1) / questions.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
 
             const statusBadge = document.getElementById('status-badge');
             if (isAnswered) {
                 statusBadge.classList.remove('hidden');
                 if (ansObj.isCorrect) {
-                    statusBadge.className = "font-rbx px-3 py-1 rounded-lg text-xs bg-[#00B06F] text-white border-2 border-black font-bold";
-                    statusBadge.innerText = "✔ CHECKPOINT!";
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-emerald-400 text-emerald-950 border-2 border-emerald-900";
+                    statusBadge.innerText = "🌴 +1 KURMA!";
                 } else {
-                    statusBadge.className = "font-rbx px-3 py-1 rounded-lg text-xs bg-[#E2231A] text-white border-2 border-black font-bold";
-                    statusBadge.innerText = "✖ KURANG TEPAT";
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-rose-500 text-white border-2 border-rose-950";
+                    statusBadge.innerText = "✖ BELUM TEPAT";
                 }
             } else {
                 statusBadge.classList.add('hidden');
+            }
+
+            // Tampilkan tulisan Arab jika tersedia (soal Syahadatain)
+            const arabicBox = document.getElementById('arabic-box');
+            if (q.arabic) {
+                arabicBox.classList.remove('hidden');
+                document.getElementById('arabic-text').innerText = q.arabic;
+                document.getElementById('arabic-latin').innerText = q.latin || '';
+            } else {
+                arabicBox.classList.add('hidden');
             }
 
             document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
@@ -1005,118 +993,32 @@
                     const btn = document.createElement('button');
                     btn.disabled = isAnswered;
 
-                    let slotClass = "rbx-slot";
-                    let badgeStyle = "bg-[#191B1D] text-[#F5CD30]";
+                    let slotClass = "option-slot";
+                    let badgeStyle = "bg-amber-800 text-amber-200";
                     let iconRight = "";
 
                     if (isAnswered) {
                         if (idx === q.answer) {
-                            slotClass = "rbx-slot rbx-slot-correct font-bold";
-                            badgeStyle = "bg-white text-[#00B06F]";
-                            iconRight = "🏆";
+                            slotClass = "option-slot option-slot-correct font-bold";
+                            badgeStyle = "bg-white text-emerald-800";
+                            iconRight = "🌴";
                         } else if (idx === ansObj.value && !ansObj.isCorrect) {
-                            slotClass = "rbx-slot rbx-slot-wrong";
-                            badgeStyle = "bg-white text-[#E2231A]";
+                            slotClass = "option-slot option-slot-wrong";
+                            badgeStyle = "bg-white text-rose-700";
                             iconRight = "❌";
                         } else {
-                            slotClass = "rbx-slot opacity-55";
+                            slotClass = "option-slot opacity-55";
                         }
                     }
 
                     btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
                     btn.innerHTML = `
                         <div class="flex items-center gap-3">
-                            <span class="font-rbx w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 uppercase ${badgeStyle}">
+                            <span class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base shrink-0 uppercase ${badgeStyle}">
                                 ${letters[idx]}
                             </span>
                             <span class="text-base sm:text-lg font-bold">${escapeHTML(optText)}</span>
                         </div>
-                        <span class="text-xl">${iconRight}</span>
-                    `;
-                    btn.onclick = () => submitMCAnswer(idx);
-                    answerArea.appendChild(btn);
-                });
-
-            } else if (q.type === 'mc_complex') {
-                const selectedList = isAnswered ? ansObj.value : tempComplexSelection;
-
-                q.options.forEach((optText, idx) => {
-                    const isChecked = selectedList.includes(idx);
-                    const btn = document.createElement('button');
-                    btn.disabled = isAnswered;
-
-                    let slotClass = isChecked ? "rbx-slot rbx-slot-selected" : "rbx-slot";
-                    let checkSymbol = isChecked ? "✓" : "";
-                    let rightBadge = "";
-
-                    if (isAnswered) {
-                        const isKey = q.answers.includes(idx);
-                        if (isKey) {
-                            slotClass = "rbx-slot rbx-slot-correct font-bold";
-                            checkSymbol = "✓";
-                            rightBadge = "🏆";
-                        } else if (isChecked && !isKey) {
-                            slotClass = "rbx-slot rbx-slot-wrong";
-                            rightBadge = "❌";
-                        } else {
-                            slotClass = "rbx-slot opacity-55";
-                        }
-                    }
-
-                    btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
-                    btn.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <span class="font-rbx w-9 h-9 rounded-lg bg-[#191B1D] text-[#F5CD30] flex items-center justify-center text-lg shrink-0">
-                                ${checkSymbol}
-                            </span>
-                            <span class="text-base sm:text-lg font-bold">${escapeHTML(optText)}</span>
-                        </div>
-                        <span class="text-xl">${rightBadge}</span>
-                    `;
-                    btn.onclick = () => toggleComplexOption(idx);
-                    answerArea.appendChild(btn);
-                });
-
-                if (!isAnswered) {
-                    const submitBtn = document.createElement('button');
-                    submitBtn.className = "rbx-btn rbx-btn-gold w-full sm:w-auto px-6 py-3 text-sm mt-2 cursor-pointer";
-                    submitBtn.innerText = "✔ KUNCI JAWABAN";
-                    submitBtn.onclick = submitComplexAnswer;
-                    answerArea.appendChild(submitBtn);
-                }
-
-            } else if (q.type === 'match') {
-                answerArea.innerHTML = `
-                    <div class="bg-[#191B1D] rounded-2xl border-3 border-[#00A2FF] p-3.5 mb-3 flex items-center gap-3 text-white">
-                        <span class="text-3xl">${q.deviceIcon}</span>
-                        <div>
-                            <span class="font-rbx text-[10px] text-sky-400 block">ITEM / ALAT:</span>
-                            <span class="font-bold text-lg text-[#F5CD30]">${escapeHTML(q.deviceName)}</span>
-                        </div>
-                    </div>
-                `;
-                q.options.forEach((optText, idx) => {
-                    const btn = document.createElement('button');
-                    btn.disabled = isAnswered;
-
-                    let slotClass = "rbx-slot";
-                    let iconRight = "";
-
-                    if (isAnswered) {
-                        if (idx === q.answer) {
-                            slotClass = "rbx-slot rbx-slot-correct font-bold";
-                            iconRight = "🏆";
-                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
-                            slotClass = "rbx-slot rbx-slot-wrong";
-                            iconRight = "❌";
-                        } else {
-                            slotClass = "rbx-slot opacity-55";
-                        }
-                    }
-
-                    btn.className = `w-full text-left p-3 sm:p-3.5 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
-                    btn.innerHTML = `
-                        <span class="text-base font-bold">${escapeHTML(optText)}</span>
                         <span class="text-xl">${iconRight}</span>
                     `;
                     btn.onclick = () => submitMCAnswer(idx);
@@ -1130,14 +1032,14 @@
                         <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
                             placeholder="${escapeHTML(q.placeholder)}"
                             onkeydown="if(event.key === 'Enter') submitTextAnswer()"
-                            class="rbx-input w-full px-4 py-3.5 text-lg font-semibold">
+                            class="desert-input w-full px-4 py-3.5 text-lg font-semibold">
                         ${!isAnswered ? `
-                            <button onclick="submitTextAnswer()" class="rbx-btn rbx-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                            <button onclick="submitTextAnswer()" class="desert-btn desert-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
                                 ✔ CEK JAWABAN
                             </button>
                         ` : `
-                            <div class="bg-[#191B1D] rounded-xl border-2 border-[#00B06F] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                📌 Kunci Jawaban: <span class="text-[#F5CD30] font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                            <div class="bg-amber-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                📌 Kunci Jawaban: <span class="text-amber-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
                             </div>
                         `}
                     </div>
@@ -1145,62 +1047,31 @@
                 if (!isAnswered) setTimeout(() => document.getElementById('short-input')?.focus(), 100);
 
             } else if (q.type === 'essay') {
-                if (q.isDoubleInput) {
-                    const val1 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[0]) : '';
-                    const val2 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[1]) : '';
-                    answerArea.innerHTML = `
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-2">
-                                <span class="font-rbx text-slate-900 font-bold">1.</span>
-                                <input type="text" id="essay-input-1" value="${val1}" ${isAnswered ? 'disabled' : ''}
-                                    placeholder="Cara aman pertama..."
-                                    class="rbx-input w-full px-4 py-3 text-base font-medium">
+                const savedEssay = isAnswered ? escapeHTML(ansObj.value) : '';
+                answerArea.innerHTML = `
+                    <div class="space-y-3">
+                        <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
+                            placeholder="${escapeHTML(q.placeholder)}"
+                            class="desert-input w-full px-4 py-3 text-base font-medium">${savedEssay}</textarea>
+                        ${!isAnswered ? `
+                            <button onclick="submitTextAnswer()" class="desert-btn desert-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                ✔ KIRIM JAWABAN
+                            </button>
+                        ` : `
+                            <div class="bg-amber-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                📌 Contoh Jawaban Benar: <span class="text-amber-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="font-rbx text-slate-900 font-bold">2.</span>
-                                <input type="text" id="essay-input-2" value="${val2}" ${isAnswered ? 'disabled' : ''}
-                                    placeholder="Cara aman kedua..."
-                                    onkeydown="if(event.key === 'Enter') submitTextAnswer()"
-                                    class="rbx-input w-full px-4 py-3 text-base font-medium">
-                            </div>
-                            ${!isAnswered ? `
-                                <button onclick="submitTextAnswer()" class="rbx-btn rbx-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
-                                    ✔ KIRIM JAWABAN
-                                </button>
-                            ` : `
-                                <div class="bg-[#191B1D] rounded-xl border-2 border-[#00B06F] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                    📌 Contoh Jawaban: <span class="text-[#F5CD30] font-bold">${escapeHTML(q.sampleAnswer)}</span>
-                                </div>
-                            `}
-                        </div>
-                    `;
-                } else {
-                    const savedEssay = isAnswered ? escapeHTML(ansObj.value) : '';
-                    answerArea.innerHTML = `
-                        <div class="space-y-3">
-                            <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
-                                placeholder="${escapeHTML(q.placeholder)}"
-                                class="rbx-input w-full px-4 py-3 text-base font-medium">${savedEssay}</textarea>
-                            ${!isAnswered ? `
-                                <button onclick="submitTextAnswer()" class="rbx-btn rbx-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
-                                    ✔ KIRIM JAWABAN
-                                </button>
-                            ` : `
-                                <div class="bg-[#191B1D] rounded-xl border-2 border-[#00B06F] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
-                                    📌 Contoh Jawaban: <span class="text-[#F5CD30] font-bold">${escapeHTML(q.sampleAnswer)}</span>
-                                </div>
-                            `}
-                        </div>
-                    `;
-                }
+                        `}
+                    </div>
+                `;
             }
 
             const feedbackBox = document.getElementById('feedback-box');
             if (isAnswered) {
                 feedbackBox.classList.remove('hidden');
                 if (ansObj.isCorrect) {
-                    document.getElementById('feedback-emoji').innerText = "🏅";
-                    document.getElementById('feedback-title').innerText = "BADGE UNLOCKED! (+4 ROBUX)";
+                    document.getElementById('feedback-emoji').innerText = "🌴";
+                    document.getElementById('feedback-title').innerText = "MASYA ALLAH, BENAR! (+1 BUAH KURMA)";
                 } else {
                     document.getElementById('feedback-emoji').innerText = "💡";
                     document.getElementById('feedback-title').innerText = "YUK PELAJARI PENJELASANNYA!";
@@ -1213,11 +1084,11 @@
             document.getElementById('prev-btn').disabled = currentIndex === 0;
             const nextBtn = document.getElementById('next-btn');
             if (currentIndex === questions.length - 1) {
-                nextBtn.innerText = "FINISH 🏆";
-                nextBtn.className = "rbx-btn rbx-btn-gold flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+                nextBtn.innerText = "SELESAI 🏆";
+                nextBtn.className = "desert-btn desert-btn-gold flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
             } else {
-                nextBtn.innerText = "NEXT ▶";
-                nextBtn.className = "rbx-btn rbx-btn-blue flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+                nextBtn.innerText = "SELANJUTNYA ▶";
+                nextBtn.className = "desert-btn desert-btn-emerald flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
             }
 
             renderDots();
@@ -1243,65 +1114,25 @@
             finalizeAnswer(selectedIndex, isCorrect);
         }
 
-        function toggleComplexOption(idx) {
-            if (userAnswers[currentIndex] !== null) return;
-            playSound('click');
-            const pos = tempComplexSelection.indexOf(idx);
-            if (pos > -1) {
-                tempComplexSelection.splice(pos, 1);
-            } else {
-                if (tempComplexSelection.length >= 2) {
-                    tempComplexSelection.shift();
-                }
-                tempComplexSelection.push(idx);
-            }
-            renderQuestion();
-        }
-
-        function submitComplexAnswer() {
-            if (userAnswers[currentIndex] !== null) return;
-            if (tempComplexSelection.length < 2) {
-                showModal("PILIH 2 KOTAK!", "Beri tanda centang (✓) pada 2 jawaban yang paling tepat ya!");
-                return;
-            }
-            const correctAns = questions[currentIndex].answers;
-            const isCorrect = correctAns.every(val => tempComplexSelection.includes(val));
-            const chosen = [...tempComplexSelection];
-            tempComplexSelection = [];
-            finalizeAnswer(chosen, isCorrect);
-        }
-
         function submitTextAnswer() {
             if (userAnswers[currentIndex] !== null) return;
             const q = questions[currentIndex];
+            const inputEl = q.type === 'short' ? document.getElementById('short-input') : document.getElementById('essay-input');
+            const rawVal = inputEl.value.trim();
 
-            if (q.isDoubleInput) {
-                const v1 = document.getElementById('essay-input-1').value.trim();
-                const v2 = document.getElementById('essay-input-2').value.trim();
-                if (!v1 || !v2) {
-                    showModal("BELUM LENGKAP!", "Isi kedua kotak jawaban terlebih dahulu ya!");
-                    return;
-                }
-                const combined = (v1 + " " + v2).toLowerCase();
-                const isCorrect = q.keywords.some(kw => combined.includes(kw));
-                finalizeAnswer([v1, v2], isCorrect);
-            } else {
-                const inputEl = q.type === 'short' ? document.getElementById('short-input') : document.getElementById('essay-input');
-                const rawVal = inputEl.value.trim();
-                if (!rawVal) {
-                    showModal("JAWABAN KOSONG!", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
-                    return;
-                }
-                const lowerVal = rawVal.toLowerCase();
-                const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
-                finalizeAnswer(rawVal, isCorrect);
+            if (!rawVal) {
+                showModal("JAWABAN KOSONG!", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
+                return;
             }
+
+            const lowerVal = rawVal.toLowerCase();
+            const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
+            finalizeAnswer(rawVal, isCorrect);
         }
 
         function prevQuestion() {
             if (currentIndex > 0) {
                 playSound('click');
-                tempComplexSelection = [];
                 currentIndex--;
                 saveQuizState();
                 renderQuestion();
@@ -1310,7 +1141,6 @@
 
         function nextQuestion() {
             playSound('click');
-            tempComplexSelection = [];
             if (currentIndex < questions.length - 1) {
                 currentIndex++;
                 saveQuizState();
@@ -1320,8 +1150,8 @@
                 if (unansweredIndex !== -1) {
                     const missingQ = questions[unansweredIndex];
                     showModal(
-                        "ADA STAGE TERLEWAT!", 
-                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu kerjakan. Ayo selesaikan dulu!`
+                        "ADA SOAL TERLEWAT!", 
+                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu jawab. Ayo kita selesaikan dulu!`
                     );
                     currentIndex = unansweredIndex;
                     saveQuizState();
@@ -1341,21 +1171,22 @@
 
             const scoreData = calculateScore();
             document.getElementById('result-student-info').innerText = `${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-dates').innerText = `${scoreData.correct} 🌴`;
             document.getElementById('final-score').innerText = scoreData.points;
-            document.getElementById('final-stats').innerText = `Berhasil melewati ${scoreData.correct} dari ${questions.length} stage soal`;
+            document.getElementById('final-stats').innerText = `Benar ${scoreData.correct} dari ${questions.length} soal`;
 
             let msg = "";
             if (scoreData.points === 100) {
-                msg = "GGWP! Kamu pro player literasi digital yang sangat bijak memakai gadget! 🏆🎉";
+                msg = "MASYA ALLAH, SEMPURNA! Kamu berhasil mengumpulkan seluruh 25 buah kurma manis dan hafal Rukun Islam! 🌟🕌";
                 triggerConfetti();
                 setTimeout(triggerConfetti, 450);
             } else if (scoreData.points >= 80) {
-                msg = "KEREN SEKALI! Kamu sudah paham cara menggunakan gadget dengan aman dan sehat! 🌟";
+                msg = "ALHAMDULILLAH, HEBAT! Pemahamanmu tentang Rukun Islam dan Syahadatain sangat baik! 👏🌴";
                 triggerConfetti();
             } else if (scoreData.points >= 60) {
-                msg = "BAGUS! Terus berlatih lagi agar makin jago menjaga keamanan digital! 💪";
+                msg = "BAGUS! Terus semangat belajar dan menghafal Rukun Islam ya! 💪📖";
             } else {
-                msg = "AYO COBA LAGI! Baca setiap petunjuk dengan teliti untuk mengumpulkan lebih banyak Robux! 🚀";
+                msg = "AYO COBA LAGI! Baca ringkasan Rukun Islam di bawah ini dan kumpulkan semua kurmanya! 🐪✨";
             }
             document.getElementById('result-message').innerText = msg;
             playSound('finish');
@@ -1365,7 +1196,7 @@
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
             const indicator = document.getElementById('save-indicator');
-            if (indicator) indicator.innerText = '✅ COMPLETED';
+            if (indicator) indicator.innerText = '✅ SELESAI';
             currentIndex = 0;
             renderQuestion();
         }
@@ -1374,7 +1205,6 @@
             clearQuizState();
             isQuizCompleted = false;
             userAnswers = new Array(questions.length).fill(null);
-            tempComplexSelection = [];
             currentIndex = 0;
             saveQuizState();
             updateScoreUI();
@@ -1387,7 +1217,7 @@
         let deferredPrompt = null;
 
         function setupPWA() {
-            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#00A2FF"/><rect x="16" y="16" width="32" height="32" rx="4" transform="rotate(14 32 32)" fill="none" stroke="#FFFFFF" stroke-width="8"/></svg>';
+            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#047857"/><circle cx="256" cy="256" r="185" fill="#FDE68A"/><text x="50%" y="56%" font-size="220" text-anchor="middle" dominant-baseline="middle">🐪</text></svg>';
             const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
 
             const appleIcon = document.createElement('link');
@@ -1396,13 +1226,13 @@
             document.head.appendChild(appleIcon);
 
             const manifestData = {
-                name: "Roblox Quiz: Literasi Digital SD",
-                short_name: "RBX Literasi",
-                description: "LKPD Literasi Digital Kelas 1 SD - Tema Gadget di Rumah",
+                name: "Petualangan Gurun & Kurma: Al Islam Kelas 1 SD",
+                short_name: "Kuis Al Islam",
+                description: "Latihan Sumatif Al Islam Kelas 1 SD - Rukun Islam dan Kalimat Syahadatain",
                 start_url: window.location.href,
                 display: "standalone",
-                background_color: "#00A2FF",
-                theme_color: "#00A2FF",
+                background_color: "#FDE68A",
+                theme_color: "#047857",
                 orientation: "portrait-primary",
                 icons: [
                     { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
@@ -1417,7 +1247,7 @@
             document.head.appendChild(manifestLink);
 
             if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-                const swCode = "const CACHE_NAME='rbx-literasi-sd1-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
+                const swCode = "const CACHE_NAME='al-islam-sd1-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
                 const swBlob = new Blob([swCode], { type: 'application/javascript' });
                 navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
             }
