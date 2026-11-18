@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#DC2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pokémon English SD">
+    <title>Pokémon Quiz: Bahasa Inggris Kelas 1 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --poke-red: #EE1515;
+            --poke-red-dark: #B91C1C;
+            --poke-yellow: #FFCB05;
+            --poke-blue: #2A75BB;
+            --poke-blue-dark: #1D4ED8;
+            --poke-green: #22C55E;
+            --poke-dark: #1E293B;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            user-select: none;
+            background-color: #38BDF8;
+            /* Pola Pokéball & Padang Rumput Trainer Pokémon */
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.25) 18%, transparent 20%),
+                radial-gradient(rgba(42, 117, 187, 0.15) 20%, transparent 22%),
+                linear-gradient(180deg, #60A5FA 0%, #38BDF8 58%, #4ADE80 58%, #16A34A 100%);
+            background-size: 42px 42px, 42px 42px, 100% 100%;
+            background-position: 0 0, 21px 21px, 0 0;
+            background-attachment: fixed;
+        }
+
+        .font-poke {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.4px;
+        }
+
+        .poke-panel {
+            background-color: #FFFFFF;
+            border: 4px solid #1E293B;
+            box-shadow: 0 10px 0px rgba(30, 41, 59, 0.32);
+            border-radius: 22px;
+        }
+
+        .poke-header {
+            background: linear-gradient(180deg, #EE1515 0%, #DC2626 100%);
+            border-bottom: 6px solid #1E293B;
+            position: relative;
+        }
+
+        .poke-btn {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            background-color: #334155;
+            color: #FFFFFF;
+            border: 3px solid #1E293B;
+            box-shadow: 0 5px 0px #0F172A;
+            transition: transform 0.08s ease, background-color 0.12s ease, box-shadow 0.08s ease;
+            border-radius: 14px;
+        }
+
+        .poke-btn:hover:not(:disabled) {
+            background-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        .poke-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #0F172A;
+        }
+
+        .poke-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .poke-btn-red {
+            background-color: #EE1515;
+            color: #FFFFFF;
+            border-color: #1E293B;
+            box-shadow: 0 5px 0px #991B1B;
+        }
+
+        .poke-btn-red:hover:not(:disabled) {
+            background-color: #F87171;
+        }
+
+        .poke-btn-blue {
+            background-color: #2A75BB;
+            color: #FFFFFF;
+            border-color: #1E293B;
+            box-shadow: 0 5px 0px #1E3A8A;
+        }
+
+        .poke-btn-blue:hover:not(:disabled) {
+            background-color: #3B82F6;
+        }
+
+        .poke-btn-yellow {
+            background-color: #FFCB05;
+            color: #1E293B;
+            border-color: #1E293B;
+            box-shadow: 0 5px 0px #B45309;
+        }
+
+        .poke-btn-yellow:hover:not(:disabled) {
+            background-color: #FDE047;
+        }
+
+        .poke-btn-green {
+            background-color: #16A34A;
+            color: #FFFFFF;
+            border-color: #1E293B;
+            box-shadow: 0 5px 0px #14532D;
+        }
+
+        .poke-slot {
+            background-color: #F8FAFC;
+            color: #1E293B;
+            border: 3px solid #1E293B;
+            box-shadow: 0 4px 0px #CBD5E1;
+            border-radius: 16px;
+            transition: all 0.12s ease;
+        }
+
+        .poke-slot:hover:not(:disabled) {
+            background-color: #FEF9C3;
+            border-color: #2A75BB;
+            transform: translateY(-2px);
+        }
+
+        .poke-slot-correct {
+            background-color: #22C55E !important;
+            color: #FFFFFF !important;
+            border-color: #1E293B !important;
+            box-shadow: 0 4px 0px #15803D !important;
+        }
+
+        .poke-slot-wrong {
+            background-color: #EF4444 !important;
+            color: #FFFFFF !important;
+            border-color: #1E293B !important;
+            box-shadow: 0 4px 0px #991B1B !important;
+        }
+
+        .poke-input {
+            background-color: #F8FAFC;
+            color: #1E293B;
+            border: 3px solid #1E293B;
+            box-shadow: inset 0 3px 0px #E2E8F0;
+            border-radius: 14px;
+        }
+
+        .poke-input:focus {
+            border-color: #2A75BB;
+            background-color: #FFFFFF;
+            outline: none;
+        }
+
+        .card-enter {
+            animation: popBlock 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popBlock {
+            from { opacity: 0; transform: scale(0.94) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .shake {
+            animation: shakeAnim 0.35s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-3 sm:p-6">
+
+    <div id="app" class="w-full max-w-2xl">
+        
+        <div id="start-screen" class="poke-panel overflow-hidden card-enter">
+            <div class="poke-header p-6 text-center text-white">
+                <div class="inline-flex items-center gap-2 bg-white/15 border-2 border-[#FFCB05] text-[#FFCB05] font-poke px-3.5 py-1 rounded-full text-xs sm:text-sm mb-3">
+                    <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-900 bg-gradient-to-b from-red-500 via-slate-900 to-white"></span>
+                    POKÉMON QUIZ: ENGLISH GRADE 1 SD
+                </div>
+                <h1 class="font-poke text-2xl sm:text-3xl font-black text-white tracking-wide drop-shadow">
+                    MATERI: <span class="text-[#FFCB05]">CLASSROOM & BODY</span>
+                </h1>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <div id="saved-progress-banner" class="hidden bg-slate-900 border-4 border-[#FFCB05] rounded-2xl p-4 mb-6 text-left shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="font-poke text-xs text-[#FFCB05] block">💾 POKÉDEX SAVE DATA (1 MINGGU):</span>
+                            <p id="saved-progress-info" class="text-white font-bold text-base mt-0.5"></p>
+                            <p id="saved-progress-detail" class="text-slate-300 text-xs mt-0.5"></p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="resumeSavedQuiz()" class="poke-btn poke-btn-yellow px-4 py-2.5 text-xs cursor-pointer">
+                                ▶ LANJUTKAN
+                            </button>
+                            <button onclick="discardSavedQuiz()" class="poke-btn poke-btn-red px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maskot Pikachu & Pokéball SVG -->
+                <div class="w-28 h-28 mx-auto mb-5 bg-amber-100 rounded-full border-4 border-slate-900 shadow-[0_6px_0_#CBD5E1] flex items-center justify-center">
+                    <svg viewBox="0 0 64 64" class="w-22 h-22">
+                        <!-- Telinga Pikachu -->
+                        <path d="M18 24 L10 6 L26 18 Z" fill="#FFCB05" stroke="#1E293B" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M14 14 L10 6 L19 12 Z" fill="#1E293B"/>
+                        <path d="M46 24 L54 6 L38 18 Z" fill="#FFCB05" stroke="#1E293B" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M50 14 L54 6 L45 12 Z" fill="#1E293B"/>
+                        <!-- Kepala Pikachu -->
+                        <ellipse cx="32" cy="36" rx="18" ry="16" fill="#FFCB05" stroke="#1E293B" stroke-width="2.8"/>
+                        <!-- Mata -->
+                        <circle cx="25" cy="33" r="2.8" fill="#1E293B"/>
+                        <circle cx="24.2" cy="32" r="1" fill="#FFFFFF"/>
+                        <circle cx="39" cy="33" r="2.8" fill="#1E293B"/>
+                        <circle cx="38.2" cy="32" r="1" fill="#FFFFFF"/>
+                        <!-- Pipi Merah Listrik -->
+                        <circle cx="19" cy="40" r="3.5" fill="#EE1515"/>
+                        <circle cx="45" cy="40" r="3.5" fill="#EE1515"/>
+                        <!-- Hidung & Mulut -->
+                        <polygon points="32,36 30.5,38 33.5,38" fill="#1E293B"/>
+                        <path d="M27 42 Q30 45 32 42 Q34 45 37 42" stroke="#1E293B" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <p class="text-slate-700 font-semibold text-base sm:text-lg mb-6">
+                    Tangkap semua <span class="text-[#EE1515] font-extrabold">25 Pokéball XP</span> dengan menjawab soal Bahasa Inggris Kelas 1 SD!
+                </p>
+
+                <div class="max-w-sm mx-auto space-y-4 mb-7 text-left">
+                    <div>
+                        <label class="block font-poke text-xs text-slate-800 mb-1.5">NAMA TRAINER:</label>
+                        <input type="text" id="student-name" placeholder="Ketik namamu..." 
+                            class="poke-input w-full px-4 py-3 text-lg font-semibold">
+                    </div>
+                    <div>
+                        <label class="block font-poke text-xs text-slate-800 mb-1.5">KELAS:</label>
+                        <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
+                            class="poke-input w-full px-4 py-3 text-lg font-semibold">
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="poke-btn poke-btn-red w-full sm:w-auto px-9 py-4 text-lg sm:text-xl cursor-pointer">
+                    ⚡ MULAI PETUALANGAN!
+                </button>
+
+                <div id="pwa-install-container" class="hidden mt-4">
+                    <button id="pwa-install-btn" onclick="installPWA()" 
+                        class="poke-btn poke-btn-blue w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
+                        📲 PASANG APLIKASI (OFFLINE)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden space-y-4">
+            
+            <div class="poke-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-[#FFCB05] rounded-full border-3 border-slate-900 flex items-center justify-center text-xl font-black shadow-sm">
+                        ⚡
+                    </div>
+                    <div>
+                        <p id="display-name" class="font-bold text-slate-900 leading-tight text-base">Trainer 1</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <p id="display-class" class="font-poke text-xs text-slate-600">Kelas 1 SD</p>
+                            <span id="save-indicator" class="font-poke text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-500">💾 SAVED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-900 rounded-2xl border-2 border-slate-700 px-3.5 py-1.5 flex items-center gap-2.5">
+                        <!-- Ikon Pokéball -->
+                        <svg viewBox="0 0 24 24" class="w-6 h-6">
+                            <circle cx="12" cy="12" r="10" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                            <path d="M2 12 A10 10 0 0 1 22 12 Z" fill="#EE1515"/>
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="#1E293B" stroke-width="2.5"/>
+                            <circle cx="12" cy="12" r="3.5" fill="#FFFFFF" stroke="#1E293B" stroke-width="2"/>
+                        </svg>
+                        <div>
+                            <span class="font-poke text-[10px] text-sky-400 block leading-none">POIN XP</span>
+                            <span id="score-display" class="font-poke text-lg text-[#FFCB05] leading-none">0</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleSound()" id="sound-btn" class="poke-btn px-3 py-2 text-base" title="Suara Game">
+                        🔊
+                    </button>
+                </div>
+            </div>
+
+            <!-- Poké-XP Progress Bar -->
+            <div class="bg-slate-900 rounded-full border-3 border-slate-900 h-5 p-0.5 shadow-md">
+                <div id="progress-bar" class="bg-gradient-to-r from-[#FFCB05] to-[#EE1515] h-full rounded-full transition-all duration-300" style="width: 4%"></div>
+            </div>
+
+            <div id="question-card" class="poke-panel overflow-hidden">
+                <div class="poke-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <span id="section-badge" class="bg-slate-900 text-white font-poke px-3 py-1 rounded-lg text-xs">
+                            A. PILIHAN GANDA
+                        </span>
+                        <span id="question-number" class="bg-[#FFCB05] text-slate-900 font-poke px-3 py-1 rounded-lg text-xs font-black">
+                            NO. 1 (1/25)
+                        </span>
+                    </div>
+                    <span id="status-badge" class="hidden font-poke px-3 py-1 rounded-lg text-xs border-2 border-slate-900"></span>
+                </div>
+
+                <div class="p-5 sm:p-7">
+                    <!-- Wadah Ilustrasi Gambar Soal (untuk soal no 1-8 & petunjuk visual) -->
+                    <div id="question-visual" class="hidden mb-4 bg-sky-50 border-3 border-slate-900 rounded-2xl p-4 flex flex-col items-center justify-center text-center shadow-inner"></div>
+
+                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-slate-900 mb-5 leading-snug">
+                        Memuat soal...
+                    </h2>
+
+                    <div id="answer-area" class="space-y-3"></div>
+
+                    <div id="feedback-box" class="hidden mt-6 bg-slate-900 border-3 border-[#FFCB05] rounded-2xl p-4 text-white flex items-start gap-3.5 shadow-lg">
+                        <span id="feedback-emoji" class="text-3xl shrink-0">⚡</span>
+                        <div>
+                            <p id="feedback-title" class="font-poke text-sm sm:text-base text-[#FFCB05]"></p>
+                            <p id="feedback-desc" class="text-sm text-slate-200 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3 pt-1">
+                <button id="prev-btn" onclick="prevQuestion()" 
+                    class="poke-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    ◀ PREV
+                </button>
+
+                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-slate-900/85 p-2 rounded-xl border-2 border-slate-900"></div>
+
+                <button id="next-btn" onclick="nextQuestion()" 
+                    class="poke-btn poke-btn-blue flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    NEXT ▶
+                </button>
+            </div>
+        </div>
+
+        <div id="result-screen" class="hidden poke-panel overflow-hidden card-enter">
+            <div class="poke-header p-6 text-center text-white">
+                <div class="text-5xl mb-2 animate-bounce">🏆</div>
+                <h2 class="font-poke text-2xl sm:text-3xl text-[#FFCB05]">
+                    POKÉMON MASTER!
+                </h2>
+                <p id="result-student-info" class="text-sm sm:text-base font-semibold text-white/95 mt-1"></p>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <div class="bg-slate-900 rounded-2xl border-4 border-[#FFCB05] p-5 mb-6 max-w-sm mx-auto">
+                    <p class="font-poke text-xs text-sky-400 mb-1">TOTAL NILAI AKHIR</p>
+                    <div id="final-score" class="font-poke text-5xl sm:text-6xl text-[#FFCB05] my-2">100</div>
+                    <p id="final-stats" class="text-slate-300 text-sm font-medium"></p>
+                </div>
+
+                <p id="result-message" class="text-lg font-bold text-slate-800 mb-6 max-w-md mx-auto"></p>
+
+                <!-- Ringkasan Materi Belajar -->
+                <div class="bg-amber-50 border-3 border-slate-900 rounded-2xl p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
+                    <h3 class="font-poke text-sm text-[#B91C1C] mb-2.5 flex items-center gap-2">
+                        📘 POKÉDEX RINGKASAN MATERI:
+                    </h3>
+                    <ul class="space-y-1.5 text-xs sm:text-sm text-slate-800 font-semibold">
+                        <li>🔴 <b>This is</b> (1 benda dekat) &bull; <b>These are</b> (banyak benda dekat)</li>
+                        <li>🔵 <b>That is</b> (1 benda jauh) &bull; <b>Those are</b> (banyak benda jauh)</li>
+                        <li>🟡 <b>Have</b> dipakai untuk: <i>I, You, We, They</i></li>
+                        <li>🟢 <b>Has</b> dipakai untuk: <i>He, She, It, Nama 1 orang</i></li>
+                    </ul>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="reviewQuiz()" class="poke-btn px-6 py-3.5 text-sm cursor-pointer">
+                        🔍 LIHAT JAWABAN
+                    </button>
+                    <button onclick="restartQuiz()" class="poke-btn poke-btn-green px-7 py-3.5 text-sm cursor-pointer">
+                        🔄 MAIN LAGI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="poke-panel p-6 max-w-sm w-full text-center card-enter">
+            <div class="text-4xl mb-2">⚠️</div>
+            <h3 id="modal-title" class="font-poke text-lg text-slate-900 mb-2">PERHATIAN</h3>
+            <p id="modal-text" class="text-slate-700 font-medium mb-6"></p>
+            <button onclick="closeModal()" class="poke-btn poke-btn-yellow w-full py-3 text-sm cursor-pointer">
+                OKE, MENGERTI!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'pokemon_english_sd1_state_v1';
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+        const questions = [
+            // === BAGIAN A: PILIHAN GANDA (1-15) ===
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '1',
+                visualEmoji: '📕',
+                visualLabel: 'Gambar: Buku',
+                q: "What is this?",
+                options: ["Book", "Chair", "Table"],
+                answer: 0,
+                explanation: "Book artinya Buku."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '2',
+                visualEmoji: '🪑',
+                visualLabel: 'Gambar: Kursi',
+                q: "What is this?",
+                options: ["Bag", "Chair", "Pencil"],
+                answer: 1,
+                explanation: "Chair artinya Kursi."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '3',
+                visualEmoji: '✏️',
+                visualLabel: 'Gambar: Pensil',
+                q: "What is this?",
+                options: ["Ruler", "Eraser", "Pencil"],
+                answer: 2,
+                explanation: "Pencil artinya Pensil."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '4',
+                visualEmoji: '🎒',
+                visualLabel: 'Gambar: Tas',
+                q: "What is this?",
+                options: ["Bag", "Book", "Desk"],
+                answer: 0,
+                explanation: "Bag artinya Tas."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '5',
+                visualEmoji: '👁️',
+                visualLabel: 'Gambar: Mata',
+                q: "What is this?",
+                options: ["Nose", "Eye", "Ear"],
+                answer: 1,
+                explanation: "Eye artinya Mata."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '6',
+                visualEmoji: '👃',
+                visualLabel: 'Gambar: Hidung',
+                q: "What is this?",
+                options: ["Mouth", "Hand", "Nose"],
+                answer: 2,
+                explanation: "Nose artinya Hidung."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '7',
+                visualEmoji: '✋',
+                visualLabel: 'Gambar: Tangan',
+                q: "What is this?",
+                options: ["Hand", "Foot", "Head"],
+                answer: 0,
+                explanation: "Hand artinya Tangan."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '8',
+                visualEmoji: '👂',
+                visualLabel: 'Gambar: Telinga',
+                q: "What is this?",
+                options: ["Eye", "Ear", "Nose"],
+                answer: 1,
+                explanation: "Ear artinya Telinga."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '9',
+                q: "We use our ... to write.",
+                options: ["Pencil", "Chair", "Bag"],
+                answer: 0,
+                explanation: "Pencil (pensil) digunakan untuk menulis (to write)."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '10',
+                q: "We use our ... to see.",
+                options: ["Ears", "Eyes", "Hands"],
+                answer: 1,
+                explanation: "Eyes (mata) digunakan untuk melihat (to see)."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '11',
+                q: "... is a book. (Satu buku yang dekat)",
+                options: ["This", "These", "Those"],
+                answer: 0,
+                explanation: "'This' digunakan untuk menunjuk satu benda tunggal yang dekat."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '12',
+                q: "... are pencils. (Beberapa pensil yang dekat)",
+                options: ["That", "These", "This"],
+                answer: 1,
+                explanation: "'These' digunakan untuk menunjuk beberapa benda (jamak) yang dekat."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '13',
+                q: "... is a chair. (Satu kursi yang jauh)",
+                options: ["Those", "These", "That"],
+                answer: 2,
+                explanation: "'That' digunakan untuk menunjuk satu benda tunggal yang letaknya jauh."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '14',
+                q: "I ... two eyes.",
+                options: ["has", "have", "is"],
+                answer: 1,
+                explanation: "Subjek 'I' berpasangan dengan kata kerja 'have' (I have two eyes)."
+            },
+            {
+                type: 'mc',
+                section: 'A. PILIHAN GANDA',
+                numLabel: '15',
+                q: "She ... one nose.",
+                options: ["have", "are", "has"],
+                answer: 2,
+                explanation: "Subjek 'She' berpasangan dengan kata kerja 'has' (She has one nose)."
+            },
+
+            // === BAGIAN B: ISIAN SINGKAT (16-20) ===
+            {
+                type: 'short',
+                section: 'B. ISIAN SINGKAT',
+                numLabel: '16',
+                q: "Bahasa Inggris dari meja adalah ....",
+                placeholder: "Ketik dalam bahasa Inggris...",
+                keywords: ["table", "desk"],
+                sampleAnswer: "Table",
+                explanation: "Bahasa Inggris dari meja adalah Table."
+            },
+            {
+                type: 'short',
+                section: 'B. ISIAN SINGKAT',
+                numLabel: '17',
+                q: "Bahasa Inggris dari kepala adalah ....",
+                placeholder: "Ketik dalam bahasa Inggris...",
+                keywords: ["head"],
+                sampleAnswer: "Head",
+                explanation: "Bahasa Inggris dari kepala adalah Head."
+            },
+            {
+                type: 'short',
+                section: 'B. ISIAN SINGKAT',
+                numLabel: '18',
+                q: "... is a pencil. (Satu pensil yang dekat)",
+                placeholder: "Isi dengan This / That / These / Those...",
+                keywords: ["this"],
+                sampleAnswer: "This",
+                explanation: "Untuk satu benda yang dekat kita menggunakan 'This' (This is a pencil)."
+            },
+            {
+                type: 'short',
+                section: 'B. ISIAN SINGKAT',
+                numLabel: '19',
+                q: "... are books. (Beberapa buku yang jauh)",
+                placeholder: "Isi dengan This / That / These / Those...",
+                keywords: ["those"],
+                sampleAnswer: "Those",
+                explanation: "Untuk beberapa benda yang jauh kita menggunakan 'Those' (Those are books)."
+            },
+            {
+                type: 'short',
+                section: 'B. ISIAN SINGKAT',
+                numLabel: '20',
+                q: "He ... two hands. (have / has)",
+                placeholder: "Pilih: have atau has...",
+                keywords: ["has"],
+                sampleAnswer: "has",
+                explanation: "Subjek 'He' menggunakan 'has' (He has two hands)."
+            },
+
+            // === BAGIAN C: ESAI (21-25) ===
+            {
+                type: 'essay',
+                section: 'C. ESAI',
+                numLabel: '21',
+                q: "Tuliskan 5 kosakata benda yang ada di dalam kelas dalam bahasa Inggris beserta artinya!",
+                placeholder: "Contoh: Book = Buku, Pencil = Pensil, Table = Meja, Chair = Kursi, Ruler = Penggaris",
+                keywords: ["book", "pencil", "table", "chair", "ruler", "eraser", "bag", "board", "whiteboard", "crayon", "marker", "desk"],
+                sampleAnswer: "Book = Buku, Pencil = Pensil, Table = Meja, Chair = Kursi, Ruler = Penggaris",
+                explanation: "Contoh jawaban: Book (Buku), Pencil (Pensil), Table (Meja), Chair (Kursi), Ruler (Penggaris), Eraser (Penghapus), Bag (Tas)."
+            },
+            {
+                type: 'essay',
+                section: 'C. ESAI',
+                numLabel: '22',
+                q: "Tuliskan 5 nama anggota badan dalam bahasa Inggris beserta artinya!",
+                placeholder: "Contoh: Head = Kepala, Eye = Mata, Nose = Hidung, Ear = Telinga, Mouth = Mulut",
+                keywords: ["head", "eye", "nose", "ear", "mouth", "hand", "foot", "leg", "arm", "finger", "hair"],
+                sampleAnswer: "Head = Kepala, Eye = Mata, Nose = Hidung, Ear = Telinga, Mouth = Mulut",
+                explanation: "Contoh jawaban: Head (Kepala), Eye (Mata), Nose (Hidung), Ear (Telinga), Mouth (Mulut), Hand (Tangan), Foot (Kaki)."
+            },
+            {
+                type: 'essay',
+                section: 'C. ESAI',
+                numLabel: '23',
+                q: "Buatlah 2 kalimat menggunakan This is dan These are!",
+                isDoubleInput: true,
+                placeholder1: "Kalimat dengan This is... (contoh: This is a book.)",
+                placeholder2: "Kalimat dengan These are... (contoh: These are pencils.)",
+                keywords: ["this is", "these are"],
+                sampleAnswer: "1. This is a book. 2. These are pencils.",
+                explanation: "Contoh: 'This is a book.' (untuk 1 benda dekat) dan 'These are pencils.' (untuk banyak benda dekat)."
+            },
+            {
+                type: 'essay',
+                section: 'C. ESAI',
+                numLabel: '24',
+                q: "Buatlah 2 kalimat menggunakan That is dan Those are!",
+                isDoubleInput: true,
+                placeholder1: "Kalimat dengan That is... (contoh: That is a chair.)",
+                placeholder2: "Kalimat dengan Those are... (contoh: Those are bags.)",
+                keywords: ["that is", "those are"],
+                sampleAnswer: "1. That is a chair. 2. Those are bags.",
+                explanation: "Contoh: 'That is a chair.' (untuk 1 benda jauh) dan 'Those are bags.' (untuk banyak benda jauh)."
+            },
+            {
+                type: 'essay',
+                section: 'C. ESAI',
+                numLabel: '25',
+                q: "Lengkapilah 5 kalimat berikut dengan have atau has!\na. I ... two hands.\nb. She ... two eyes.\nc. He ... one mouth.\nd. They ... two ears.\ne. I ... one nose.",
+                isFiveHaveHas: true,
+                keywords: ["have", "has"],
+                sampleAnswer: "a. have | b. has | c. has | d. have | e. have",
+                explanation: "Kunci jawaban: a. I have two hands, b. She has two eyes, c. He has one mouth, d. They have two ears, e. I have one nose."
+            }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let soundEnabled = true;
+        let studentName = "";
+        let studentClass = "";
+        let isQuizCompleted = false;
+
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function saveQuizState() {
+            if (isQuizCompleted) return;
+            try {
+                const payload = {
+                    studentName,
+                    studentClass,
+                    currentIndex,
+                    userAnswers,
+                    savedAt: Date.now(),
+                    expiresAt: Date.now() + ONE_WEEK_MS
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) {
+                    indicator.innerText = '💾 SAVED';
+                }
+            } catch (e) {}
+        }
+
+        function loadQuizState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || !data.expiresAt || Date.now() > data.expiresAt) {
+                    clearQuizState();
+                    return null;
+                }
+                if (!Array.isArray(data.userAnswers) || data.userAnswers.length !== questions.length) {
+                    clearQuizState();
+                    return null;
+                }
+                return data;
+            } catch (e) {
+                clearQuizState();
+                return null;
+            }
+        }
+
+        function clearQuizState() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+        }
+
+        function checkSavedProgressOnLoad() {
+            const saved = loadQuizState();
+            const banner = document.getElementById('saved-progress-banner');
+            if (!saved) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            const answeredCount = saved.userAnswers.filter(a => a !== null).length;
+            const daysLeft = Math.max(1, Math.ceil((saved.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+
+            document.getElementById('saved-progress-info').innerText = `${saved.studentName} (${saved.studentClass})`;
+            document.getElementById('saved-progress-detail').innerText = `${answeredCount}/${questions.length} soal selesai • Terakhir No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
+            document.getElementById('student-name').value = saved.studentName;
+            document.getElementById('student-class').value = saved.studentClass;
+            banner.classList.remove('hidden');
+        }
+
+        function resumeSavedQuiz() {
+            const saved = loadQuizState();
+            if (!saved) {
+                checkSavedProgressOnLoad();
+                return;
+            }
+            studentName = saved.studentName;
+            studentClass = saved.studentClass;
+            userAnswers = saved.userAnswers;
+            currentIndex = saved.currentIndex || 0;
+            isQuizCompleted = false;
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function discardSavedQuiz() {
+            clearQuizState();
+            document.getElementById('saved-progress-banner').classList.add('hidden');
+            document.getElementById('student-name').value = '';
+            playSound('click');
+        }
+
+        let synth;
+        function initAudio() {
+            if (!synth && typeof Tone !== 'undefined') {
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.01, decay: 0.12, sustain: 0.1, release: 0.25 }
+                }).toDestination();
+                synth.volume.value = -8;
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!synth) return;
+                if (Tone.context.state !== 'running') Tone.start();
+                const now = Tone.now();
+                if (type === 'correct') {
+                    // Efek suara Pokémon Catch / Level Up
+                    synth.triggerAttackRelease("B4", "16n", now);
+                    synth.triggerAttackRelease("D5", "16n", now + 0.07);
+                    synth.triggerAttackRelease("F#5", "16n", now + 0.14);
+                    synth.triggerAttackRelease("B5", "8n", now + 0.21);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease("F3", "16n", now);
+                    synth.triggerAttackRelease("C3", "8n", now + 0.1);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease("E5", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n", now);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 80,
+                    spread: 75,
+                    origin: { y: 0.6 },
+                    colors: ['#EE1515', '#FFCB05', '#2A75BB', '#22C55E', '#FFFFFF']
+                });
+            }
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput) {
+                showModal("NAMA BELUM DIISI!", "Tulis namamu dulu sebelum memulai petualangan Pokémon!");
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput || "1 SD";
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            isQuizCompleted = false;
+
+            saveQuizState();
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function calculateScore() {
+            let correctCount = 0;
+            userAnswers.forEach(ans => {
+                if (ans && ans.isCorrect) correctCount++;
+            });
+            return {
+                correct: correctCount,
+                points: Math.round((correctCount / questions.length) * 100)
+            };
+        }
+
+        function updateScoreUI() {
+            const scoreData = calculateScore();
+            document.getElementById('score-display').innerText = scoreData.points;
+        }
+
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    currentIndex = idx;
+                    saveQuizState();
+                    renderQuestion();
+                };
+                
+                let bgClass = 'bg-slate-600 border-slate-400';
+                if (userAnswers[idx] !== null) {
+                    bgClass = userAnswers[idx].isCorrect 
+                        ? 'bg-[#22C55E] border-emerald-300' 
+                        : 'bg-[#EF4444] border-rose-300';
+                }
+                if (idx === currentIndex) {
+                    bgClass += ' ring-2 ring-[#FFCB05] scale-125';
+                }
+
+                dot.className = `w-3 h-3 rounded-full border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `${q.section} - No. ${q.numLabel}`;
+                container.appendChild(dot);
+            });
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const ansObj = userAnswers[currentIndex];
+            const isAnswered = ansObj !== null;
+
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-enter', 'shake');
+            void card.offsetWidth;
+            card.classList.add('card-enter');
+
+            document.getElementById('section-badge').innerText = q.section;
+            document.getElementById('question-number').innerText = `NO. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
+            document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+
+            const statusBadge = document.getElementById('status-badge');
+            if (isAnswered) {
+                statusBadge.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    statusBadge.className = "font-poke px-3 py-1 rounded-lg text-xs bg-[#22C55E] text-white border-2 border-slate-900 font-bold";
+                    statusBadge.innerText = "✔ GOTCHA!";
+                } else {
+                    statusBadge.className = "font-poke px-3 py-1 rounded-lg text-xs bg-[#EF4444] text-white border-2 border-slate-900 font-bold";
+                    statusBadge.innerText = "✖ KURANG TEPAT";
+                }
+            } else {
+                statusBadge.classList.add('hidden');
+            }
+
+            // Render Ilustrasi Gambar jika tersedia (Soal 1-8)
+            const visualBox = document.getElementById('question-visual');
+            if (q.visualEmoji) {
+                visualBox.classList.remove('hidden');
+                visualBox.innerHTML = `
+                    <div class="text-6xl sm:text-7xl mb-1 drop-shadow-sm">${q.visualEmoji}</div>
+                    <span class="font-poke text-xs text-slate-600 bg-white px-3 py-0.5 rounded-full border border-slate-300">${escapeHTML(q.visualLabel)}</span>
+                `;
+            } else {
+                visualBox.classList.add('hidden');
+                visualBox.innerHTML = '';
+            }
+
+            document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
+
+            const answerArea = document.getElementById('answer-area');
+            answerArea.innerHTML = '';
+
+            if (q.type === 'mc') {
+                const letters = ['a', 'b', 'c'];
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let slotClass = "poke-slot";
+                    let badgeStyle = "bg-slate-900 text-[#FFCB05]";
+                    let iconRight = "";
+
+                    if (isAnswered) {
+                        if (idx === q.answer) {
+                            slotClass = "poke-slot poke-slot-correct font-bold";
+                            badgeStyle = "bg-white text-emerald-700";
+                            iconRight = "🏆";
+                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
+                            slotClass = "poke-slot poke-slot-wrong";
+                            badgeStyle = "bg-white text-rose-700";
+                            iconRight = "❌";
+                        } else {
+                            slotClass = "poke-slot opacity-55";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="font-poke w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 uppercase ${badgeStyle}">
+                                ${letters[idx]}
+                            </span>
+                            <span class="text-base sm:text-lg font-bold">${escapeHTML(optText)}</span>
+                        </div>
+                        <span class="text-xl">${iconRight}</span>
+                    `;
+                    btn.onclick = () => submitMCAnswer(idx);
+                    answerArea.appendChild(btn);
+                });
+
+            } else if (q.type === 'short') {
+                const savedText = isAnswered ? escapeHTML(ansObj.value) : '';
+                answerArea.innerHTML = `
+                    <div class="space-y-3">
+                        <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
+                            placeholder="${escapeHTML(q.placeholder)}"
+                            onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                            class="poke-input w-full px-4 py-3.5 text-lg font-semibold">
+                        ${!isAnswered ? `
+                            <button onclick="submitTextAnswer()" class="poke-btn poke-btn-yellow w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                ✔ CEK JAWABAN
+                            </button>
+                        ` : `
+                            <div class="bg-slate-900 rounded-xl border-2 border-[#22C55E] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                📌 Kunci Jawaban: <span class="text-[#FFCB05] font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                            </div>
+                        `}
+                    </div>
+                `;
+                if (!isAnswered) setTimeout(() => document.getElementById('short-input')?.focus(), 100);
+
+            } else if (q.type === 'essay') {
+                if (q.isFiveHaveHas) {
+                    const vals = isAnswered && Array.isArray(ansObj.value) ? ansObj.value : ['', '', '', '', ''];
+                    const items = [
+                        { label: 'a. I', suffix: 'two hands.' },
+                        { label: 'b. She', suffix: 'two eyes.' },
+                        { label: 'c. He', suffix: 'one mouth.' },
+                        { label: 'd. They', suffix: 'two ears.' },
+                        { label: 'e. I', suffix: 'one nose.' }
+                    ];
+                    answerArea.innerHTML = `
+                        <div class="space-y-2.5">
+                            ${items.map((item, i) => `
+                                <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border-2 border-slate-300">
+                                    <span class="font-bold text-slate-800 text-base shrink-0">${item.label}</span>
+                                    <input type="text" id="hh-input-${i}" value="${escapeHTML(vals[i])}" ${isAnswered ? 'disabled' : ''}
+                                        placeholder="have / has"
+                                        class="poke-input w-28 sm:w-32 px-3 py-1.5 text-center font-bold text-base">
+                                    <span class="font-bold text-slate-800 text-base">${item.suffix}</span>
+                                </div>
+                            `).join('')}
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="poke-btn poke-btn-yellow w-full sm:w-auto px-6 py-3 text-sm mt-2 cursor-pointer">
+                                    ✔ KIRIM JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-slate-900 rounded-xl border-2 border-[#22C55E] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Kunci Jawaban: <span class="text-[#FFCB05] font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else if (q.isDoubleInput) {
+                    const val1 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[0]) : '';
+                    const val2 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[1]) : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-2">
+                                <span class="font-poke text-slate-900 font-bold">1.</span>
+                                <input type="text" id="essay-input-1" value="${val1}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="${escapeHTML(q.placeholder1 || 'Kalimat pertama...')}"
+                                    class="poke-input w-full px-4 py-3 text-base font-medium">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-poke text-slate-900 font-bold">2.</span>
+                                <input type="text" id="essay-input-2" value="${val2}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="${escapeHTML(q.placeholder2 || 'Kalimat kedua...')}"
+                                    onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                                    class="poke-input w-full px-4 py-3 text-base font-medium">
+                            </div>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="poke-btn poke-btn-yellow w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ KIRIM JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-slate-900 rounded-xl border-2 border-[#22C55E] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban: <span class="text-[#FFCB05] font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else {
+                    const savedEssay = isAnswered ? escapeHTML(ansObj.value) : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <textarea id="essay-input" rows="3" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${escapeHTML(q.placeholder)}"
+                                class="poke-input w-full px-4 py-3 text-base font-medium">${savedEssay}</textarea>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="poke-btn poke-btn-yellow w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ KIRIM JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-slate-900 rounded-xl border-2 border-[#22C55E] text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban: <span class="text-[#FFCB05] font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }
+            }
+
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                feedbackBox.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    document.getElementById('feedback-emoji').innerText = "⚡";
+                    document.getElementById('feedback-title').innerText = "SUPER EFFECTIVE! (+4 POIN XP)";
+                } else {
+                    document.getElementById('feedback-emoji').innerText = "💡";
+                    document.getElementById('feedback-title').innerText = "YUK PELAJARI PENJELASANNYA!";
+                }
+                document.getElementById('feedback-desc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerText = "SELESAI 🏆";
+                nextBtn.className = "poke-btn poke-btn-yellow flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            } else {
+                nextBtn.innerText = "NEXT ▶";
+                nextBtn.className = "poke-btn poke-btn-blue flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            }
+
+            renderDots();
+        }
+
+        function finalizeAnswer(value, isCorrect) {
+            userAnswers[currentIndex] = { value, isCorrect };
+            saveQuizState();
+            if (isCorrect) {
+                playSound('correct');
+                triggerConfetti();
+            } else {
+                playSound('wrong');
+                document.getElementById('question-card').classList.add('shake');
+            }
+            updateScoreUI();
+            renderQuestion();
+        }
+
+        function submitMCAnswer(selectedIndex) {
+            if (userAnswers[currentIndex] !== null) return;
+            const isCorrect = selectedIndex === questions[currentIndex].answer;
+            finalizeAnswer(selectedIndex, isCorrect);
+        }
+
+        function submitTextAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            const q = questions[currentIndex];
+
+            if (q.isFiveHaveHas) {
+                const inputs = [];
+                for (let i = 0; i < 5; i++) {
+                    const val = document.getElementById(`hh-input-${i}`).value.trim();
+                    if (!val) {
+                        showModal("BELUM LENGKAP!", "Isi semua bagian (a, b, c, d, e) dengan 'have' atau 'has' ya!");
+                        return;
+                    }
+                    inputs.push(val);
+                }
+                const expected = ['have', 'has', 'has', 'have', 'have'];
+                const correctItems = inputs.filter((v, idx) => v.toLowerCase() === expected[idx]).length;
+                const isCorrect = correctItems >= 3;
+                finalizeAnswer(inputs, isCorrect);
+            } else if (q.isDoubleInput) {
+                const v1 = document.getElementById('essay-input-1').value.trim();
+                const v2 = document.getElementById('essay-input-2').value.trim();
+                if (!v1 || !v2) {
+                    showModal("BELUM LENGKAP!", "Isi kedua kotak kalimat terlebih dahulu ya!");
+                    return;
+                }
+                const combined = (v1 + " " + v2).toLowerCase();
+                const isCorrect = q.keywords.some(kw => combined.includes(kw));
+                finalizeAnswer([v1, v2], isCorrect);
+            } else {
+                const inputEl = q.type === 'short' ? document.getElementById('short-input') : document.getElementById('essay-input');
+                const rawVal = inputEl.value.trim();
+                if (!rawVal) {
+                    showModal("JAWABAN KOSONG!", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
+                    return;
+                }
+                const lowerVal = rawVal.toLowerCase();
+                const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
+                finalizeAnswer(rawVal, isCorrect);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                playSound('click');
+                currentIndex--;
+                saveQuizState();
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                saveQuizState();
+                renderQuestion();
+            } else {
+                const unansweredIndex = userAnswers.findIndex(ans => ans === null);
+                if (unansweredIndex !== -1) {
+                    const missingQ = questions[unansweredIndex];
+                    showModal(
+                        "ADA SOAL TERLEWAT!", 
+                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu kerjakan. Ayo selesaikan dulu!`
+                    );
+                    currentIndex = unansweredIndex;
+                    saveQuizState();
+                    renderQuestion();
+                    return;
+                }
+                showResultScreen();
+            }
+        }
+
+        function showResultScreen() {
+            isQuizCompleted = true;
+            clearQuizState();
+
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const scoreData = calculateScore();
+            document.getElementById('result-student-info').innerText = `Trainer ${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-score').innerText = scoreData.points;
+            document.getElementById('final-stats').innerText = `Berhasil menjawab benar ${scoreData.correct} dari ${questions.length} soal`;
+
+            let msg = "";
+            if (scoreData.points === 100) {
+                msg = "LUAR BIASA! Kamu adalah Pokémon Master Bahasa Inggris Kelas 1 SD! 🏆⚡";
+                triggerConfetti();
+                setTimeout(triggerConfetti, 450);
+            } else if (scoreData.points >= 80) {
+                msg = "HEBAT SEKALI! Kamu sudah menguasai kosakata kelas, anggota badan, dan have/has! 🌟";
+                triggerConfetti();
+            } else if (scoreData.points >= 60) {
+                msg = "BAGUS! Terus berlatih kosakata bahasa Inggris agar nilaimu makin tinggi! 💪";
+            } else {
+                msg = "AYO COBA LAGI! Baca Pokédex ringkasan materi di bawah ini dan raih skor 100! 🚀";
+            }
+            document.getElementById('result-message').innerText = msg;
+            playSound('finish');
+        }
+
+        function reviewQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) indicator.innerText = '✅ COMPLETED';
+            currentIndex = 0;
+            renderQuestion();
+        }
+
+        function restartQuiz() {
+            clearQuizState();
+            isQuizCompleted = false;
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            saveQuizState();
+            updateScoreUI();
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            playSound('click');
+            renderQuestion();
+        }
+
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><circle cx="32" cy="32" r="30" fill="#FFFFFF" stroke="#1E293B" stroke-width="4"/><path d="M2 32 A30 30 0 0 1 62 32 Z" fill="#EE1515"/><line x1="2" y1="32" x2="62" y2="32" stroke="#1E293B" stroke-width="5"/><circle cx="32" cy="32" r="9" fill="#FFFFFF" stroke="#1E293B" stroke-width="4"/></svg>';
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = iconUrl;
+            document.head.appendChild(appleIcon);
+
+            const manifestData = {
+                name: "Pokémon Quiz: Bahasa Inggris Kelas 1 SD",
+                short_name: "PokéEnglish SD",
+                description: "Latihan Sumatif Bahasa Inggris Kelas 1 SD",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#38BDF8",
+                theme_color: "#DC2626",
+                orientation: "portrait-primary",
+                icons: [
+                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = "const CACHE_NAME='pokemon-english-sd1-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-container').classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                showModal("INFO INSTALASI", "Gunakan menu browser lalu pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') document.getElementById('pwa-install-container').classList.add('hidden');
+            deferredPrompt = null;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupPWA();
+            checkSavedProgressOnLoad();
+        });
+    </script>
+</body>
+</html>
