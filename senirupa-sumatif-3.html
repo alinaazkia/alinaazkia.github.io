@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#7C3AED">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Pegasus Warna SD">
+    <title>Petualangan Pegasus & Pelangi Warna - Kelas 1 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            user-select: none;
+            background-color: #E0F2FE;
+            /* Latar belakang langit pelangi & awan lembut Pegasus */
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.85) 0%, transparent 25%),
+                radial-gradient(circle at 85% 20%, rgba(244, 114, 182, 0.25) 0%, transparent 30%),
+                radial-gradient(circle at 50% 85%, rgba(167, 139, 250, 0.35) 0%, transparent 45%),
+                linear-gradient(180deg, #BAE6FD 0%, #EDE9FE 48%, #FCE7F3 80%, #FEF3C7 100%);
+            background-attachment: fixed;
+        }
+
+        .pegasus-panel {
+            background-color: #FFFFFF;
+            border: 4px solid #4C1D95;
+            box-shadow: 0 10px 0px rgba(76, 29, 149, 0.22);
+            border-radius: 26px;
+        }
+
+        .pegasus-header {
+            background: linear-gradient(135deg, #6D28D9 0%, #9333EA 50%, #EC4899 100%);
+            border-bottom: 5px solid #4C1D95;
+        }
+
+        .pegasus-btn {
+            font-weight: 700;
+            background-color: #5B21B6;
+            color: #FFFFFF;
+            border: 3px solid #2E1065;
+            box-shadow: 0 5px 0px #2E1065;
+            transition: transform 0.08s ease, background-color 0.12s ease, box-shadow 0.08s ease;
+            border-radius: 16px;
+        }
+
+        .pegasus-btn:hover:not(:disabled) {
+            background-color: #7C3AED;
+            transform: translateY(-1px);
+        }
+
+        .pegasus-btn:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #2E1065;
+        }
+
+        .pegasus-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .pegasus-btn-pink {
+            background-color: #EC4899;
+            color: #FFFFFF;
+            border-color: #831843;
+            box-shadow: 0 5px 0px #831843;
+        }
+
+        .pegasus-btn-pink:hover:not(:disabled) {
+            background-color: #F472B6;
+        }
+
+        .pegasus-btn-gold {
+            background-color: #FACC15;
+            color: #422006;
+            border-color: #713F12;
+            box-shadow: 0 5px 0px #713F12;
+        }
+
+        .pegasus-btn-gold:hover:not(:disabled) {
+            background-color: #FDE047;
+        }
+
+        .pegasus-btn-emerald {
+            background-color: #10B981;
+            color: #FFFFFF;
+            border-color: #064E3B;
+            box-shadow: 0 5px 0px #064E3B;
+        }
+
+        .pegasus-btn-red {
+            background-color: #EF4444;
+            color: #FFFFFF;
+            border-color: #7F1D1D;
+            box-shadow: 0 5px 0px #7F1D1D;
+        }
+
+        .option-slot {
+            background-color: #FAF5FF;
+            color: #3B0764;
+            border: 3px solid #C084FC;
+            box-shadow: 0 4px 0px #E9D5FF;
+            border-radius: 18px;
+            transition: all 0.12s ease;
+        }
+
+        .option-slot:hover:not(:disabled) {
+            background-color: #F3E8FF;
+            border-color: #EC4899;
+            transform: translateY(-2px);
+        }
+
+        .option-slot-correct {
+            background-color: #10B981 !important;
+            color: #FFFFFF !important;
+            border-color: #064E3B !important;
+            box-shadow: 0 4px 0px #064E3B !important;
+        }
+
+        .option-slot-wrong {
+            background-color: #EF4444 !important;
+            color: #FFFFFF !important;
+            border-color: #7F1D1D !important;
+            box-shadow: 0 4px 0px #7F1D1D !important;
+        }
+
+        .pegasus-input {
+            background-color: #FAF5FF;
+            color: #3B0764;
+            border: 3px solid #A855F7;
+            box-shadow: inset 0 3px 0px #F3E8FF;
+            border-radius: 14px;
+        }
+
+        .pegasus-input:focus {
+            border-color: #EC4899;
+            background-color: #FFFFFF;
+            outline: none;
+        }
+
+        .color-swatch {
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .color-swatch.active {
+            transform: scale(1.18);
+            box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #4C1D95;
+        }
+
+        #drawing-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .card-enter {
+            animation: popCloud 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popCloud {
+            from { opacity: 0; transform: scale(0.95) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .shake {
+            animation: shakeAnim 0.35s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-3 sm:p-6">
+
+    <div id="app" class="w-full max-w-2xl">
+
+        <!-- LAYAR AWAL -->
+        <div id="start-screen" class="pegasus-panel overflow-hidden card-enter">
+            <div class="pegasus-header p-6 text-center text-white">
+                <div class="inline-flex items-center gap-2 bg-white/20 border-2 border-yellow-300 text-yellow-200 font-bold px-4 py-1 rounded-full text-xs sm:text-sm mb-3">
+                    🦄 LATIHAN SENI RUPA • KELAS 1 SD
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wide drop-shadow">
+                    Petualangan <span class="text-yellow-300">Pegasus Pelangi</span>
+                </h1>
+                <p class="text-pink-100 text-xs sm:text-sm mt-1">
+                    Belajar Warna Primer, Sekunder, Panas, Dingin & Melukis di Kanvas!
+                </p>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <!-- Banner Progres Tersimpan 1 Minggu -->
+                <div id="saved-progress-banner" class="hidden bg-purple-950 border-4 border-yellow-300 rounded-2xl p-4 mb-6 text-left shadow-lg">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <span class="text-xs font-bold text-yellow-300 block">🌈 PETUALANGAN TERSIMPAN (1 MINGGU):</span>
+                            <p id="saved-progress-info" class="text-white font-bold text-base mt-0.5"></p>
+                            <p id="saved-progress-detail" class="text-purple-200 text-xs mt-0.5"></p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button onclick="resumeSavedQuiz()" class="pegasus-btn pegasus-btn-gold px-4 py-2.5 text-xs cursor-pointer">
+                                ▶ LANJUTKAN
+                            </button>
+                            <button onclick="discardSavedQuiz()" class="pegasus-btn pegasus-btn-red px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ilustrasi SVG Pegasus Kuda Bersayap Pelangi -->
+                <div class="w-44 h-36 mx-auto mb-5 bg-gradient-to-b from-sky-100 via-purple-100 to-pink-100 rounded-3xl border-4 border-purple-800 shadow-inner flex items-center justify-center relative overflow-hidden">
+                    <svg viewBox="0 0 180 140" class="w-40 h-32">
+                        <!-- Pelangi Latar -->
+                        <path d="M25 110 A65 65 0 0 1 155 110" stroke="#F87171" stroke-width="6" fill="none" opacity="0.65"/>
+                        <path d="M32 110 A58 58 0 0 1 148 110" stroke="#FBBF24" stroke-width="6" fill="none" opacity="0.65"/>
+                        <path d="M39 110 A51 51 0 0 1 141 110" stroke="#34D399" stroke-width="6" fill="none" opacity="0.65"/>
+                        <path d="M46 110 A44 44 0 0 1 134 110" stroke="#60A5FA" stroke-width="6" fill="none" opacity="0.65"/>
+                        <!-- Ekor Pelangi Pegasus -->
+                        <path d="M118 76 Q145 65 150 88 Q135 92 120 84 Z" fill="#EC4899"/>
+                        <path d="M120 82 Q146 82 145 102 Q130 98 118 88 Z" fill="#A855F7"/>
+                        <!-- Kaki Pegasus -->
+                        <rect x="68" y="92" width="7" height="24" rx="3.5" fill="#F8FAFC" stroke="#4C1D95" stroke-width="2"/>
+                        <rect x="80" y="94" width="7" height="24" rx="3.5" fill="#F8FAFC" stroke="#4C1D95" stroke-width="2"/>
+                        <rect x="103" y="92" width="7" height="24" rx="3.5" fill="#F8FAFC" stroke="#4C1D95" stroke-width="2"/>
+                        <rect x="114" y="94" width="7" height="24" rx="3.5" fill="#F8FAFC" stroke="#4C1D95" stroke-width="2"/>
+                        <!-- Badan Pegasus -->
+                        <rect x="62" y="68" width="60" height="30" rx="15" fill="#FFFFFF" stroke="#4C1D95" stroke-width="2.5"/>
+                        <!-- Leher & Kepala Pegasus -->
+                        <path d="M64 78 L52 44 Q50 32 62 30 L76 34 Q82 38 78 46 L76 74 Z" fill="#FFFFFF" stroke="#4C1D95" stroke-width="2.5"/>
+                        <!-- Tanduk Emas & Telinga -->
+                        <polygon points="56,31 50,15 62,29" fill="#FACC15" stroke="#713F12" stroke-width="1.8"/>
+                        <polygon points="65,30 67,20 71,31" fill="#FFFFFF" stroke="#4C1D95" stroke-width="1.8"/>
+                        <!-- Surai Pelangi -->
+                        <path d="M74 34 Q88 38 84 48 Q90 54 82 62 Q86 68 76 72" fill="none" stroke="#EC4899" stroke-width="6" stroke-linecap="round"/>
+                        <path d="M76 38 Q86 44 82 52 Q86 58 78 66" fill="none" stroke="#38BDF8" stroke-width="3" stroke-linecap="round"/>
+                        <!-- Sayap Besar Pegasus -->
+                        <path d="M84 74 Q96 34 134 38 Q124 54 116 56 Q128 62 114 68 Q122 74 104 78 Z" fill="#F5F3FF" stroke="#6D28D9" stroke-width="2.5" stroke-linejoin="round"/>
+                        <!-- Mata & Pipi Lucu -->
+                        <circle cx="59" cy="40" r="2.8" fill="#2E1065"/>
+                        <circle cx="58.2" cy="39.2" r="1" fill="#FFFFFF"/>
+                        <circle cx="55" cy="45" r="2.5" fill="#F472B6" opacity="0.7"/>
+                        <!-- Awan Bawah -->
+                        <ellipse cx="50" cy="122" rx="28" ry="12" fill="#FFFFFF"/>
+                        <ellipse cx="95" cy="124" rx="36" ry="14" fill="#FFFFFF"/>
+                        <ellipse cx="138" cy="122" rx="26" ry="12" fill="#FFFFFF"/>
+                    </svg>
+                </div>
+
+                <p class="text-purple-950 font-semibold text-base sm:text-lg mb-6">
+                    Kumpulkan <span class="text-pink-600 font-extrabold">25 Bintang Pelangi 🌈</span> dan warnai gambar seru di kanvas Pegasus!
+                </p>
+
+                <div class="max-w-sm mx-auto space-y-4 mb-7 text-left">
+                    <div>
+                        <label class="block text-xs font-bold text-purple-950 mb-1.5 uppercase">Nama Seniman Cilik:</label>
+                        <input type="text" id="student-name" placeholder="Ketik namamu di sini..." 
+                            class="pegasus-input w-full px-4 py-3 text-lg font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-purple-950 mb-1.5 uppercase">Kelas:</label>
+                        <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
+                            class="pegasus-input w-full px-4 py-3 text-lg font-semibold">
+                    </div>
+                </div>
+
+                <button onclick="startQuiz()" class="pegasus-btn pegasus-btn-pink w-full sm:w-auto px-9 py-4 text-lg sm:text-xl cursor-pointer">
+                    🦄 TERBANG BERSAMA PEGASUS!
+                </button>
+
+                <div id="pwa-install-container" class="hidden mt-4">
+                    <button id="pwa-install-btn" onclick="installPWA()" 
+                        class="pegasus-btn pegasus-btn-gold w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
+                        📲 PASANG APLIKASI (OFFLINE)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LAYAR KUIS -->
+        <div id="quiz-screen" class="hidden space-y-4">
+            
+            <!-- Header Info Siswa & Bintang Pelangi -->
+            <div class="pegasus-panel p-3.5 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 bg-purple-100 rounded-2xl border-2 border-purple-700 flex items-center justify-center text-2xl shadow-sm">
+                        🦄
+                    </div>
+                    <div>
+                        <p id="display-name" class="font-bold text-purple-950 leading-tight text-base">Seniman Cilik</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <p id="display-class" class="text-xs font-bold text-purple-700">Kelas 1 SD</p>
+                            <span id="save-indicator" class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-500">💾 TERSIMPAN</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-purple-950 rounded-2xl border-2 border-pink-400 px-3.5 py-1.5 flex items-center gap-2">
+                        <span class="text-xl">🌈</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-pink-300 block leading-none">BINTANG</span>
+                            <span id="stars-count" class="text-base font-extrabold text-white leading-none">0/25</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-950 rounded-2xl border-2 border-yellow-400 px-3.5 py-1.5 flex items-center gap-2">
+                        <span class="text-xl">⭐</span>
+                        <div>
+                            <span class="text-[10px] font-bold text-yellow-300 block leading-none">SKOR</span>
+                            <span id="score-display" class="text-base font-extrabold text-yellow-300 leading-none">0</span>
+                        </div>
+                    </div>
+
+                    <button onclick="toggleSound()" id="sound-btn" class="pegasus-btn px-3 py-2 text-base" title="Suara">
+                        🔊
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jalur Terbang Pegasus (Progress Bar) -->
+            <div class="bg-purple-950/90 rounded-full border-3 border-purple-800 h-6 p-1 shadow-md relative flex items-center">
+                <div id="progress-bar" class="bg-gradient-to-r from-pink-400 via-yellow-300 to-emerald-400 h-full rounded-full transition-all duration-300 flex items-center justify-end pr-1" style="width: 6%">
+                    <span class="text-xs leading-none">🦄</span>
+                </div>
+                <span class="absolute right-2 text-xs" title="Istana Pelangi">🏰</span>
+            </div>
+
+            <!-- Kartu Soal -->
+            <div id="question-card" class="pegasus-panel overflow-hidden">
+                <div class="pegasus-header px-5 py-3 flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex items-center gap-2">
+                        <span id="section-badge" class="bg-purple-950 text-pink-200 font-bold px-3 py-1 rounded-lg text-xs uppercase">
+                            I. Pilihan Ganda
+                        </span>
+                        <span id="question-number" class="bg-yellow-300 text-purple-950 font-extrabold px-3 py-1 rounded-lg text-xs">
+                            No. 1 (1/25)
+                        </span>
+                    </div>
+                    <span id="status-badge" class="hidden font-bold px-3 py-1 rounded-lg text-xs border-2 border-purple-950"></span>
+                </div>
+
+                <div class="p-5 sm:p-7">
+                    <h2 id="question-text" class="text-xl sm:text-2xl font-bold text-purple-950 mb-4 leading-snug whitespace-pre-line">
+                        Memuat soal...
+                    </h2>
+
+                    <!-- KANVAS MEWARNAI INTERAKTIF (Khusus Bagian III Uraian & Gambar Kreatif) -->
+                    <div id="coloring-studio" class="hidden mb-5 bg-gradient-to-b from-purple-50 to-pink-50 border-3 border-purple-700 rounded-2xl p-3.5 sm:p-4 shadow-inner">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                            <span class="text-xs sm:text-sm font-bold text-purple-900 flex items-center gap-1.5">
+                                🎨 KANVAS MELUKIS & MEWARNAI PEGASUS:
+                            </span>
+                            <span id="canvas-guide-badge" class="text-[11px] font-bold bg-yellow-200 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-400">
+                                Pilih warna & coret di kanvas!
+                            </span>
+                        </div>
+
+                        <!-- Palet Pilihan Warna -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-xl border-2 border-purple-200 mb-3">
+                            <div id="color-palette" class="flex flex-wrap items-center gap-2">
+                                <!-- Diisi via JS -->
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="setBrushSize(6)" id="brush-sm" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-200 text-purple-950 border border-purple-400 cursor-pointer" title="Kuas Kecil">•</button>
+                                <button type="button" onclick="setBrushSize(14)" id="brush-md" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-700 text-white border border-purple-900 cursor-pointer" title="Kuas Sedang">●</button>
+                                <button type="button" onclick="setBrushSize(24)" id="brush-lg" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-200 text-purple-950 border border-purple-400 cursor-pointer" title="Kuas Besar">⬤</button>
+                                <button type="button" onclick="clearDrawingCanvas()" class="ml-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 cursor-pointer">
+                                    🧹 Bersihkan
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Area Kanvas Coret-Coret Polos untuk Eksplorasi Menggambar Siswa -->
+                        <div class="relative w-full bg-white rounded-xl border-3 border-purple-900 overflow-hidden shadow-md">
+                            <canvas id="drawing-canvas" class="w-full h-56 sm:h-64 block"></canvas>
+                        </div>
+                        <p class="text-[11px] text-purple-700 font-semibold mt-1.5 text-center">
+                            ✨ Kanvas putih polos siap digunakan! Gambar dan warnai kreasi kamu sendiri dengan jari atau mouse!
+                        </p>
+                    </div>
+
+                    <!-- Area Input / Pilihan Jawaban -->
+                    <div id="answer-area" class="space-y-3"></div>
+
+                    <!-- Kotak Penjelasan -->
+                    <div id="feedback-box" class="hidden mt-6 bg-purple-950 border-3 border-yellow-300 rounded-2xl p-4 text-white flex items-start gap-3.5 shadow-lg">
+                        <span id="feedback-emoji" class="text-3xl shrink-0">🦄</span>
+                        <div>
+                            <p id="feedback-title" class="font-bold text-sm sm:text-base text-yellow-300"></p>
+                            <p id="feedback-desc" class="text-sm text-purple-100 mt-1 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigasi Next & Prev -->
+            <div class="flex items-center justify-between gap-3 pt-1">
+                <button id="prev-btn" onclick="prevQuestion()" 
+                    class="pegasus-btn flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    ◀ SEBELUMNYA
+                </button>
+
+                <div id="dots-container" class="hidden md:flex items-center gap-1 flex-wrap justify-center max-w-sm bg-purple-950/90 p-2 rounded-xl border-2 border-purple-800"></div>
+
+                <button id="next-btn" onclick="nextQuestion()" 
+                    class="pegasus-btn pegasus-btn-pink flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2">
+                    SELANJUTNYA ▶
+                </button>
+            </div>
+        </div>
+
+        <!-- LAYAR HASIL AKHIR -->
+        <div id="result-screen" class="hidden pegasus-panel overflow-hidden card-enter">
+            <div class="pegasus-header p-6 text-center text-white">
+                <div class="text-5xl mb-2 animate-bounce">🦄</div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-yellow-300">
+                    SENIMAN PEGASUS HEBAT!
+                </h2>
+                <p id="result-student-info" class="text-sm sm:text-base font-semibold text-pink-100 mt-1"></p>
+            </div>
+
+            <div class="p-6 sm:p-8 text-center">
+                <div class="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6">
+                    <div class="bg-purple-950 rounded-2xl border-4 border-pink-400 p-4">
+                        <p class="text-xs font-bold text-pink-300 mb-1">BINTANG PELANGI</p>
+                        <div id="final-stars" class="text-3xl sm:text-4xl font-extrabold text-white my-1">25 🌈</div>
+                        <p class="text-purple-200 text-xs">Dari 25 bintang</p>
+                    </div>
+                    <div class="bg-indigo-950 rounded-2xl border-4 border-yellow-300 p-4">
+                        <p class="text-xs font-bold text-yellow-300 mb-1">NILAI AKHIR</p>
+                        <div id="final-score" class="text-3xl sm:text-4xl font-extrabold text-yellow-300 my-1">100</div>
+                        <p id="final-stats" class="text-indigo-200 text-xs">Benar 25/25 soal</p>
+                    </div>
+                </div>
+
+                <p id="result-message" class="text-lg font-bold text-purple-950 mb-6 max-w-md mx-auto"></p>
+
+                <!-- Ringkasan Teori Warna -->
+                <div class="bg-purple-50 border-3 border-purple-700 rounded-2xl p-4 sm:p-5 text-left max-w-lg mx-auto mb-7 shadow-inner">
+                    <h3 class="font-bold text-sm text-purple-900 mb-2.5 flex items-center gap-2">
+                        🎨 RINGKASAN DUNIA WARNA PEGASUS:
+                    </h3>
+                    <ul class="space-y-1.5 text-xs sm:text-sm text-purple-950 font-semibold">
+                        <li>🔴🟡🔵 <b>Warna Primer (Dasar):</b> Merah, Kuning, Biru</li>
+                        <li>🟠🟢🟣 <b>Warna Sekunder (Campuran):</b> Jingga (Merah+Kuning), Hijau (Biru+Kuning), Ungu (Merah+Biru)</li>
+                        <li>☀️ <b>Warna Panas (Hangat/Ceria):</b> Merah, Kuning, Jingga</li>
+                        <li>❄️ <b>Warna Dingin (Sejuk):</b> Biru, Hijau, Ungu</li>
+                        <li>⚪⚫🔘 <b>Warna Netral:</b> Putih, Hitam, Abu-abu</li>
+                    </ul>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onclick="reviewQuiz()" class="pegasus-btn px-6 py-3.5 text-sm cursor-pointer">
+                        🔍 LIHAT JAWABAN & LUKISAN
+                    </button>
+                    <button onclick="restartQuiz()" class="pegasus-btn pegasus-btn-emerald px-7 py-3.5 text-sm cursor-pointer">
+                        🔄 MAIN LAGI
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal Peringatan -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="pegasus-panel p-6 max-w-sm w-full text-center card-enter">
+            <div class="text-4xl mb-2">🦄</div>
+            <h3 id="modal-title" class="font-bold text-lg text-purple-950 mb-2">PERHATIAN</h3>
+            <p id="modal-text" class="text-purple-900 font-medium mb-6"></p>
+            <button onclick="closeModal()" class="pegasus-btn pegasus-btn-gold w-full py-3 text-sm cursor-pointer">
+                OKE, MENGERTI!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'seni_rupa_pegasus_sd1_v1';
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+        const PALETTE_COLORS = [
+            { name: 'Merah', hex: '#EF4444' },
+            { name: 'Jingga', hex: '#F97316' },
+            { name: 'Kuning', hex: '#FACC15' },
+            { name: 'Hijau', hex: '#22C55E' },
+            { name: 'Biru', hex: '#3B82F6' },
+            { name: 'Ungu', hex: '#A855F7' },
+            { name: 'Pink', hex: '#EC4899' },
+            { name: 'Putih', hex: '#FFFFFF' },
+            { name: 'Abu-abu', hex: '#9CA3AF' },
+            { name: 'Hitam', hex: '#1F2937' }
+        ];
+
+        const questions = [
+            // === I. PILIHAN GANDA (1-15) ===
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '1',
+                q: "Warna yang memberikan kesan ceria dan hangat adalah ....",
+                options: ["Jingga", "Biru", "Hitam"],
+                answer: 0,
+                explanation: "Jingga termasuk kelompok warna panas yang memberi kesan ceria, semangat, dan hangat."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '2',
+                q: "Berikut yang termasuk warna dingin adalah ....",
+                options: ["Merah", "Ungu", "Kuning"],
+                answer: 1,
+                explanation: "Warna dingin terdiri dari biru, hijau, dan ungu."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '3',
+                q: "Warna yang termasuk kelompok netral adalah ....",
+                options: ["Hijau", "Jingga", "Abu-abu"],
+                answer: 2,
+                explanation: "Warna netral meliputi hitam, putih, dan abu-abu."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '4',
+                q: "Warna primer disebut juga warna ....",
+                options: ["Dasar", "Campuran", "Netral"],
+                answer: 0,
+                explanation: "Warna primer adalah warna dasar (merah, kuning, biru) yang bukan hasil campuran warna lain."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '5',
+                q: "Berikut ini yang merupakan warna primer adalah ....",
+                options: ["Ungu", "Biru", "Hijau"],
+                answer: 1,
+                explanation: "Warna primer terdiri dari merah, kuning, dan biru."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '6',
+                q: "Warna hijau dapat dibuat dengan mencampurkan ....",
+                options: ["Merah dan kuning", "Biru dan merah", "Biru dan kuning"],
+                answer: 2,
+                explanation: "Campuran warna biru dan kuning menghasilkan warna hijau."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '7',
+                q: "Warna jingga dapat dibuat dengan mencampurkan ....",
+                options: ["Merah dan kuning", "Biru dan kuning", "Merah dan biru"],
+                answer: 0,
+                explanation: "Campuran warna merah dan kuning menghasilkan warna jingga (oranye)."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '8',
+                q: "Warna ungu dapat dibuat dengan mencampurkan ....",
+                options: ["Kuning dan biru", "Merah dan biru", "Merah dan kuning"],
+                answer: 1,
+                explanation: "Campuran warna merah dan biru menghasilkan warna ungu."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '9',
+                q: "Warna yang cocok untuk menggambarkan daun adalah ....",
+                options: ["Hijau", "Ungu", "Jingga"],
+                answer: 0,
+                explanation: "Daun yang segar di alam berwarna hijau."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '10',
+                q: "Warna yang cocok untuk menggambarkan langit cerah adalah ....",
+                options: ["Merah", "Biru", "Hitam"],
+                answer: 1,
+                explanation: "Langit pada siang hari yang cerah tampak berwarna biru."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '11',
+                q: "Warna merah, kuning, dan jingga termasuk warna ....",
+                options: ["Dingin", "Netral", "Panas"],
+                answer: 2,
+                explanation: "Merah, kuning, dan jingga memberikan kesan hangat sehingga disebut warna panas."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '12',
+                q: "Warna putih dan hitam termasuk warna ....",
+                options: ["Netral", "Primer", "Sekunder"],
+                answer: 0,
+                explanation: "Putih, hitam, dan abu-abu termasuk kelompok warna netral."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '13',
+                q: "Jika warna merah dicampur dengan warna biru, akan menghasilkan warna ....",
+                options: ["Hijau", "Ungu", "Jingga"],
+                answer: 1,
+                explanation: "Merah + Biru = Ungu."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '14',
+                q: "Warna yang memberikan kesan sejuk pada gambar air terjun adalah ....",
+                options: ["Merah", "Jingga", "Biru"],
+                answer: 2,
+                explanation: "Warna biru memberi kesan sejuk, segar, dan dingin seperti air."
+            },
+            {
+                type: 'mc',
+                section: 'I. Pilihan Ganda',
+                numLabel: '15',
+                q: "Berikut yang merupakan warna sekunder adalah ....",
+                options: ["Kuning", "Merah", "Hijau"],
+                answer: 2,
+                explanation: "Hijau adalah warna sekunder (campuran biru dan kuning), sedangkan merah dan kuning adalah warna primer."
+            },
+
+            // === II. ISIAN SINGKAT (1-5) ===
+            {
+                type: 'short',
+                section: 'II. Isian Singkat',
+                numLabel: '1',
+                q: "Tiga contoh warna dingin adalah biru, hijau, dan ....",
+                placeholder: "Ketik nama warna dingin ketiga...",
+                keywords: ["ungu"],
+                sampleAnswer: "ungu",
+                explanation: "Tiga contoh warna dingin adalah biru, hijau, dan ungu."
+            },
+            {
+                type: 'short',
+                section: 'II. Isian Singkat',
+                numLabel: '2',
+                q: "Warna primer terdiri dari merah, kuning, dan ....",
+                placeholder: "Ketik warna primer ketiga...",
+                keywords: ["biru"],
+                sampleAnswer: "biru",
+                explanation: "Warna primer terdiri dari merah, kuning, dan biru."
+            },
+            {
+                type: 'short',
+                section: 'II. Isian Singkat',
+                numLabel: '3',
+                q: "Campuran warna merah dan kuning menghasilkan warna ....",
+                placeholder: "Ketik hasil campurannya...",
+                keywords: ["jingga", "oranye", "orange"],
+                sampleAnswer: "jingga",
+                explanation: "Campuran warna merah dan kuning menghasilkan warna jingga."
+            },
+            {
+                type: 'short',
+                section: 'II. Isian Singkat',
+                numLabel: '4',
+                q: "Warna hitam, putih, dan abu-abu termasuk warna ....",
+                placeholder: "Ketik kelompok warnanya...",
+                keywords: ["netral"],
+                sampleAnswer: "netral",
+                explanation: "Warna hitam, putih, dan abu-abu termasuk kelompok warna netral."
+            },
+            {
+                type: 'short',
+                section: 'II. Isian Singkat',
+                numLabel: '5',
+                q: "Warna hijau merupakan hasil campuran warna ... dan ....",
+                placeholder: "Contoh: biru dan kuning",
+                keywords: ["biru", "kuning"],
+                requireBothKeywords: true,
+                sampleAnswer: "biru dan kuning",
+                explanation: "Warna hijau dibuat dari campuran warna biru dan kuning."
+            },
+
+            // === III. SOAL URAIAN DAN GAMBAR KREATIF (1-5) DENGAN KANVAS POLOS EKSPLORASI ===
+            {
+                type: 'creative',
+                section: 'III. Uraian & Gambar Kreatif',
+                numLabel: '1',
+                guideBadge: 'Gambar benda dingin (es batu, air terjun, awan hujan) & warnai!',
+                q: "Menggambar dengan Warna Dingin!\nBuatlah gambar benda atau suasana yang cocok dengan warna dingin di kanvas (misalnya es batu, air terjun, es krim, atau hujan), lalu sebutkan 2 warna dingin yang kamu pakai!",
+                inputMode: 'double',
+                label1: 'Warna dingin 1:',
+                label2: 'Warna dingin 2:',
+                placeholder1: 'Contoh: Biru',
+                placeholder2: 'Contoh: Hijau / Ungu',
+                keywords: ["biru", "hijau", "ungu"],
+                sampleAnswer: "1. Biru, 2. Hijau (atau Ungu)",
+                explanation: "Gambar seperti es batu, air terjun, atau hujan terasa sejuk sehingga sangat cocok digambar dan diwarnai dengan warna dingin (biru, hijau, ungu)."
+            },
+            {
+                type: 'creative',
+                section: 'III. Uraian & Gambar Kreatif',
+                numLabel: '2',
+                guideBadge: 'Gambar bebas menggunakan kelompok warna netral & warna panas!',
+                q: "Kelompokkan Warna & Berkreasi!\nPerhatikan nama warna berikut: Hitam – Kuning – Putih – Merah – Abu-abu – Jingga.\nGambarlah bentuk kesukaanmu di kanvas memakai warna tersebut, lalu kelompokkan mana Warna Netral dan Warna Panas!",
+                inputMode: 'double',
+                label1: 'Warna Netral:',
+                label2: 'Warna Panas:',
+                placeholder1: 'Hitam, Putih, Abu-abu',
+                placeholder2: 'Kuning, Merah, Jingga',
+                keywords: ["hitam", "putih", "abu", "kuning", "merah", "jingga"],
+                sampleAnswer: "Warna Netral: Hitam, Putih, Abu-abu | Warna Panas: Kuning, Merah, Jingga",
+                explanation: "Warna Netral: Hitam, Putih, Abu-abu. Warna Panas: Kuning, Merah, Jingga."
+            },
+            {
+                type: 'creative',
+                section: 'III. Uraian & Gambar Kreatif',
+                numLabel: '3',
+                guideBadge: 'Gambar daun atau pohon berwarna hijau di kanvas!',
+                q: "Mengenal Warna Sekunder!\nBuatlah gambar daun atau pohon berwarna hijau di kanvas, lalu jawab: Mengapa warna hijau disebut warna sekunder?",
+                inputMode: 'textarea',
+                placeholder: "Tulis alasanmu (contoh: Karena warna hijau adalah hasil campuran warna biru dan kuning)...",
+                keywords: ["campur", "gabung", "biru", "kuning", "primer", "dasar"],
+                sampleAnswer: "Karena warna hijau merupakan hasil pencampuran dua warna primer, yaitu biru dan kuning.",
+                explanation: "Warna hijau disebut warna sekunder karena berasal dari campuran dua warna primer (biru dan kuning)."
+            },
+            {
+                type: 'creative',
+                section: 'III. Uraian & Gambar Kreatif',
+                numLabel: '4',
+                guideBadge: 'Gambar pemandangan matahari terbenam memakai 3 warna panas!',
+                q: "Warna Panas pada Pemandangan!\nGambarlah pemandangan matahari terbenam atau api unggun di kanvas, lalu sebutkan 3 warna panas yang cocok untuk mewarnainya!",
+                inputMode: 'triple',
+                placeholder1: '1. Warna panas pertama...',
+                placeholder2: '2. Warna panas kedua...',
+                placeholder3: '3. Warna panas ketiga...',
+                keywords: ["merah", "kuning", "jingga"],
+                sampleAnswer: "1. Merah, 2. Kuning, 3. Jingga",
+                explanation: "Tiga warna panas yang cocok untuk pemandangan matahari terbenam adalah merah, kuning, dan jingga."
+            },
+            {
+                type: 'creative',
+                section: 'III. Uraian & Gambar Kreatif',
+                numLabel: '5',
+                guideBadge: 'Gambar taman bunga / pelangi memakai Jingga, Hijau, dan Ungu!',
+                q: "Tugas Menggambar dengan Warna Sekunder!\nBuatlah gambar taman bunga atau kupu-kupu di kanvas menggunakan ketiga warna sekunder (Jingga, Hijau, Ungu), lalu tuliskan benda apa saja yang kamu gambar!",
+                inputMode: 'textarea',
+                placeholder: "Contoh: Aku menggambar bunga warna jingga dan ungu, serta daun dan rumput warna hijau...",
+                keywords: ["jingga", "hijau", "ungu", "bunga", "daun", "rumput", "kupu", "pohon", "pelangi"],
+                sampleAnswer: "Menggambar bunga berwarna jingga dan ungu, serta daun dan rumput berwarna hijau.",
+                explanation: "Hebat! Ketiga warna sekunder (Jingga, Hijau, Ungu) membuat gambarmu terlihat sangat indah dan kreatif."
+            }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        // Menyimpan data gambar kanvas (DataURL) untuk setiap soal kreatif agar tidak hilang saat Next/Prev
+        let canvasDrawings = {};
+        let soundEnabled = true;
+        let studentName = "";
+        let studentClass = "";
+        let isQuizCompleted = false;
+
+        // State Kanvas Mewarnai
+        let selectedColor = '#3B82F6';
+        let brushSize = 14;
+        let isDrawing = false;
+        let hasDrawnOnCurrent = false;
+
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function saveQuizState() {
+            if (isQuizCompleted) return;
+            try {
+                const payload = {
+                    studentName,
+                    studentClass,
+                    currentIndex,
+                    userAnswers,
+                    savedAt: Date.now(),
+                    expiresAt: Date.now() + ONE_WEEK_MS
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) indicator.innerText = '💾 TERSIMPAN';
+            } catch (e) {}
+        }
+
+        function loadQuizState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || !data.expiresAt || Date.now() > data.expiresAt) {
+                    clearQuizState();
+                    return null;
+                }
+                if (!Array.isArray(data.userAnswers) || data.userAnswers.length !== questions.length) {
+                    clearQuizState();
+                    return null;
+                }
+                return data;
+            } catch (e) {
+                clearQuizState();
+                return null;
+            }
+        }
+
+        function clearQuizState() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+        }
+
+        function checkSavedProgressOnLoad() {
+            const saved = loadQuizState();
+            const banner = document.getElementById('saved-progress-banner');
+            if (!saved) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            const answeredCount = saved.userAnswers.filter(a => a !== null).length;
+            const daysLeft = Math.max(1, Math.ceil((saved.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+
+            document.getElementById('saved-progress-info').innerText = `${saved.studentName} (${saved.studentClass})`;
+            document.getElementById('saved-progress-detail').innerText = `${answeredCount}/${questions.length} soal selesai • Terakhir No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
+            document.getElementById('student-name').value = saved.studentName;
+            document.getElementById('student-class').value = saved.studentClass;
+            banner.classList.remove('hidden');
+        }
+
+        function resumeSavedQuiz() {
+            const saved = loadQuizState();
+            if (!saved) {
+                checkSavedProgressOnLoad();
+                return;
+            }
+            studentName = saved.studentName;
+            studentClass = saved.studentClass;
+            userAnswers = saved.userAnswers;
+            currentIndex = saved.currentIndex || 0;
+            isQuizCompleted = false;
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function discardSavedQuiz() {
+            clearQuizState();
+            document.getElementById('saved-progress-banner').classList.add('hidden');
+            document.getElementById('student-name').value = '';
+            playSound('click');
+        }
+
+        let synth;
+        function initAudio() {
+            if (!synth && typeof Tone !== 'undefined') {
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.01, decay: 0.14, sustain: 0.1, release: 0.3 }
+                }).toDestination();
+                synth.volume.value = -8;
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!synth) return;
+                if (Tone.context.state !== 'running') Tone.start();
+                const now = Tone.now();
+                if (type === 'correct') {
+                    synth.triggerAttackRelease("D5", "16n", now);
+                    synth.triggerAttackRelease("F#5", "16n", now + 0.08);
+                    synth.triggerAttackRelease("A5", "16n", now + 0.16);
+                    synth.triggerAttackRelease("D6", "8n", now + 0.24);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease("E3", "16n", now);
+                    synth.triggerAttackRelease("C3", "8n", now + 0.12);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease("A4", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["D5", "F#5", "A5", "D6"], "4n", now);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 85,
+                    spread: 75,
+                    origin: { y: 0.6 },
+                    colors: ['#EC4899', '#A855F7', '#FACC15', '#3B82F6', '#22C55E']
+                });
+            }
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput) {
+                showModal("NAMA BELUM DIISI!", "Tulis namamu dulu sebelum terbang bersama Pegasus!");
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput || "1 SD";
+            userAnswers = new Array(questions.length).fill(null);
+            canvasDrawings = {};
+            currentIndex = 0;
+            isQuizCompleted = false;
+
+            saveQuizState();
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function calculateScore() {
+            let correctCount = 0;
+            userAnswers.forEach(ans => {
+                if (ans && ans.isCorrect) correctCount++;
+            });
+            return {
+                correct: correctCount,
+                points: Math.round((correctCount / questions.length) * 100)
+            };
+        }
+
+        function updateScoreUI() {
+            const scoreData = calculateScore();
+            document.getElementById('stars-count').innerText = `${scoreData.correct}/${questions.length}`;
+            document.getElementById('score-display').innerText = scoreData.points;
+        }
+
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    saveCurrentCanvasSnapshot();
+                    currentIndex = idx;
+                    saveQuizState();
+                    renderQuestion();
+                };
+                
+                let bgClass = 'bg-purple-800 border-purple-500';
+                if (userAnswers[idx] !== null) {
+                    bgClass = userAnswers[idx].isCorrect 
+                        ? 'bg-emerald-400 border-emerald-200' 
+                        : 'bg-rose-500 border-rose-300';
+                }
+                if (idx === currentIndex) {
+                    bgClass += ' ring-2 ring-yellow-300 scale-125';
+                }
+
+                dot.className = `w-3 h-3 rounded-full border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `${q.section} - No. ${q.numLabel}`;
+                container.appendChild(dot);
+            });
+        }
+
+        // === SISTEM KANVAS MEWARNAI INTERAKTIF ===
+        function renderColorPalette() {
+            const container = document.getElementById('color-palette');
+            container.innerHTML = '';
+            PALETTE_COLORS.forEach(c => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.title = c.name;
+                btn.style.backgroundColor = c.hex;
+                const isSelected = selectedColor.toLowerCase() === c.hex.toLowerCase();
+                btn.className = `color-swatch w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-purple-950 cursor-pointer ${isSelected ? 'active' : ''}`;
+                btn.onclick = () => {
+                    selectedColor = c.hex;
+                    renderColorPalette();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function setBrushSize(size) {
+            brushSize = size;
+            ['brush-sm', 'brush-md', 'brush-lg'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-200 text-purple-950 border border-purple-400 cursor-pointer";
+                }
+            });
+            const activeId = size === 6 ? 'brush-sm' : (size === 14 ? 'brush-md' : 'brush-lg');
+            const activeEl = document.getElementById(activeId);
+            if (activeEl) {
+                activeEl.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-700 text-white border border-purple-900 cursor-pointer";
+            }
+        }
+
+        function drawBlankCanvas(ctx, w, h) {
+            ctx.save();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, w, h);
+            ctx.restore();
+        }
+
+        function saveCurrentCanvasSnapshot() {
+            const q = questions[currentIndex];
+            if (q && q.type === 'creative') {
+                const canvas = document.getElementById('drawing-canvas');
+                if (canvas && canvas.width > 0) {
+                    try {
+                        canvasDrawings[currentIndex] = canvas.toDataURL('image/png');
+                    } catch (e) {}
+                }
+            }
+        }
+
+        function initDrawingCanvas() {
+            const canvas = document.getElementById('drawing-canvas');
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = Math.max(300, Math.floor(rect.width));
+            canvas.height = Math.max(210, Math.floor(rect.height));
+
+            const ctx = canvas.getContext('2d');
+            hasDrawnOnCurrent = !!canvasDrawings[currentIndex];
+
+            if (canvasDrawings[currentIndex]) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = canvasDrawings[currentIndex];
+            } else {
+                drawBlankCanvas(ctx, canvas.width, canvas.height);
+            }
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - r.left) * (canvas.width / r.width),
+                    y: (clientY - r.top) * (canvas.height / r.height)
+                };
+            };
+
+            const startDraw = (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                hasDrawnOnCurrent = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.fillStyle = selectedColor;
+                ctx.arc(pos.x, pos.y, brushSize / 2, 0, Math.PI * 2);
+                ctx.fill();
+            };
+
+            const moveDraw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.strokeStyle = selectedColor;
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+
+            const endDraw = () => {
+                if (isDrawing) {
+                    isDrawing = false;
+                    saveCurrentCanvasSnapshot();
+                }
+            };
+
+            canvas.onmousedown = startDraw;
+            canvas.onmousemove = moveDraw;
+            window.onmouseup = endDraw;
+
+            canvas.ontouchstart = startDraw;
+            canvas.ontouchmove = moveDraw;
+            canvas.ontouchend = endDraw;
+        }
+
+        function clearDrawingCanvas() {
+            const q = questions[currentIndex];
+            const canvas = document.getElementById('drawing-canvas');
+            if (!canvas || !q) return;
+            const ctx = canvas.getContext('2d');
+            delete canvasDrawings[currentIndex];
+            hasDrawnOnCurrent = false;
+            drawBlankCanvas(ctx, canvas.width, canvas.height);
+            playSound('click');
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const ansObj = userAnswers[currentIndex];
+            const isAnswered = ansObj !== null;
+
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-enter', 'shake');
+            void card.offsetWidth;
+            card.classList.add('card-enter');
+
+            document.getElementById('section-badge').innerText = q.section;
+            document.getElementById('question-number').innerText = `No. ${q.numLabel} (${currentIndex + 1}/${questions.length})`;
+            const pct = Math.max(6, ((currentIndex + 1) / questions.length) * 100);
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+
+            const statusBadge = document.getElementById('status-badge');
+            if (isAnswered) {
+                statusBadge.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-emerald-400 text-emerald-950 border-2 border-emerald-900";
+                    statusBadge.innerText = "🌈 +1 BINTANG!";
+                } else {
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-rose-500 text-white border-2 border-rose-950";
+                    statusBadge.innerText = "✖ BELUM TEPAT";
+                }
+            } else {
+                statusBadge.classList.add('hidden');
+            }
+
+            document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
+
+            // Tampilkan Kanvas Coret-Coret & Palet Warna jika tipe soal 'creative'
+            const coloringStudio = document.getElementById('coloring-studio');
+            if (q.type === 'creative') {
+                coloringStudio.classList.remove('hidden');
+                document.getElementById('canvas-guide-badge').innerText = q.guideBadge || 'Pilih warna & gambar kreasimu!';
+                renderColorPalette();
+                setTimeout(() => initDrawingCanvas(), 40);
+            } else {
+                coloringStudio.classList.add('hidden');
+            }
+
+            const answerArea = document.getElementById('answer-area');
+            answerArea.innerHTML = '';
+
+            if (q.type === 'mc') {
+                const letters = ['A', 'B', 'C'];
+                q.options.forEach((optText, idx) => {
+                    const btn = document.createElement('button');
+                    btn.disabled = isAnswered;
+
+                    let slotClass = "option-slot";
+                    let badgeStyle = "bg-purple-800 text-yellow-200";
+                    let iconRight = "";
+
+                    if (isAnswered) {
+                        if (idx === q.answer) {
+                            slotClass = "option-slot option-slot-correct font-bold";
+                            badgeStyle = "bg-white text-emerald-800";
+                            iconRight = "🌈";
+                        } else if (idx === ansObj.value && !ansObj.isCorrect) {
+                            slotClass = "option-slot option-slot-wrong";
+                            badgeStyle = "bg-white text-rose-700";
+                            iconRight = "❌";
+                        } else {
+                            slotClass = "option-slot opacity-55";
+                        }
+                    }
+
+                    btn.className = `w-full text-left p-3.5 sm:p-4 flex items-center justify-between gap-3 ${slotClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`;
+                    btn.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base shrink-0 uppercase ${badgeStyle}">
+                                ${letters[idx]}
+                            </span>
+                            <span class="text-base sm:text-lg font-bold">${escapeHTML(optText)}</span>
+                        </div>
+                        <span class="text-xl">${iconRight}</span>
+                    `;
+                    btn.onclick = () => submitMCAnswer(idx);
+                    answerArea.appendChild(btn);
+                });
+
+            } else if (q.type === 'short') {
+                const savedText = isAnswered ? escapeHTML(ansObj.value) : '';
+                answerArea.innerHTML = `
+                    <div class="space-y-3">
+                        <input type="text" id="short-input" value="${savedText}" ${isAnswered ? 'disabled' : ''} 
+                            placeholder="${escapeHTML(q.placeholder)}"
+                            onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                            class="pegasus-input w-full px-4 py-3.5 text-lg font-semibold">
+                        ${!isAnswered ? `
+                            <button onclick="submitTextAnswer()" class="pegasus-btn pegasus-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                ✔ CEK JAWABAN
+                            </button>
+                        ` : `
+                            <div class="bg-purple-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                📌 Kunci Jawaban: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                            </div>
+                        `}
+                    </div>
+                `;
+                if (!isAnswered) setTimeout(() => document.getElementById('short-input')?.focus(), 100);
+
+            } else if (q.type === 'creative') {
+                if (q.inputMode === 'double') {
+                    const val1 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[0]) : '';
+                    const val2 = isAnswered && Array.isArray(ansObj.value) ? escapeHTML(ansObj.value[1]) : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">${escapeHTML(q.label1 || '1.')}</label>
+                                <input type="text" id="creative-input-1" value="${val1}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="${escapeHTML(q.placeholder1)}"
+                                    class="pegasus-input w-full px-4 py-2.5 text-base font-medium">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-900 mb-1">${escapeHTML(q.label2 || '2.')}</label>
+                                <input type="text" id="creative-input-2" value="${val2}" ${isAnswered ? 'disabled' : ''}
+                                    placeholder="${escapeHTML(q.placeholder2)}"
+                                    onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                                    class="pegasus-input w-full px-4 py-2.5 text-base font-medium">
+                            </div>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="pegasus-btn pegasus-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ SIMPAN LUKISAN & JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-purple-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban Benar: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else if (q.inputMode === 'triple') {
+                    const vals = isAnswered && Array.isArray(ansObj.value) ? ansObj.value : ['', '', ''];
+                    answerArea.innerHTML = `
+                        <div class="space-y-2.5">
+                            <input type="text" id="creative-input-1" value="${escapeHTML(vals[0])}" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${escapeHTML(q.placeholder1)}" class="pegasus-input w-full px-4 py-2.5 text-base font-medium">
+                            <input type="text" id="creative-input-2" value="${escapeHTML(vals[1])}" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${escapeHTML(q.placeholder2)}" class="pegasus-input w-full px-4 py-2.5 text-base font-medium">
+                            <input type="text" id="creative-input-3" value="${escapeHTML(vals[2])}" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${escapeHTML(q.placeholder3)}"
+                                onkeydown="if(event.key === 'Enter') submitTextAnswer()"
+                                class="pegasus-input w-full px-4 py-2.5 text-base font-medium">
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="pegasus-btn pegasus-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ SIMPAN LUKISAN & JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-purple-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Kunci Jawaban: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                } else {
+                    const savedEssay = isAnswered ? escapeHTML(ansObj.value) : '';
+                    answerArea.innerHTML = `
+                        <div class="space-y-3">
+                            <textarea id="essay-input" rows="2" ${isAnswered ? 'disabled' : ''}
+                                placeholder="${escapeHTML(q.placeholder)}"
+                                class="pegasus-input w-full px-4 py-3 text-base font-medium">${savedEssay}</textarea>
+                            ${!isAnswered ? `
+                                <button onclick="submitTextAnswer()" class="pegasus-btn pegasus-btn-gold w-full sm:w-auto px-6 py-3 text-sm cursor-pointer">
+                                    ✔ SIMPAN LUKISAN & JAWABAN
+                                </button>
+                            ` : `
+                                <div class="bg-purple-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-4 py-2.5 text-sm font-semibold">
+                                    📌 Contoh Jawaban Benar: <span class="text-yellow-300 font-bold">${escapeHTML(q.sampleAnswer)}</span>
+                                </div>
+                            `}
+                        </div>
+                    `;
+                }
+            }
+
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                feedbackBox.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    document.getElementById('feedback-emoji').innerText = "🦄";
+                    document.getElementById('feedback-title').innerText = "KEREN SEKALI! (+1 BINTANG PELANGI)";
+                } else {
+                    document.getElementById('feedback-emoji').innerText = "🎨";
+                    document.getElementById('feedback-title').innerText = "YUK PELAJARI PENJELASANNYA!";
+                }
+                document.getElementById('feedback-desc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerText = "SELESAI 🏆";
+                nextBtn.className = "pegasus-btn pegasus-btn-gold flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            } else {
+                nextBtn.innerText = "SELANJUTNYA ▶";
+                nextBtn.className = "pegasus-btn pegasus-btn-pink flex-1 sm:flex-none px-5 py-3.5 text-sm sm:text-base flex items-center justify-center gap-2";
+            }
+
+            renderDots();
+        }
+
+        function finalizeAnswer(value, isCorrect) {
+            saveCurrentCanvasSnapshot();
+            userAnswers[currentIndex] = { value, isCorrect };
+            saveQuizState();
+            if (isCorrect) {
+                playSound('correct');
+                triggerConfetti();
+            } else {
+                playSound('wrong');
+                document.getElementById('question-card').classList.add('shake');
+            }
+            updateScoreUI();
+            renderQuestion();
+        }
+
+        function submitMCAnswer(selectedIndex) {
+            if (userAnswers[currentIndex] !== null) return;
+            const isCorrect = selectedIndex === questions[currentIndex].answer;
+            finalizeAnswer(selectedIndex, isCorrect);
+        }
+
+        function submitTextAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            const q = questions[currentIndex];
+
+            if (q.type === 'short') {
+                const rawVal = document.getElementById('short-input').value.trim();
+                if (!rawVal) {
+                    showModal("JAWABAN KOSONG!", "Ketik jawabanmu dulu sebelum menekan tombol cek jawaban!");
+                    return;
+                }
+                const lowerVal = rawVal.toLowerCase();
+                const isCorrect = q.requireBothKeywords
+                    ? q.keywords.every(kw => lowerVal.includes(kw))
+                    : q.keywords.some(kw => lowerVal.includes(kw));
+                finalizeAnswer(rawVal, isCorrect);
+            } else if (q.type === 'creative') {
+                if (q.inputMode === 'double') {
+                    const v1 = document.getElementById('creative-input-1').value.trim();
+                    const v2 = document.getElementById('creative-input-2').value.trim();
+                    if (!v1 || !v2) {
+                        showModal("BELUM LENGKAP!", "Isi kedua kotak jawaban dan warnai sketsa di kanvas dulu ya!");
+                        return;
+                    }
+                    const combined = (v1 + " " + v2).toLowerCase();
+                    const isCorrect = q.keywords.some(kw => combined.includes(kw));
+                    finalizeAnswer([v1, v2], isCorrect);
+                } else if (q.inputMode === 'triple') {
+                    const v1 = document.getElementById('creative-input-1').value.trim();
+                    const v2 = document.getElementById('creative-input-2').value.trim();
+                    const v3 = document.getElementById('creative-input-3').value.trim();
+                    if (!v1 || !v2 || !v3) {
+                        showModal("BELUM LENGKAP!", "Tuliskan ketiga warna panas dan warnai matahari terbenam di kanvas ya!");
+                        return;
+                    }
+                    const combined = (v1 + " " + v2 + " " + v3).toLowerCase();
+                    const isCorrect = q.keywords.some(kw => combined.includes(kw));
+                    finalizeAnswer([v1, v2, v3], isCorrect);
+                } else {
+                    const rawVal = document.getElementById('essay-input').value.trim();
+                    if (!rawVal) {
+                        showModal("JAWABAN KOSONG!", "Warnai kanvas di atas dan tulis jawabanmu terlebih dahulu ya!");
+                        return;
+                    }
+                    const lowerVal = rawVal.toLowerCase();
+                    const isCorrect = q.keywords.some(kw => lowerVal.includes(kw));
+                    finalizeAnswer(rawVal, isCorrect);
+                }
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                saveCurrentCanvasSnapshot();
+                playSound('click');
+                currentIndex--;
+                saveQuizState();
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            saveCurrentCanvasSnapshot();
+            playSound('click');
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                saveQuizState();
+                renderQuestion();
+            } else {
+                const unansweredIndex = userAnswers.findIndex(ans => ans === null);
+                if (unansweredIndex !== -1) {
+                    const missingQ = questions[unansweredIndex];
+                    showModal(
+                        "ADA SOAL TERLEWAT!", 
+                        `Soal ${missingQ.section} nomor ${missingQ.numLabel} belum kamu kerjakan. Ayo kita selesaikan dulu!`
+                    );
+                    currentIndex = unansweredIndex;
+                    saveQuizState();
+                    renderQuestion();
+                    return;
+                }
+                showResultScreen();
+            }
+        }
+
+        function showResultScreen() {
+            isQuizCompleted = true;
+            clearQuizState();
+
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const scoreData = calculateScore();
+            document.getElementById('result-student-info').innerText = `${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-stars').innerText = `${scoreData.correct} 🌈`;
+            document.getElementById('final-score').innerText = scoreData.points;
+            document.getElementById('final-stats').innerText = `Benar ${scoreData.correct} dari ${questions.length} soal`;
+
+            let msg = "";
+            if (scoreData.points === 100) {
+                msg = "LUAR BIASA SEMPURNA! Kamu berhasil mengumpulkan 25 Bintang Pelangi dan menjadi Seniman Pegasus Hebat! 🦄🎨";
+                triggerConfetti();
+                setTimeout(triggerConfetti, 450);
+            } else if (scoreData.points >= 80) {
+                msg = "HEBAT SEKALI! Kamu sudah pintar membedakan warna primer, sekunder, panas, dan dingin! 👏🌈";
+                triggerConfetti();
+            } else if (scoreData.points >= 60) {
+                msg = "BAGUS! Terus berlatih mewarnai dan mengenal campuran warna ya! 💪✨";
+            } else {
+                msg = "AYO COBA LAGI! Pelajari ringkasan dunia warna Pegasus di bawah ini dan warnai lagi kanvasnya! 🦄🎨";
+            }
+            document.getElementById('result-message').innerText = msg;
+            playSound('finish');
+        }
+
+        function reviewQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) indicator.innerText = '✅ SELESAI';
+            currentIndex = 0;
+            renderQuestion();
+        }
+
+        function restartQuiz() {
+            clearQuizState();
+            isQuizCompleted = false;
+            userAnswers = new Array(questions.length).fill(null);
+            canvasDrawings = {};
+            currentIndex = 0;
+            saveQuizState();
+            updateScoreUI();
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            playSound('click');
+            renderQuestion();
+        }
+
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#7C3AED"/><circle cx="256" cy="256" r="185" fill="#FCE7F3"/><text x="50%" y="56%" font-size="220" text-anchor="middle" dominant-baseline="middle">🦄</text></svg>';
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = iconUrl;
+            document.head.appendChild(appleIcon);
+
+            const manifestData = {
+                name: "Petualangan Pegasus & Pelangi Warna - Kelas 1 SD",
+                short_name: "Pegasus Warna",
+                description: "Latihan Seni Rupa Kelas 1 SD - Mengenal Warna & Kanvas Melukis",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#EDE9FE",
+                theme_color: "#7C3AED",
+                orientation: "portrait-primary",
+                icons: [
+                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = "const CACHE_NAME='pegasus-warna-sd1-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-container').classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                showModal("INFO INSTALASI", "Gunakan menu browser lalu pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') document.getElementById('pwa-install-container').classList.add('hidden');
+            deferredPrompt = null;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setupPWA();
+            checkSavedProgressOnLoad();
+        });
+    </script>
+</body>
+</html>
