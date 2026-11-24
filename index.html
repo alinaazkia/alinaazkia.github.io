@@ -181,7 +181,7 @@
                 <i data-lucide="folder-open" class="w-4 h-4"></i>
             </button>
             <div class="w-10 h-10 rounded-full bg-[#FFD426] border-2 border-[#FF7675] text-[#EE5253] font-kids font-bold text-lg flex items-center justify-center shadow-sm">
-                5
+                6
             </div>
         </div>
     </header>
@@ -248,7 +248,7 @@
                     </span>
                     <div>
                         <h3 class="font-kids font-bold text-lg text-[#4A3B32]">Daftar File Folder</h3>
-                        <p class="text-xs text-[#8C7A6B]">Akses cepat 5 halaman Sumatif 3</p>
+                        <p class="text-xs text-[#8C7A6B]">Akses cepat 6 halaman Sumatif 3</p>
                     </div>
                 </div>
                 <button onclick="closeAllLinksModal()" class="w-8 h-8 rounded-full bg-amber-200/70 hover:bg-amber-300 flex items-center justify-center text-[#4A3B32]">
@@ -441,6 +441,45 @@
                     { code: 'KARYA 1', name: 'Unsur Warna & Bentuk', file: 'senirupa-sumatif-3.html' },
                     { code: 'KARYA 2', name: 'Tekstur & Kreasi Rupa', file: 'senirupa-sumatif-3.html' },
                     { code: 'UJIAN', name: 'Mulai Latihan Sumatif 3', file: 'senirupa-sumatif-3.html', primary: true }
+                ]
+            },
+            {
+                id: 'matematika',
+                subtitle: 'Modul Sumatif 3',
+                title: 'Matematika',
+                stage: 'BUKU 06',
+                file: 'mtk-sumatif-3.html',
+                bgColor: '#2EC4B6',      // Hijau Toska Cerah
+                bottomBg: '#1FA396',
+                badgeText: '#14877C',
+                accentBtn: 'bg-[#14877C] hover:bg-[#0f6e65]',
+                description: 'Operasi hitung bilangan, bangun datar & ruang, pengukuran, serta latihan soal Sumatif 3.',
+                illustration: `
+                    <!-- Ilustrasi Kalkulator Ceria & Bentuk Geometri -->
+                    <svg viewBox="0 0 180 140" class="w-full h-full">
+                        <!-- Bentuk Geometri Melayang -->
+                        <polygon points="34,42 46,24 58,42" fill="#FFD426"/>
+                        <circle cx="144" cy="34" r="9" fill="#FF7675"/>
+                        <!-- Badan Kalkulator / Papan Hitung -->
+                        <rect x="52" y="26" width="76" height="98" rx="14" fill="#FFFFFF"/>
+                        <rect x="61" y="36" width="58" height="24" rx="6" fill="#E0F2FE"/>
+                        <!-- Teks 1 + 2 = 3 di Layar -->
+                        <text x="90" y="53" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="bold" font-size="14" fill="#14877C">1 + 2 = 3</text>
+                        <!-- Tombol Simbol Matematika (+, -, x, =) -->
+                        <rect x="62" y="68" width="24" height="20" rx="6" fill="#FFD426"/>
+                        <text x="74" y="83" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="bold" font-size="15" fill="#4A3B32">+</text>
+                        <rect x="94" y="68" width="24" height="20" rx="6" fill="#78C2F2"/>
+                        <text x="106" y="83" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="bold" font-size="15" fill="#FFFFFF">−</text>
+                        <rect x="62" y="94" width="24" height="20" rx="6" fill="#FF9F43"/>
+                        <text x="74" y="109" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="bold" font-size="14" fill="#FFFFFF">×</text>
+                        <rect x="94" y="94" width="24" height="20" rx="6" fill="#EE5253"/>
+                        <text x="106" y="109" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="bold" font-size="15" fill="#FFFFFF">=</text>
+                    </svg>
+                `,
+                toc: [
+                    { code: 'BAB 1', name: 'Bilangan & Operasi Hitung', file: 'mtk-sumatif-3.html' },
+                    { code: 'BAB 2', name: 'Bangun Datar & Pengukuran', file: 'mtk-sumatif-3.html' },
+                    { code: 'UJIAN', name: 'Mulai Latihan Sumatif 3', file: 'mtk-sumatif-3.html', primary: true }
                 ]
             }
         ];
@@ -844,7 +883,7 @@
                 // 3. Daftarkan Inline Service Worker untuk Cache Offline
                 if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
                     const swCode = `
-                        const CACHE_NAME = 'pustaka-alina-sumatif3-v2';
+                        const CACHE_NAME = 'pustaka-alina-sumatif3-v3';
                         const ASSETS_TO_CACHE = [
                             './',
                             './index.html',
@@ -852,7 +891,8 @@
                             './digital-sumatif-3.html',
                             './english-sumatif-3.html',
                             './ppkn-sumatif-3.html',
-                            './senirupa-sumatif-3.html'
+                            './senirupa-sumatif-3.html',
+                            './mtk-sumatif-3.html'
                         ];
 
                         self.addEventListener('install', (event) => {
