@@ -479,7 +479,8 @@
                 toc: [
                     { code: 'BAB 1', name: 'Bilangan & Operasi Hitung', file: 'mtk-sumatif-3.html' },
                     { code: 'BAB 2', name: 'Bangun Datar & Pengukuran', file: 'mtk-sumatif-3.html' },
-                    { code: 'UJIAN', name: 'Mulai Latihan Sumatif 3', file: 'mtk-sumatif-3.html', primary: true }
+                    { code: 'UJIAN', name: 'Mulai Latihan Sumatif 3', file: 'mtk-sumatif-3.html', primary: true },
+                    { code: 'INTERAKTIF', name: '⏰ Belajar Jam Interaktif (Kelas 1 SD)', file: 'mtk-jam.html', primary: true }
                 ]
             }
         ];
@@ -626,13 +627,26 @@
         // ==========================================
         // BUKA OVERLAY BUKU DI ATAS SEMUA BUKU
         // ==========================================
-        function openBookOverlay(index) {
+        let activeBookIndex = 0;
+        let activeTocPage = 0;
+
+        function openBookOverlay(index, page = 0) {
+            activeBookIndex = index;
+            activeTocPage = page;
+
             const book = books[index];
             const overlay = document.getElementById('bookOverlay');
             const container = document.getElementById('openBookContent');
 
-            // Render Daftar Isi
-            const tocItemsHTML = book.toc.map((item, idx) => `
+            // Pisahkan daftar isi menjadi lembaran (3 materi per lembar)
+            const itemsPerPage = 3;
+            const totalPages = Math.ceil(book.toc.length / itemsPerPage);
+            const currentItems = book.toc.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+
+            // Render Daftar Isi pada Lembar Aktif
+            const tocItemsHTML = currentItems.map((item, idx) => {
+                const realIdx = page * itemsPerPage + idx;
+                return `
                 <a href="${item.file}" 
                    style="animation-delay: ${0.12 + idx * 0.08}s"
                    class="toc-animate group flex items-center justify-between p-3.5 rounded-2xl border-2 transition-all duration-200 ${
@@ -644,7 +658,7 @@
                         <span class="w-8 h-8 rounded-xl flex items-center justify-center font-kids font-bold text-xs ${
                             item.primary ? 'bg-white/20 text-white' : 'bg-[#FDF6E7] text-[#8C7A6B]'
                         }">
-                            0${idx + 1}
+                            0${realIdx + 1}
                         </span>
                         <div>
                             <span class="text-[10px] font-extrabold uppercase tracking-wider block ${
@@ -663,7 +677,30 @@
                         <i data-lucide="arrow-right" class="w-4 h-4"></i>
                     </div>
                 </a>
-            `).join('');
+            `}).join('');
+
+            // Tombol Navigasi Lembar Baru jika daftar isi lebih dari 1 lembar (3 materi awal -> Lembar 2)
+            const pageNavHTML = totalPages > 1 ? `
+                <div class="mt-4 pt-3 border-t-2 border-dashed border-amber-200 flex items-center justify-between gap-2">
+                    ${page > 0 ? `
+                        <button onclick="openBookOverlay(${index}, ${page - 1})" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-[#4A3B32] font-kids font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
+                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                            <span>Lembar Sebelumnya</span>
+                        </button>
+                    ` : `
+                        <span class="text-[11px] font-bold text-[#9C897B]">Lembar ${page + 1} dari ${totalPages}</span>
+                    `}
+                    
+                    ${page < totalPages - 1 ? `
+                        <button onclick="openBookOverlay(${index}, ${page + 1})" class="px-4 py-2 rounded-xl bg-[#FFD426] hover:bg-[#f7c80c] text-[#4A3B32] border-2 border-[#E5B800] font-kids font-bold text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95">
+                            <span>Buka Lembar 2 (Jam Interaktif)</span>
+                            <i data-lucide="book-open-check" class="w-4 h-4 text-[#EE5253]"></i>
+                        </button>
+                    ` : `
+                        <span class="text-[11px] font-bold text-[#14877C] bg-[#E0F2FE] px-2.5 py-1 rounded-full">Lembar 2 • Ekstra Interaktif</span>
+                    `}
+                </div>
+            ` : '';
 
             // Susun Buku Terbuka 2 Halaman (Kiri: Sampul Dalam & Ilustrasi, Kanan: Daftar Isi & Link HTML)
             container.innerHTML = `
@@ -693,7 +730,7 @@
                     <!-- Info File Target -->
                     <div class="bg-black/15 backdrop-blur-sm rounded-2xl px-4 py-2.5 flex items-center justify-between text-xs">
                         <span class="text-white/80 font-medium">File Tujuan:</span>
-                        <code class="font-mono font-bold text-white bg-white/15 px-2 py-0.5 rounded-md">${book.file}</code>
+                        <code class="font-mono font-bold text-white bg-white/15 px-2 py-0.5 rounded-md">${currentItems[0]?.file || book.file}</code>
                     </div>
                 </div>
 
@@ -705,11 +742,15 @@
                     <div>
                         <div class="flex items-center justify-between border-b-2 border-dashed border-amber-200 pb-3 mb-4">
                             <div>
-                                <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#9C897B]">Navigasi Halaman</span>
-                                <h3 class="font-kids text-2xl font-bold text-[#4A3B32]">Daftar Isi Buku</h3>
+                                <span class="text-[11px] font-extrabold uppercase tracking-widest text-[#9C897B]">
+                                    ${totalPages > 1 ? `Navigasi Halaman • Lembar ${page + 1}` : 'Navigasi Halaman'}
+                                </span>
+                                <h3 class="font-kids text-2xl font-bold text-[#4A3B32]">
+                                    ${page === 1 && book.id === 'matematika' ? 'Media Belajar Interaktif' : 'Daftar Isi Buku'}
+                                </h3>
                             </div>
                             <span class="w-10 h-10 rounded-2xl bg-[#FDF6E7] border border-amber-200 flex items-center justify-center text-[#EE5253]">
-                                <i data-lucide="list-ordered" class="w-5 h-5"></i>
+                                <i data-lucide="${page === 1 ? 'clock' : 'list-ordered'}" class="w-5 h-5"></i>
                             </span>
                         </div>
 
@@ -717,10 +758,12 @@
                         <div class="space-y-3">
                             ${tocItemsHTML}
                         </div>
+
+                        ${pageNavHTML}
                     </div>
 
                     <!-- Footer Halaman Kanan -->
-                    <div class="mt-6 pt-3 border-t border-amber-100 flex items-center justify-between text-xs text-[#8C7A6B]">
+                    <div class="mt-5 pt-3 border-t border-amber-100 flex items-center justify-between text-xs text-[#8C7A6B]">
                         <span>Klik daftar isi untuk membuka file</span>
                         <button onclick="closeBookOverlay()" class="font-bold text-[#EE5253] hover:underline">
                             Tutup Buku
@@ -892,7 +935,8 @@
                             './english-sumatif-3.html',
                             './ppkn-sumatif-3.html',
                             './senirupa-sumatif-3.html',
-                            './mtk-sumatif-3.html'
+                            './mtk-sumatif-3.html',
+                            './mtk-jam.html'
                         ];
 
                         self.addEventListener('install', (event) => {
