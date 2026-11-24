@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Belajar Jam Seru - Kelas 1 SD</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Ceria Ramah Anak -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FDF6E7;
+            color: #4A3B32;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-kids {
+            font-family: 'Fredoka', sans-serif;
+        }
+        canvas {
+            touch-action: none; /* Mencegah layar ikut ter-scroll saat memutar jarum jam di HP/Tablet */
+            cursor: grab;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- =========================================
+         HEADER CERIA
+         ========================================= -->
+    <header class="pt-4 pb-2 px-4 sm:px-8 max-w-6xl mx-auto w-full flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-[#FFD426] border-2 border-[#E5B800] flex items-center justify-center shadow-sm text-2xl">
+                ⏰
+            </div>
+            <div>
+                <span class="px-2.5 py-0.5 rounded-full bg-[#EE5253] text-white text-[10px] font-extrabold tracking-widest uppercase">
+                    Matematika Kelas 1 SD
+                </span>
+                <h1 class="font-kids text-xl sm:text-2xl font-bold text-[#4A3B32] leading-tight">
+                    Petualangan <span class="text-[#3B8AC4]">Membaca Jam</span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Tombol Detik Berjalan (Animasi Jarum Detik) -->
+        <button id="btnToggleSecond" onclick="toggleSecondHand()" class="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white border-2 border-amber-300 hover:bg-amber-50 text-xs sm:text-sm font-kids font-bold text-[#4A3B32] shadow-sm transition active:scale-95">
+            <span id="secondDot" class="w-2.5 h-2.5 rounded-full bg-[#EE5253] animate-ping"></span>
+            <span id="secondBtnText">Detik: Jalan</span>
+        </button>
+    </header>
+
+    <!-- =========================================
+         KONTEN UTAMA: CANVAS JAM & PENJELASAN VISUAL
+         ========================================= -->
+    <main class="flex-1 max-w-6xl mx-auto w-full px-4 py-2 grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+        
+        <!-- KOLOM KIRI (7 Kolom): CANVAS JAM INTERAKTIF DRAG & DROP -->
+        <div class="lg:col-span-7 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm rounded-[32px] border-4 border-[#FFD426] p-4 sm:p-6 shadow-xl relative">
+            
+            <!-- Petunjuk Sentuh / Drag -->
+            <div class="mb-2 px-4 py-1.5 rounded-full bg-[#FFF3CD] border border-[#FFD426] text-xs sm:text-sm font-bold text-[#856404] flex items-center gap-2 text-center">
+                <span>👆 Putar ujung <b>Jarum Biru (Menit)</b> atau <b>Jarum Merah (Jam)</b>!</span>
+            </div>
+
+            <!-- Wadah Responsif untuk Canvas -->
+            <div id="canvasContainer" class="w-full max-w-[430px] aspect-square relative flex items-center justify-center">
+                <canvas id="clockCanvas"></canvas>
+            </div>
+
+            <!-- Tombol Lompat Cepat & Tantangan Anak -->
+            <div class="w-full mt-3 pt-3 border-t-2 border-dashed border-amber-200 flex flex-wrap items-center justify-center gap-2">
+                <button onclick="setClockTime(3, 0)" class="px-3 py-1.5 rounded-xl bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0369A1] font-kids font-bold text-xs sm:text-sm transition active:scale-95">
+                    03:00 (Tepat)
+                </button>
+                <button onclick="setClockTime(3, 5)" class="px-3 py-1.5 rounded-xl bg-[#DCFCE7] hover:bg-[#BBF7D0] text-[#15803D] font-kids font-bold text-xs sm:text-sm transition active:scale-95">
+                    03:05 (Angka 1)
+                </button>
+                <button onclick="setClockTime(3, 10)" class="px-3 py-1.5 rounded-xl bg-[#FEF3C7] hover:bg-[#FDE68A] text-[#B45309] font-kids font-bold text-xs sm:text-sm transition active:scale-95">
+                    03:10 (Angka 2)
+                </button>
+                <button onclick="setClockTime(3, 30)" class="px-3 py-1.5 rounded-xl bg-[#F3E8FF] hover:bg-[#E9D5FF] text-[#6D28D9] font-kids font-bold text-xs sm:text-sm transition active:scale-95">
+                    03:30 (Setengah)
+                </button>
+                <button onclick="startMiniQuiz()" class="px-3.5 py-1.5 rounded-xl bg-[#EE5253] hover:bg-[#d63031] text-white font-kids font-bold text-xs sm:text-sm shadow-sm transition active:scale-95 flex items-center gap-1">
+                    <span>🎯 Tebak Jam!</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- KOLOM KANAN (5 Kolom): BACAAN WAKTU & PERUMPAMAAN ANAK KELAS 1 SD -->
+        <div class="lg:col-span-5 flex flex-col gap-3.5">
+            
+            <!-- Kotak Tantangan Quiz (Tersembunyi kecuali mode Tebak Jam aktif) -->
+            <div id="quizBanner" class="hidden bg-gradient-to-r from-[#FF7675] to-[#EE5253] text-white rounded-3xl p-4 shadow-lg border-4 border-white">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-extrabold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full">Tantangan Alina!</span>
+                    <button onclick="closeMiniQuiz()" class="text-xs underline font-bold">Tutup</button>
+                </div>
+                <p id="quizQuestion" class="font-kids text-lg sm:text-xl font-bold mt-1.5">
+                    Putar jarum menjadi pukul 04:10!
+                </p>
+                <p id="quizFeedback" class="text-xs font-semibold mt-1 text-amber-100">
+                    Ayo geser jarum biru ke angka 2 dan jarum merah ke angka 4!
+                </p>
+            </div>
+
+            <!-- KARTU HASIL BACAAN JAM DIGITAL & KALIMAT ANAK -->
+            <div class="bg-white rounded-3xl p-5 border-4 border-[#78C2F2] shadow-md text-center">
+                <span class="text-xs font-extrabold uppercase tracking-widest text-[#3B8AC4]">Sekarang Pukul</span>
+                
+                <!-- Tampilan Angka Digital Berwarna Sesuai Jarum -->
+                <div class="font-kids text-5xl sm:text-6xl font-bold my-1 flex items-center justify-center gap-1">
+                    <span id="digitalHour" class="text-[#EE5253]">03</span>
+                    <span class="text-[#4A3B32] animate-pulse">:</span>
+                    <span id="digitalMinute" class="text-[#2B7DE9]">10</span>
+                    <span class="text-xl text-[#F59E0B] self-end mb-2 ml-1 font-bold" id="digitalSecond">:00</span>
+                </div>
+
+                <!-- Kalimat Cara Membaca untuk Anak Kelas 1 SD -->
+                <div id="kidSentenceBox" class="mt-2 bg-[#F0F9FF] rounded-2xl p-3 border border-[#BAE6FD]">
+                    <p id="kidSentence" class="font-kids text-base sm:text-lg font-bold text-[#1E3A8A]">
+                        "Jam 3 lewat 10 menit"
+                    </p>
+                    <p id="stepExplanation" class="text-xs sm:text-sm font-semibold text-[#475569] mt-1">
+                        Jarum biru melompat 2 angka (5 + 5 = 10 menit).
+                    </p>
+                </div>
+            </div>
+
+            <!-- KARTU PERUMPAMAAN: APA ITU JAM, MENIT, DAN DETIK? (CANVAS MINI / VISUAL) -->
+            <div class="bg-white rounded-3xl p-4 sm:p-5 border-4 border-[#98D147] shadow-md">
+                <h2 class="font-kids text-lg font-bold text-[#3F6212] mb-2.5 flex items-center gap-2">
+                    <span>💡</span> Bayangkan 3 Sahabat Waktu Ini:
+                </h2>
+
+                <div class="space-y-2.5">
+                    <!-- 1. Penjelasan JAM (Kura-kura) -->
+                    <div class="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FEF2F2] border border-[#FECACA]">
+                        <div class="w-10 h-10 rounded-xl bg-[#EE5253] text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+                            🐢
+                        </div>
+                        <div>
+                            <h3 class="font-kids font-bold text-sm sm:text-base text-[#B91C1C]">
+                                Jarum Pendek Merah = JAM
+                            </h3>
+                            <p class="text-xs text-[#7F1D1D] leading-relaxed font-medium">
+                                Jalannya pelan seperti <b>Kura-kura</b>. Menunjuk angka besar (1 sampai 12). 1 jam = waktu menonton 2 film kartun!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Penjelasan MENIT (Kelinci Melompat 5 Langkah) -->
+                    <div class="flex items-start gap-3 p-2.5 rounded-2xl bg-[#EFF6FF] border border-[#BFDBFE]">
+                        <div class="w-10 h-10 rounded-xl bg-[#2B7DE9] text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+                            🐇
+                        </div>
+                        <div>
+                            <h3 class="font-kids font-bold text-sm sm:text-base text-[#1D4ED8]">
+                                Jarum Panjang Biru = MENIT
+                            </h3>
+                            <p class="text-xs text-[#1E3A8A] leading-relaxed font-medium">
+                                Melompat seperti <b>Kelinci</b>! Setiap pindah 1 angka (misal dari <b>1 ke 2</b>), nilainya bertambah <b>5 menit</b> (5 titik kecil).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 3. Penjelasan DETIK (Cheetah / Tepuk Tangan) -->
+                    <div class="flex items-start gap-3 p-2.5 rounded-2xl bg-[#FFFBEB] border border-[#FDE68A]">
+                        <div class="w-10 h-10 rounded-xl bg-[#F59E0B] text-white flex items-center justify-center text-xl shrink-0 shadow-sm">
+                            🐆
+                        </div>
+                        <div>
+                            <h3 class="font-kids font-bold text-sm sm:text-base text-[#B45309]">
+                                Jarum Tipis Oranye = DETIK
+                            </h3>
+                            <p class="text-xs text-[#78350F] leading-relaxed font-medium">
+                                Larinya cepat seperti <b>Cheetah</b>! 1 detik itu secepat <b>1 kali tepuk tangan</b> ("Prok!"). 60 detik = 1 menit.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- =========================================
+         FOOTER NAVIGASI KEMBALI
+         ========================================= -->
+    <footer class="py-3 px-6 max-w-6xl mx-auto w-full flex items-center justify-between text-xs text-[#7D6B5D]">
+        <span>💡 Tips: Perhatikan lengkungan kuning di pinggir jam saat jarum biru berputar!</span>
+        <a href="index.html" class="font-kids font-bold text-[#EE5253] hover:underline flex items-center gap-1">
+            <span>← Kembali ke Pustaka</span>
+        </a>
+    </footer>
+
+    <script>
+        // ========================================================
+        // INISIALISASI CANVAS & VARIABEL WAKTU
+        // ========================================================
+        const canvas = document.getElementById('clockCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+
+        // Waktu awal disetel pukul 03:10 agar anak langsung melihat lompatan angka 1 (5) -> angka 2 (10)
+        let currentHour = 3;     // 1 - 12
+        let currentMinute = 10;  // 0 - 59
+        let currentSecond = 0;   // 0 - 59
+        let isSecondRunning = true;
+
+        // Status Interaksi Drag & Drop
+        let draggingHand = null; // 'minute' | 'hour' | null
+        let lastMinuteAngle = null;
+
+        // Status Mini Quiz
+        let quizActive = false;
+        let targetHour = 4;
+        let targetMinute = 10;
+
+        // ========================================================
+        // MENGATUR UKURAN CANVAS RESPONSIF & TAJAM (RETINA / DPI)
+        // ========================================================
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            const size = Math.min(rect.width, rect.height);
+            const dpr = window.devicePixelRatio || 1;
+
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            canvas.style.width = `${size}px`;
+            canvas.style.height = `${size}px`;
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+            drawClock();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        // ========================================================
+        // FUNGSI UTAMA MENGGAMBAR JAM DI CANVAS
+        // ========================================================
+        function drawClock() {
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size * 0.43;
+
+            ctx.clearRect(0, 0, size, size);
+
+            // 1. BINGKAI LUAR JAM (Ceria Kuning & Oranye)
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius + 16, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFD426';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#F59E0B';
+            ctx.stroke();
+
+            // Lingkaran Wajah Jam Putih Krem
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFDF9';
+            ctx.fill();
+            ctx.restore();
+
+            // 2. BUSUR VISUAL LOMPATAN MENIT (Dari angka 12 sampai jarum menit saat ini)
+            // Ini membantu anak membayangkan "luas" menit yang sudah dilewati!
+            if (currentMinute > 0) {
+                const startAngle = -Math.PI / 2;
+                const endAngle = startAngle + (currentMinute / 60) * (Math.PI * 2);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius * 0.86, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(59, 138, 196, 0.12)';
+                ctx.fill();
+
+                // Busur Tebal di Pinggir untuk setiap kelipatan 5 menit (1 -> 2 -> 3...)
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius * 0.88, startAngle, endAngle);
+                ctx.strokeStyle = 'rgba(43, 125, 233, 0.45)';
+                ctx.lineWidth = 10;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // 3. GARIS & TITIK 60 MENIT / DETIK DI PINGGIR JAM
+            for (let i = 0; i < 60; i++) {
+                const angle = (i * Math.PI) / 30 - Math.PI / 2;
+                const isMajor = i % 5 === 0;
+                const outerR = radius * 0.94;
+                const innerR = isMajor ? radius * 0.84 : radius * 0.89;
+
+                ctx.beginPath();
+                ctx.moveTo(cx + Math.cos(angle) * innerR, cy + Math.sin(angle) * innerR);
+                ctx.lineTo(cx + Math.cos(angle) * outerR, cy + Math.sin(angle) * outerR);
+                ctx.strokeStyle = isMajor ? '#EE5253' : (i <= currentMinute && currentMinute > 0 ? '#2B7DE9' : '#CBD5E1');
+                ctx.lineWidth = isMajor ? 4 : 2;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+
+            // 4. ANGKA JAM BESAR (1 - 12) & LENCANA KELIPATAN 5 MENIT (:05, :10, :15...)
+            for (let num = 1; num <= 12; num++) {
+                const angle = (num * Math.PI) / 6 - Math.PI / 2;
+                const minuteVal = num === 12 ? 0 : num * 5;
+                const isHighlighted = (currentMinute === minuteVal) || (num === 12 && currentMinute === 0);
+
+                // Posisi Angka Jam (Merah/Cokelat Tua)
+                const numR = radius * 0.68;
+                const nx = cx + Math.cos(angle) * numR;
+                const ny = cy + Math.sin(angle) * numR;
+
+                ctx.font = `700 ${Math.round(size * 0.068)}px Fredoka, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = (num === currentHour) ? '#EE5253' : '#4A3B32';
+                ctx.fillText(num.toString(), nx, ny);
+
+                // Lencana Kelipatan 5 Menit di Luar Lingkaran (Agar anak paham 1 = 5 menit, 2 = 10 menit!)
+                const badgeR = radius + 16;
+                const bx = cx + Math.cos(angle) * badgeR;
+                const by = cy + Math.sin(angle) * badgeR;
+                const badgeLabel = minuteVal === 0 ? '00' : (minuteVal < 10 ? `0${minuteVal}` : `${minuteVal}`);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(bx, by, size * 0.036, 0, Math.PI * 2);
+                ctx.fillStyle = isHighlighted ? '#2B7DE9' : '#FFFFFF';
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = isHighlighted ? '#1D4ED8' : '#F59E0B';
+                ctx.stroke();
+
+                ctx.font = `700 ${Math.round(size * 0.028)}px Fredoka, sans-serif`;
+                ctx.fillStyle = isHighlighted ? '#FFFFFF' : '#2B7DE9';
+                ctx.fillText(badgeLabel, bx, by + 0.5);
+                ctx.restore();
+            }
+
+            // 5. HITUNG SUDUT MASING-MASING JARUM
+            // Jarum jam bergerak halus mengikuti menit
+            const hourAngle = (((currentHour % 12) + currentMinute / 60) * Math.PI) / 6 - Math.PI / 2;
+            const minuteAngle = (currentMinute * Math.PI) / 30 - Math.PI / 2;
+            const secondAngle = (currentSecond * Math.PI) / 30 - Math.PI / 2;
+
+            // 6. GAMBAR JARUM PENDEK MERAH (JARUM JAM - KURA-KURA)
+            drawHand(cx, cy, hourAngle, radius * 0.48, 10, '#EE5253', draggingHand === 'hour');
+
+            // 7. GAMBAR JARUM PANJANG BIRU (JARUM MENIT - KELINCI)
+            drawHand(cx, cy, minuteAngle, radius * 0.74, 7, '#2B7DE9', draggingHand === 'minute');
+
+            // 8. GAMBAR JARUM TIPIS ORANYE (JARUM DETIK - CHEETAH)
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cx - Math.cos(secondAngle) * 14, cy - Math.sin(secondAngle) * 14);
+            ctx.lineTo(cx + Math.cos(secondAngle) * (radius * 0.82), cy + Math.sin(secondAngle) * (radius * 0.82));
+            ctx.strokeStyle = '#F59E0B';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            ctx.restore();
+
+            // 9. POROS TENGAH JAM
+            ctx.beginPath();
+            ctx.arc(cx, cy, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#4A3B32';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFD426';
+            ctx.fill();
+        }
+
+        // Fungsi Helper Menggambar Jarum + Pegangan Bulat di Ujungnya (Agar mudah di-drag anak)
+        function drawHand(cx, cy, angle, length, width, color, isActive) {
+            const tipX = cx + Math.cos(angle) * length;
+            const tipY = cy + Math.sin(angle) * length;
+
+            ctx.save();
+            // Batang Jarum
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(tipX, tipY);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            // Lingkaran Pegangan (Handle) di Ujung Jarum untuk Drag & Drop
+            ctx.beginPath();
+            ctx.arc(tipX, tipY, isActive ? 15 : 12, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+
+            // Titik tengah pegangan
+            ctx.beginPath();
+            ctx.arc(tipX, tipY, 4, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ========================================================
+        // LOGIKA INTERAKSI DRAG & DROP (MOUSE & SENTUHAN JARI)
+        // ========================================================
+        function getPointerPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function handlePointerDown(e) {
+            const pos = getPointerPos(e);
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            const cx = size / 2;
+            const cy = size / 2;
+            const radius = size * 0.43;
+
+            // Posisi ujung jarum menit & jarum jam
+            const minuteAngle = (currentMinute * Math.PI) / 30 - Math.PI / 2;
+            const minTipX = cx + Math.cos(minuteAngle) * (radius * 0.74);
+            const minTipY = cy + Math.sin(minuteAngle) * (radius * 0.74);
+
+            const hourAngle = (((currentHour % 12) + currentMinute / 60) * Math.PI) / 6 - Math.PI / 2;
+            const hourTipX = cx + Math.cos(hourAngle) * (radius * 0.48);
+            const hourTipY = cy + Math.sin(hourAngle) * (radius * 0.48);
+
+            const distToMin = Math.hypot(pos.x - minTipX, pos.y - minTipY);
+            const distToHour = Math.hypot(pos.x - hourTipX, pos.y - hourTipY);
+
+            // Area sentuh diperbesar (radius 36px) agar jari anak mudah menangkap jarum
+            if (distToMin < 38) {
+                draggingHand = 'minute';
+                lastMinuteAngle = Math.atan2(pos.y - cy, pos.x - cx);
+            } else if (distToHour < 38) {
+                draggingHand = 'hour';
+            } else {
+                // Jika anak mengetuk langsung ke angka mana saja di jam, arahkan jarum menit ke sana!
+                const distFromCenter = Math.hypot(pos.x - cx, pos.y - cy);
+                if (distFromCenter <= radius + 25 && distFromCenter > 20) {
+                    draggingHand = 'minute';
+                    updateTimeFromAngle(pos.x, pos.y, cx, cy);
+                }
+            }
+            drawClock();
+        }
+
+        function handlePointerMove(e) {
+            if (!draggingHand) return;
+            e.preventDefault();
+            const pos = getPointerPos(e);
+            const size = canvas.width / (window.devicePixelRatio || 1);
+            updateTimeFromAngle(pos.x, pos.y, size / 2, size / 2);
+        }
+
+        function updateTimeFromAngle(x, y, cx, cy) {
+            // Hitung sudut dari jam 12 (0 radian di atas, searah jarum jam 0..2PI)
+            let angle = Math.atan2(y - cy, x - cx) + Math.PI / 2;
+            if (angle < 0) angle += Math.PI * 2;
+
+            if (draggingHand === 'minute') {
+                const newMinute = Math.round((angle / (Math.PI * 2)) * 60) % 60;
+
+                // Deteksi jika jarum menit melewati angka 12 (maju atau mundur) agar jam ikut berubah otomatis!
+                if (currentMinute >= 45 && newMinute <= 15) {
+                    currentHour = currentHour === 12 ? 1 : currentHour + 1;
+                } else if (currentMinute <= 15 && newMinute >= 45) {
+                    currentHour = currentHour === 1 ? 12 : currentHour - 1;
+                }
+
+                currentMinute = newMinute;
+            } else if (draggingHand === 'hour') {
+                let newHour = Math.round((angle / (Math.PI * 2)) * 12);
+                if (newHour === 0) newHour = 12;
+                currentHour = newHour;
+            }
+
+            updateUI();
+            drawClock();
+            checkMiniQuiz();
+        }
+
+        function handlePointerUp() {
+            draggingHand = null;
+            drawClock();
+        }
+
+        // Pasang Event Listener Mouse & Touch
+        canvas.addEventListener('mousedown', handlePointerDown);
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
+
+        canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+        window.addEventListener('touchmove', handlePointerMove, { passive: false });
+        window.addEventListener('touchend', handlePointerUp);
+
+        // ========================================================
+        // PEMBARUAN PENJELASAN RAMAH ANAK KELAS 1 SD
+        // ========================================================
+        function updateUI() {
+            const hourStr = currentHour < 10 ? `0${currentHour}` : `${currentHour}`;
+            const minStr = currentMinute < 10 ? `0${currentMinute}` : `${currentMinute}`;
+            const secStr = currentSecond < 10 ? `:0${currentSecond}` : `:${currentSecond}`;
+
+            document.getElementById('digitalHour').textContent = hourStr;
+            document.getElementById('digitalMinute').textContent = minStr;
+            document.getElementById('digitalSecond').textContent = secStr;
+
+            const sentenceEl = document.getElementById('kidSentence');
+            const detailEl = document.getElementById('stepExplanation');
+
+            if (currentMinute === 0) {
+                sentenceEl.textContent = `"Pukul ${currentHour} Tepat"`;
+                detailEl.textContent = `Jarum biru menunjuk lurus ke atas (angka 12 = 00 menit), jarum merah di angka ${currentHour}.`;
+            } else if (currentMinute === 30) {
+                sentenceEl.textContent = `"Pukul ${currentHour} lewat 30 menit (Setengah ${currentHour === 12 ? 1 : currentHour + 1})"`;
+                detailEl.textContent = `Jarum biru sudah berjalan setengah lingkaran (6 angka × 5 menit = 30 menit).`;
+            } else if (currentMinute % 5 === 0) {
+                const bigNumber = currentMinute / 5;
+                sentenceEl.textContent = `"Jam ${currentHour} lewat ${currentMinute} menit"`;
+                detailEl.textContent = `Jarum biru di angka ${bigNumber}. Karena setiap 1 angka = 5 menit, maka ${bigNumber} × 5 = ${currentMinute} menit!`;
+            } else {
+                const bigNumber = Math.floor(currentMinute / 5);
+                const extraDots = currentMinute % 5;
+                const baseMinutes = bigNumber * 5;
+                sentenceEl.textContent = `"Jam ${currentHour} lewat ${currentMinute} menit"`;
+                if (bigNumber === 0) {
+                    detailEl.textContent = `Jarum biru melewati ${extraDots} titik kecil setelah angka 12 = ${currentMinute} menit.`;
+                } else {
+                    detailEl.textContent = `Jarum biru di angka ${bigNumber} (${baseMinutes} menit) + ${extraDots} titik kecil = ${currentMinute} menit.`;
+                }
+            }
+        }
+
+        function setClockTime(h, m) {
+            currentHour = h;
+            currentMinute = m;
+            updateUI();
+            drawClock();
+            checkMiniQuiz();
+        }
+
+        // ========================================================
+        // ANIMASI JARUM DETIK (1 DETIK = 1 TEPUK TANGAN)
+        // ========================================================
+        setInterval(() => {
+            if (isSecondRunning) {
+                currentSecond = (currentSecond + 1) % 60;
+                // Jika jarum detik genap 60 detik (kembali ke 0), menit bertambah 1 jika tidak sedang di-drag
+                if (currentSecond === 0 && !draggingHand) {
+                    currentMinute = (currentMinute + 1) % 60;
+                    if (currentMinute === 0) {
+                        currentHour = currentHour === 12 ? 1 : currentHour + 1;
+                    }
+                    updateUI();
+                    checkMiniQuiz();
+                } else {
+                    const secStr = currentSecond < 10 ? `:0${currentSecond}` : `:${currentSecond}`;
+                    document.getElementById('digitalSecond').textContent = secStr;
+                }
+                drawClock();
+            }
+        }, 1000);
+
+        function toggleSecondHand() {
+            isSecondRunning = !isSecondRunning;
+            const dot = document.getElementById('secondDot');
+            const text = document.getElementById('secondBtnText');
+            if (isSecondRunning) {
+                dot.classList.add('animate-ping', 'bg-[#EE5253]');
+                dot.classList.remove('bg-slate-400');
+                text.textContent = 'Detik: Jalan';
+            } else {
+                dot.classList.remove('animate-ping', 'bg-[#EE5253]');
+                dot.classList.add('bg-slate-400');
+                text.textContent = 'Detik: Berhenti';
+            }
+        }
+
+        // ========================================================
+        // MINI QUIZ TEBAK JAM UNTUK ANAK KELAS 1 SD
+        // ========================================================
+        function startMiniQuiz() {
+            quizActive = true;
+            // Pilih soal kelipatan 5 menit agar sesuai materi kelas 1 SD
+            const possibleMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+            targetHour = Math.floor(Math.random() * 12) + 1;
+            targetMinute = possibleMinutes[Math.floor(Math.random() * possibleMinutes.length)];
+
+            const hStr = targetHour < 10 ? `0${targetHour}` : `${targetHour}`;
+            const mStr = targetMinute < 10 ? `0${targetMinute}` : `${targetMinute}`;
+
+            document.getElementById('quizBanner').classList.remove('hidden');
+            document.getElementById('quizQuestion').textContent = `Putar jarum menjadi pukul ${hStr}:${mStr}!`;
+            
+            const targetBigNum = targetMinute === 0 ? 12 : targetMinute / 5;
+            document.getElementById('quizFeedback').textContent = `Petunjuk: Jarum merah ke angka ${targetHour}, dan jarum biru ke angka ${targetBigNum} (${targetMinute} menit).`;
+        }
+
+        function checkMiniQuiz() {
+            if (!quizActive) return;
+            if (currentHour === targetHour && currentMinute === targetMinute) {
+                document.getElementById('quizQuestion').textContent = `🎉 Hebat! Kamu Benar!`;
+                document.getElementById('quizFeedback').textContent = `Yeay! Itu adalah pukul ${targetHour}:${targetMinute < 10 ? '0' + targetMinute : targetMinute}. Klik "Tebak Jam!" lagi untuk soal berikutnya!`;
+            }
+        }
+
+        function closeMiniQuiz() {
+            quizActive = false;
+            document.getElementById('quizBanner').classList.add('hidden');
+        }
+
+        // Jalankan saat halaman dimuat
+        window.onload = function () {
+            resizeCanvas();
+            updateUI();
+        };
+    </script>
+</body>
+</html>
