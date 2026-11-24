@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0284C7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Math Salju SD 1">
+    <title>Matematika Musim Salju - Kelas 1 SD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            user-select: none;
+            background-color: #E0F2FE;
+            /* Nuansa musim salju pegunungan es & danau beku (non-Natal) */
+            background-image:
+                radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.9) 0%, transparent 32%),
+                radial-gradient(circle at 80% 20%, rgba(186, 230, 253, 0.7) 0%, transparent 38%),
+                linear-gradient(180deg, #BAE6FD 0%, #E0F2FE 48%, #F0F9FF 82%, #DBEAFE 100%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Kanvas Salju Tipis Latar Belakang */
+        #snow-bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Kontainer utama 80% luas layar saat kuis aktif */
+        .app-shell-quiz {
+            width: 94vw;
+            max-width: 1400px;
+            min-height: 82vh;
+        }
+
+        @media (min-width: 768px) {
+            .app-shell-quiz {
+                width: 86vw;
+                min-height: 82vh;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .app-shell-quiz {
+                width: 82vw;
+                min-height: 82vh;
+            }
+        }
+
+        .frost-panel {
+            background-color: rgba(255, 255, 255, 0.96);
+            border: 4px solid #0369A1;
+            box-shadow: 0 10px 0px rgba(3, 105, 161, 0.2);
+            border-radius: 26px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glacier-header {
+            background: linear-gradient(135deg, #0369A1 0%, #0284C7 55%, #38BDF8 100%);
+            border-bottom: 4px solid #0C4A6E;
+        }
+
+        .snow-btn {
+            font-weight: 700;
+            background-color: #0369A1;
+            color: #FFFFFF;
+            border: 3px solid #0C4A6E;
+            box-shadow: 0 4px 0px #0C4A6E;
+            transition: transform 0.08s ease, background-color 0.12s ease, box-shadow 0.08s ease;
+            border-radius: 16px;
+        }
+
+        .snow-btn:hover:not(:disabled) {
+            background-color: #0284C7;
+            transform: translateY(-1px);
+        }
+
+        .snow-btn:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0px #0C4A6E;
+        }
+
+        .snow-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .snow-btn-cyan {
+            background-color: #06B6D4;
+            color: #083344;
+            border-color: #164E63;
+            box-shadow: 0 4px 0px #164E63;
+        }
+
+        .snow-btn-cyan:hover:not(:disabled) {
+            background-color: #22D3EE;
+        }
+
+        .snow-btn-amber {
+            background-color: #FBBF24;
+            color: #451A03;
+            border-color: #78350F;
+            box-shadow: 0 4px 0px #78350F;
+        }
+
+        .snow-btn-amber:hover:not(:disabled) {
+            background-color: #FCD34D;
+        }
+
+        .snow-btn-emerald {
+            background-color: #10B981;
+            color: #FFFFFF;
+            border-color: #064E3B;
+            box-shadow: 0 4px 0px #064E3B;
+        }
+
+        .snow-btn-rose {
+            background-color: #F43F5E;
+            color: #FFFFFF;
+            border-color: #881337;
+            box-shadow: 0 4px 0px #881337;
+        }
+
+        .ice-input {
+            background-color: #F0F9FF;
+            color: #0C4A6E;
+            border: 3px solid #38BDF8;
+            box-shadow: inset 0 2px 0px #E0F2FE;
+            border-radius: 14px;
+        }
+
+        .ice-input:focus {
+            border-color: #0284C7;
+            background-color: #FFFFFF;
+            outline: none;
+        }
+
+        .pen-color-btn {
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .pen-color-btn.active {
+            transform: scale(1.18);
+            box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 5px #0369A1;
+        }
+
+        #scratchpad-canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+
+        .card-enter {
+            animation: popIce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIce {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .shake {
+            animation: shakeAnim 0.35s ease-in-out;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-7px); }
+            50% { transform: translateX(7px); }
+            75% { transform: translateX(-7px); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-2 sm:p-4">
+
+    <!-- Lapisan Efek Salju Turun Tipis-Tipis -->
+    <canvas id="snow-bg-canvas"></canvas>
+
+    <!-- LAYAR AWAL -->
+    <div id="start-screen" class="w-full max-w-xl frost-panel overflow-hidden card-enter my-4">
+        <div class="glacier-header p-6 text-center text-white">
+            <div class="inline-flex items-center gap-2 bg-white/20 border-2 border-sky-200 text-white font-bold px-4 py-1 rounded-full text-xs sm:text-sm mb-3">
+                ❄️ LATIHAN SOAL CERITA MATEMATIKA • KELAS 1 SD
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-white tracking-wide drop-shadow">
+                Penjumlahan & Pengurangan <span class="text-amber-300">Sampai 20</span>
+            </h1>
+            <p class="text-sky-100 text-xs sm:text-sm mt-1">
+                Hitung soal cerita bersama Penguin & gunakan Papan Coret-Coret Es!
+            </p>
+        </div>
+
+        <div class="p-6 sm:p-8 text-center">
+            <!-- Banner Progres Tersimpan 1 Minggu -->
+            <div id="saved-progress-banner" class="hidden bg-sky-950 border-4 border-sky-400 rounded-2xl p-4 mb-6 text-left shadow-lg">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <span class="text-xs font-bold text-sky-300 block">❄️ CATATAN BELAJAR TERSIMPAN (1 MINGGU):</span>
+                        <p id="saved-progress-info" class="text-white font-bold text-base mt-0.5"></p>
+                        <p id="saved-progress-detail" class="text-sky-200 text-xs mt-0.5"></p>
+                    </div>
+                    <div class="flex gap-2 shrink-0">
+                        <button onclick="resumeSavedQuiz()" class="snow-btn snow-btn-amber px-4 py-2.5 text-xs cursor-pointer">
+                            ▶ LANJUTKAN
+                        </button>
+                        <button onclick="discardSavedQuiz()" class="snow-btn snow-btn-rose px-3 py-2.5 text-xs cursor-pointer" title="Hapus Data Tersimpan">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ilustrasi SVG Penguin & Gunung Es Salju (Non-Natal) -->
+            <div class="w-40 h-32 mx-auto mb-5 bg-gradient-to-b from-sky-100 to-blue-200 rounded-3xl border-4 border-sky-700 shadow-inner flex items-center justify-center relative overflow-hidden">
+                <svg viewBox="0 0 160 120" class="w-36 h-28">
+                    <!-- Gunung Es Latar -->
+                    <polygon points="10,105 45,45 80,105" fill="#BAE6FD" stroke="#0284C7" stroke-width="2"/>
+                    <polygon points="45,45 33,66 42,63 48,68 56,62" fill="#FFFFFF"/>
+                    <polygon points="75,105 115,38 155,105" fill="#7DD3FC" stroke="#0284C7" stroke-width="2"/>
+                    <polygon points="115,38 101,62 111,59 118,65 127,60" fill="#FFFFFF"/>
+                    <!-- Lantai Salju -->
+                    <rect x="0" y="100" width="160" height="20" fill="#FFFFFF"/>
+                    <!-- Penguin Lucu -->
+                    <ellipse cx="80" cy="76" rx="20" ry="25" fill="#0F172A"/>
+                    <ellipse cx="80" cy="79" rx="13" ry="19" fill="#FFFFFF"/>
+                    <!-- Sayap Penguin -->
+                    <ellipse cx="58" cy="76" rx="5" ry="13" transform="rotate(15 58 76)" fill="#0F172A"/>
+                    <ellipse cx="102" cy="76" rx="5" ry="13" transform="rotate(-15 102 76)" fill="#0F172A"/>
+                    <!-- Mata & Paruh -->
+                    <circle cx="74" cy="62" r="2.8" fill="#FFFFFF"/>
+                    <circle cx="74.5" cy="62" r="1.4" fill="#0F172A"/>
+                    <circle cx="86" cy="62" r="2.8" fill="#FFFFFF"/>
+                    <circle cx="85.5" cy="62" r="1.4" fill="#0F172A"/>
+                    <polygon points="76,66 84,66 80,72" fill="#F59E0B"/>
+                    <!-- Syal Biru Hangat -->
+                    <rect x="66" y="72" width="28" height="6" rx="3" fill="#38BDF8"/>
+                    <rect x="84" y="75" width="6" height="14" rx="2" fill="#0284C7"/>
+                    <!-- Kaki Penguin -->
+                    <ellipse cx="72" cy="101" rx="6" ry="3" fill="#F59E0B"/>
+                    <ellipse cx="88" cy="101" rx="6" ry="3" fill="#F59E0B"/>
+                </svg>
+            </div>
+
+            <p class="text-sky-950 font-semibold text-base sm:text-lg mb-6">
+                Selesaikan <span class="text-sky-700 font-extrabold">10 Soal Cerita Esai ❄️</span> dengan menghitung di <b>Papan Coret-Coret</b> lalu menuliskan <b>Jawabannya</b>!
+            </p>
+
+            <div class="max-w-sm mx-auto space-y-4 mb-7 text-left">
+                <div>
+                    <label class="block text-xs font-bold text-sky-950 mb-1.5 uppercase">Nama Siswa:</label>
+                    <input type="text" id="student-name" placeholder="Ketik namamu di sini..." 
+                        class="ice-input w-full px-4 py-3 text-lg font-semibold">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-sky-950 mb-1.5 uppercase">Kelas:</label>
+                    <input type="text" id="student-class" value="1 SD" placeholder="Contoh: 1A" 
+                        class="ice-input w-full px-4 py-3 text-lg font-semibold">
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="snow-btn snow-btn-cyan w-full sm:w-auto px-9 py-4 text-lg sm:text-xl cursor-pointer">
+                🐧 MULAI BERHITUNG!
+            </button>
+
+            <div id="pwa-install-container" class="hidden mt-4">
+                <button id="pwa-install-btn" onclick="installPWA()" 
+                    class="snow-btn snow-btn-amber w-full sm:w-auto px-5 py-2.5 text-xs cursor-pointer">
+                    📲 PASANG APLIKASI (OFFLINE)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LAYAR KUIS (AREA 80%+ LAYAR, 2 KOLOM: LANDSCAPE KIRI-KANAN, PORTRAIT ATAS-BAWAH) -->
+    <div id="quiz-screen" class="hidden app-shell-quiz flex flex-col justify-between gap-3 my-1">
+        
+        <!-- Header Bar -->
+        <div class="frost-panel px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-sky-100 rounded-2xl border-2 border-sky-700 flex items-center justify-center text-2xl shadow-sm">
+                    🐧
+                </div>
+                <div>
+                    <p id="display-name" class="font-bold text-sky-950 leading-tight text-sm sm:text-base">Siswa Hebat</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                        <p id="display-class" class="text-xs font-bold text-sky-700">Kelas 1 SD</p>
+                        <span id="save-indicator" class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-500">💾 TERSIMPAN</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress & Skor -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="hidden sm:flex items-center gap-1.5 bg-sky-100 px-3 py-1.5 rounded-xl border-2 border-sky-300">
+                    <span class="text-xs font-bold text-sky-900">SOAL:</span>
+                    <span id="header-progress-text" class="text-sm font-extrabold text-sky-700">1 / 10</span>
+                </div>
+
+                <div class="bg-sky-950 rounded-2xl border-2 border-sky-400 px-3.5 py-1.5 flex items-center gap-2">
+                    <span class="text-lg">❄️</span>
+                    <div>
+                        <span class="text-[10px] font-bold text-sky-300 block leading-none">KRISTAL</span>
+                        <span id="crystal-count" class="text-sm sm:text-base font-extrabold text-white leading-none">0/10</span>
+                    </div>
+                </div>
+
+                <div class="bg-amber-950 rounded-2xl border-2 border-amber-400 px-3.5 py-1.5 flex items-center gap-2">
+                    <span class="text-lg">⭐</span>
+                    <div>
+                        <span class="text-[10px] font-bold text-amber-300 block leading-none">SKOR</span>
+                        <span id="score-display" class="text-sm sm:text-base font-extrabold text-amber-300 leading-none">0</span>
+                    </div>
+                </div>
+
+                <button onclick="toggleSound()" id="sound-btn" class="snow-btn px-3 py-2 text-sm sm:text-base" title="Suara">
+                    🔊
+                </button>
+            </div>
+        </div>
+
+        <!-- KARTU UTAMA 2 KOLOM:
+             - Portrait: flex-col (Atas = Soal & Input, Bawah = Canvas Coret-Coret Besar)
+             - Tablet Landscape & Desktop (landscape:flex-row / lg:flex-row): Kiri = Soal & Input, Kanan = Canvas Coret-Coret Besar -->
+        <div id="question-card" class="frost-panel flex-1 flex flex-col overflow-hidden">
+            <div class="glacier-header px-5 py-2.5 flex flex-wrap justify-between items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <span id="section-badge" class="bg-sky-950 text-sky-200 font-bold px-3 py-1 rounded-lg text-xs uppercase">
+                        A. Penjumlahan
+                    </span>
+                    <span id="question-number" class="bg-amber-300 text-sky-950 font-extrabold px-3 py-1 rounded-lg text-xs">
+                        No. 1 • Buah Apel
+                    </span>
+                </div>
+                <span id="status-badge" class="hidden font-bold px-3 py-1 rounded-lg text-xs border-2 border-sky-950"></span>
+            </div>
+
+            <!-- Grid/Flex 2 Kolom Adaptif Orientasi -->
+            <div class="flex-1 flex flex-col landscape:flex-row lg:flex-row divide-y-4 landscape:divide-y-0 landscape:divide-x-4 lg:divide-y-0 lg:divide-x-4 divide-sky-200">
+                
+                <!-- KOLOM 1 (KIRI / ATAS): SOAL CERITA & INPUT ISIAN JAWABAN -->
+                <div class="w-full landscape:w-[46%] lg:w-[45%] p-4 sm:p-6 flex flex-col justify-between bg-white">
+                    <div>
+                        <!-- Ilustrasi Benda pada Soal -->
+                        <div class="flex items-center gap-3 bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 mb-4">
+                            <span id="story-emoji" class="text-4xl shrink-0">🍎</span>
+                            <p id="question-text" class="text-base sm:text-lg lg:text-xl font-bold text-sky-950 leading-snug">
+                                Memuat soal cerita...
+                            </p>
+                        </div>
+
+                        <!-- Form Esai: Cara Menghitung & Jawab -->
+                        <div id="answer-area" class="space-y-3.5"></div>
+
+                        <!-- Kotak Pembahasan Setelah Menjawab -->
+                        <div id="feedback-box" class="hidden mt-4 bg-sky-950 border-3 border-sky-400 rounded-2xl p-3.5 text-white flex items-start gap-3 shadow-md">
+                            <span id="feedback-emoji" class="text-2xl shrink-0">❄️</span>
+                            <div>
+                                <p id="feedback-title" class="font-bold text-xs sm:text-sm text-amber-300"></p>
+                                <p id="feedback-desc" class="text-xs sm:text-sm text-sky-100 mt-1 leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2 border-t border-sky-100 text-[11px] text-sky-700 font-semibold flex items-center gap-1.5">
+                        💡 <span>Gunakan papan coret-coret di samping/bawah untuk menggambar atau menghitung!</span>
+                    </div>
+                </div>
+
+                <!-- KOLOM 2 (KANAN / BAWAH): CANVAS CORET-CORET BESAR -->
+                <div class="w-full landscape:w-[54%] lg:w-[55%] p-4 sm:p-5 flex flex-col bg-gradient-to-b from-sky-50/90 to-blue-50/90">
+                    <!-- Toolbar Papan Coret-Coret -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-2xl border-2 border-sky-300 mb-3 shadow-sm">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-bold text-sky-900 mr-1">✏️ PENA:</span>
+                            <div id="pen-palette" class="flex items-center gap-1.5"></div>
+                        </div>
+
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <!-- Stempel Benda Hitung Cepat -->
+                            <button type="button" onclick="stampItemOnCanvas()" id="stamp-btn"
+                                class="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-400 cursor-pointer" title="Tempel gambar benda ke papan">
+                                +🍎 Gambar Benda
+                            </button>
+                            <button type="button" onclick="toggleEraser()" id="eraser-btn"
+                                class="px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 cursor-pointer">
+                                🧽 Penghapus
+                            </button>
+                            <button type="button" onclick="clearScratchpad()"
+                                class="px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-100 hover:bg-rose-200 text-rose-800 border border-rose-300 cursor-pointer">
+                                🗑️ Hapus Semua
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Area Kanvas Besar -->
+                    <div id="canvas-wrapper" class="flex-1 min-h-[260px] landscape:min-h-[340px] lg:min-h-[380px] w-full bg-white rounded-2xl border-3 border-sky-700 overflow-hidden shadow-inner relative">
+                        <canvas id="scratchpad-canvas" class="w-full h-full block"></canvas>
+                        <span class="absolute bottom-2 right-3 text-[11px] font-bold text-sky-300 pointer-events-none">
+                            Papan Coret-Coret Es ❄️
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Navigasi Next & Prev -->
+        <div class="flex items-center justify-between gap-3 relative z-10">
+            <button id="prev-btn" onclick="prevQuestion()" 
+                class="snow-btn flex-1 sm:flex-none px-6 py-3 text-sm sm:text-base flex items-center justify-center gap-2">
+                ◀ SEBELUMNYA
+            </button>
+
+            <div id="dots-container" class="hidden md:flex items-center gap-1.5 justify-center bg-sky-950/90 px-4 py-2 rounded-2xl border-2 border-sky-700"></div>
+
+            <button id="next-btn" onclick="nextQuestion()" 
+                class="snow-btn snow-btn-cyan flex-1 sm:flex-none px-6 py-3 text-sm sm:text-base flex items-center justify-center gap-2">
+                SELANJUTNYA ▶
+            </button>
+        </div>
+
+    </div>
+
+    <!-- LAYAR HASIL AKHIR -->
+    <div id="result-screen" class="hidden w-full max-w-xl frost-panel overflow-hidden card-enter my-4">
+        <div class="glacier-header p-6 text-center text-white">
+            <div class="text-5xl mb-2 animate-bounce">🏆</div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-amber-300">
+                HEBAT SEKALI!
+            </h2>
+            <p id="result-student-info" class="text-sm sm:text-base font-semibold text-sky-100 mt-1"></p>
+        </div>
+
+        <div class="p-6 sm:p-8 text-center">
+            <div class="grid grid-cols-2 gap-3 max-w-md mx-auto mb-6">
+                <div class="bg-sky-950 rounded-2xl border-4 border-sky-400 p-4">
+                    <p class="text-xs font-bold text-sky-300 mb-1">KRISTAL ES</p>
+                    <div id="final-crystals" class="text-3xl sm:text-4xl font-extrabold text-white my-1">10 ❄️</div>
+                    <p class="text-sky-200 text-xs">Dari 10 soal cerita</p>
+                </div>
+                <div class="bg-amber-950 rounded-2xl border-4 border-amber-400 p-4">
+                    <p class="text-xs font-bold text-amber-300 mb-1">NILAI AKHIR</p>
+                    <div id="final-score" class="text-3xl sm:text-4xl font-extrabold text-amber-300 my-1">100</div>
+                    <p id="final-stats" class="text-amber-200 text-xs">Benar 10/10 soal</p>
+                </div>
+            </div>
+
+            <p id="result-message" class="text-lg font-bold text-sky-950 mb-6 max-w-md mx-auto"></p>
+
+            <!-- Ringkasan Kisi-kisi Operasi -->
+            <div class="bg-sky-50 border-3 border-sky-700 rounded-2xl p-4 text-left max-w-lg mx-auto mb-7 shadow-inner">
+                <h3 class="font-bold text-sm text-sky-900 mb-2 flex items-center gap-2">
+                    📘 RINGKASAN OPERASI HITUNG SOAL CERITA:
+                </h3>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:text-sm text-sky-950 font-semibold">
+                    <div>1. Apel: <b>8 + 5 = 13</b></div>
+                    <div>6. Permen: <b>15 − 6 = 9</b></div>
+                    <div>2. Kelereng: <b>7 + 6 = 13</b></div>
+                    <div>7. Balon: <b>18 − 5 = 13</b></div>
+                    <div>3. Bunga: <b>9 + 4 = 13</b></div>
+                    <div>8. Buku: <b>16 − 7 = 9</b></div>
+                    <div>4. Pensil: <b>6 + 8 = 14</b></div>
+                    <div>9. Ayam: <b>20 − 8 = 12</b></div>
+                    <div>5. Ikan: <b>7 + 9 = 16</b></div>
+                    <div>10. Stroberi: <b>14 − 9 = 5</b></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="reviewQuiz()" class="snow-btn px-6 py-3.5 text-sm cursor-pointer">
+                    🔍 LIHAT JAWABAN & CORETAN
+                </button>
+                <button onclick="restartQuiz()" class="snow-btn snow-btn-emerald px-7 py-3.5 text-sm cursor-pointer">
+                    🔄 MAIN LAGI
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Peringatan -->
+    <div id="custom-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+        <div class="frost-panel p-6 max-w-sm w-full text-center card-enter">
+            <div class="text-4xl mb-2">🐧</div>
+            <h3 id="modal-title" class="font-bold text-lg text-sky-950 mb-2">PERHATIAN</h3>
+            <p id="modal-text" class="text-sky-900 font-medium mb-6"></p>
+            <button onclick="closeModal()" class="snow-btn snow-btn-amber w-full py-3 text-sm cursor-pointer">
+                OKE, MENGERTI!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'math_salju_sd1_esai_v1';
+        const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+        const PEN_COLORS = [
+            { name: 'Biru Tua', hex: '#0369A1' },
+            { name: 'Hitam', hex: '#0F172A' },
+            { name: 'Merah', hex: '#EF4444' },
+            { name: 'Hijau', hex: '#10B981' },
+            { name: 'Oranye', hex: '#F97316' }
+        ];
+
+        // 10 Soal Cerita Matematika Esai Uraian (Cara menghitung + Hasil)
+        const questions = [
+            // === A. PENJUMLAHAN (1-5) ===
+            {
+                section: 'A. Penjumlahan',
+                numLabel: '1',
+                topic: 'Buah Apel',
+                emoji: '🍎',
+                q: "Ani mempunyai 8 buah apel. Ibu memberikan 5 apel lagi kepada Ani. Berapa jumlah apel Ani sekarang?",
+                opSymbol: '+',
+                num1: 8,
+                num2: 5,
+                resultNum: 13,
+                unit: 'apel',
+                sampleCalc: "8 + 5 = 13",
+                sampleAns: "13 buah apel",
+                explanation: "Ani punya 8 apel lalu diberi 5 apel lagi. Cara menghitung: 8 + 5 = 13 buah apel."
+            },
+            {
+                section: 'A. Penjumlahan',
+                numLabel: '2',
+                topic: 'Kelereng Budi',
+                emoji: '🔮',
+                q: "Budi memiliki 7 kelereng merah dan 6 kelereng biru. Berapa jumlah seluruh kelereng Budi?",
+                opSymbol: '+',
+                num1: 7,
+                num2: 6,
+                resultNum: 13,
+                unit: 'kelereng',
+                sampleCalc: "7 + 6 = 13",
+                sampleAns: "13 kelereng",
+                explanation: "Gabungkan kelereng merah dan biru. Cara menghitung: 7 + 6 = 13 kelereng."
+            },
+            {
+                section: 'A. Penjumlahan',
+                numLabel: '3',
+                topic: 'Bunga di Taman',
+                emoji: '🌸',
+                q: "Siti menanam 9 bunga mawar. Kemudian, Siti menanam 4 bunga melati. Berapa jumlah seluruh bunga yang ditanam Siti?",
+                opSymbol: '+',
+                num1: 9,
+                num2: 4,
+                resultNum: 13,
+                unit: 'bunga',
+                sampleCalc: "9 + 4 = 13",
+                sampleAns: "13 bunga",
+                explanation: "Gunakan cara membuat 10 dulu: 9 + 1 = 10, lalu ditambah 3 menjadi 13 bunga."
+            },
+            {
+                section: 'A. Penjumlahan',
+                numLabel: '4',
+                topic: 'Pensil Rina',
+                emoji: '✏️',
+                q: "Rina mempunyai 6 pensil. Ayah membelikan 8 pensil lagi. Berapa jumlah pensil Rina sekarang?",
+                opSymbol: '+',
+                num1: 6,
+                num2: 8,
+                resultNum: 14,
+                unit: 'pensil',
+                sampleCalc: "6 + 8 = 14",
+                sampleAns: "14 pensil",
+                explanation: "Pensil Rina bertambah banyak. Cara menghitung: 6 + 8 = 14 pensil."
+            },
+            {
+                section: 'A. Penjumlahan',
+                numLabel: '5',
+                topic: 'Ikan di Akuarium',
+                emoji: '🐟',
+                q: "Di dalam akuarium terdapat 7 ikan. Ayah memasukkan 9 ikan lagi. Berapa jumlah ikan di dalam akuarium sekarang?",
+                opSymbol: '+',
+                num1: 7,
+                num2: 9,
+                resultNum: 16,
+                unit: 'ikan',
+                sampleCalc: "7 + 9 = 16",
+                sampleAns: "16 ekor ikan",
+                explanation: "Jumlah ikan di akuarium menjadi: 7 + 9 = 16 ekor ikan."
+            },
+
+            // === B. PENGURANGAN (6-10) ===
+            {
+                section: 'B. Pengurangan',
+                numLabel: '6',
+                topic: 'Permen Dika',
+                emoji: '🍬',
+                q: "Dika mempunyai 15 permen. Ia memberikan 6 permen kepada adiknya. Berapa sisa permen Dika sekarang?",
+                opSymbol: '-',
+                num1: 15,
+                num2: 6,
+                resultNum: 9,
+                unit: 'permen',
+                sampleCalc: "15 - 6 = 9",
+                sampleAns: "9 permen",
+                explanation: "Permen Dika diberikan kepada adik sehingga berkurang. Cara menghitung: 15 − 6 = 9 permen."
+            },
+            {
+                section: 'B. Pengurangan',
+                numLabel: '7',
+                topic: 'Balon Siti',
+                emoji: '🎈',
+                q: "Siti mempunyai 18 balon. Sebanyak 5 balon diberikan kepada temannya. Berapa sisa balon Siti?",
+                opSymbol: '-',
+                num1: 18,
+                num2: 5,
+                resultNum: 13,
+                unit: 'balon',
+                sampleCalc: "18 - 5 = 13",
+                sampleAns: "13 balon",
+                explanation: "Sisa balon Siti dihitung dengan pengurangan: 18 − 5 = 13 balon."
+            },
+            {
+                section: 'B. Pengurangan',
+                numLabel: '8',
+                topic: 'Buku Cerita',
+                emoji: '📚',
+                q: "Ibu membeli 16 buku cerita. Sebanyak 7 buku diberikan kepada anak-anak. Berapa buku cerita yang masih tersisa?",
+                opSymbol: '-',
+                num1: 16,
+                num2: 7,
+                resultNum: 9,
+                unit: 'buku',
+                sampleCalc: "16 - 7 = 9",
+                sampleAns: "9 buku cerita",
+                explanation: "Buku cerita yang tersisa: 16 − 7 = 9 buku cerita."
+            },
+            {
+                section: 'B. Pengurangan',
+                numLabel: '9',
+                topic: 'Ayam di Kandang',
+                emoji: '🐔',
+                q: "Pak Tani mempunyai 20 ekor ayam. Sebanyak 8 ekor ayam keluar dari kandang. Berapa ayam yang masih berada di kandang?",
+                opSymbol: '-',
+                num1: 20,
+                num2: 8,
+                resultNum: 12,
+                unit: 'ayam',
+                sampleCalc: "20 - 8 = 12",
+                sampleAns: "12 ekor ayam",
+                explanation: "Ayam yang masih di dalam kandang: 20 − 8 = 12 ekor ayam."
+            },
+            {
+                section: 'B. Pengurangan',
+                numLabel: '10',
+                topic: 'Stroberi',
+                emoji: '🍓',
+                q: "Lala mempunyai 14 buah stroberi. Ia memakan 9 buah stroberi. Berapa sisa stroberi Lala?",
+                opSymbol: '-',
+                num1: 14,
+                num2: 9,
+                resultNum: 5,
+                unit: 'stroberi',
+                sampleCalc: "14 - 9 = 5",
+                sampleAns: "5 buah stroberi",
+                explanation: "Stroberi dimakan sehingga berkurang. Cara menghitung: 14 − 9 = 5 buah stroberi."
+            }
+        ];
+
+        let currentIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let scratchDrawings = {};
+        let soundEnabled = true;
+        let studentName = "";
+        let studentClass = "";
+        let isQuizCompleted = false;
+
+        // State Kanvas Coret-Coret
+        let currentPenColor = '#0369A1';
+        let isEraserMode = false;
+        let isDrawing = false;
+
+        // === EFEK SALJU TURUN TIPIS-TIPIS (SUBTLE SNOWFALL) ===
+        let snowFlakes = [];
+        let snowAnimId = null;
+
+        function initSnowfall() {
+            const snowCanvas = document.getElementById('snow-bg-canvas');
+            if (!snowCanvas) return;
+            const ctx = snowCanvas.getContext('2d');
+
+            const resizeSnow = () => {
+                snowCanvas.width = window.innerWidth;
+                snowCanvas.height = window.innerHeight;
+            };
+            resizeSnow();
+            window.addEventListener('resize', resizeSnow);
+
+            // Jumlah butiran salju tipis-tipis saja (26 butir lembut)
+            snowFlakes = Array.from({ length: 26 }, () => ({
+                x: Math.random() * snowCanvas.width,
+                y: Math.random() * snowCanvas.height,
+                r: Math.random() * 2.4 + 1.2,
+                speedY: Math.random() * 0.65 + 0.35,
+                drift: (Math.random() - 0.5) * 0.4,
+                alpha: Math.random() * 0.45 + 0.25
+            }));
+
+            function renderSnowLoop() {
+                ctx.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+                snowFlakes.forEach(f => {
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${f.alpha})`;
+                    ctx.fill();
+
+                    f.y += f.speedY;
+                    f.x += f.drift + Math.sin(f.y * 0.015) * 0.2;
+
+                    if (f.y > snowCanvas.height + 5) {
+                        f.y = -5;
+                        f.x = Math.random() * snowCanvas.width;
+                    }
+                    if (f.x > snowCanvas.width + 5) f.x = -5;
+                    if (f.x < -5) f.x = snowCanvas.width + 5;
+                });
+                snowAnimId = requestAnimationFrame(renderSnowLoop);
+            }
+            if (!snowAnimId) renderSnowLoop();
+        }
+
+        function escapeHTML(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        function saveQuizState() {
+            if (isQuizCompleted) return;
+            try {
+                const payload = {
+                    studentName,
+                    studentClass,
+                    currentIndex,
+                    userAnswers,
+                    savedAt: Date.now(),
+                    expiresAt: Date.now() + ONE_WEEK_MS
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                const indicator = document.getElementById('save-indicator');
+                if (indicator) indicator.innerText = '💾 TERSIMPAN';
+            } catch (e) {}
+        }
+
+        function loadQuizState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (!data || !data.expiresAt || Date.now() > data.expiresAt) {
+                    clearQuizState();
+                    return null;
+                }
+                if (!Array.isArray(data.userAnswers) || data.userAnswers.length !== questions.length) {
+                    clearQuizState();
+                    return null;
+                }
+                return data;
+            } catch (e) {
+                clearQuizState();
+                return null;
+            }
+        }
+
+        function clearQuizState() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+        }
+
+        function checkSavedProgressOnLoad() {
+            const saved = loadQuizState();
+            const banner = document.getElementById('saved-progress-banner');
+            if (!saved) {
+                banner.classList.add('hidden');
+                return;
+            }
+
+            const answeredCount = saved.userAnswers.filter(a => a !== null).length;
+            const daysLeft = Math.max(1, Math.ceil((saved.expiresAt - Date.now()) / (24 * 60 * 60 * 1000)));
+
+            document.getElementById('saved-progress-info').innerText = `${saved.studentName} (${saved.studentClass})`;
+            document.getElementById('saved-progress-detail').innerText = `${answeredCount}/${questions.length} soal selesai • Terakhir No. ${saved.currentIndex + 1} • Berlaku ${daysLeft} hari lagi`;
+            document.getElementById('student-name').value = saved.studentName;
+            document.getElementById('student-class').value = saved.studentClass;
+            banner.classList.remove('hidden');
+        }
+
+        function resumeSavedQuiz() {
+            const saved = loadQuizState();
+            if (!saved) {
+                checkSavedProgressOnLoad();
+                return;
+            }
+            studentName = saved.studentName;
+            studentClass = saved.studentClass;
+            userAnswers = saved.userAnswers;
+            currentIndex = saved.currentIndex || 0;
+            isQuizCompleted = false;
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function discardSavedQuiz() {
+            clearQuizState();
+            document.getElementById('saved-progress-banner').classList.add('hidden');
+            document.getElementById('student-name').value = '';
+            playSound('click');
+        }
+
+        let synth;
+        function initAudio() {
+            if (!synth && typeof Tone !== 'undefined') {
+                synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 0.01, decay: 0.14, sustain: 0.1, release: 0.3 }
+                }).toDestination();
+                synth.volume.value = -8;
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!synth) return;
+                if (Tone.context.state !== 'running') Tone.start();
+                const now = Tone.now();
+                if (type === 'correct') {
+                    synth.triggerAttackRelease("E5", "16n", now);
+                    synth.triggerAttackRelease("G#5", "16n", now + 0.08);
+                    synth.triggerAttackRelease("B5", "16n", now + 0.16);
+                    synth.triggerAttackRelease("E6", "8n", now + 0.24);
+                } else if (type === 'wrong') {
+                    synth.triggerAttackRelease("E3", "16n", now);
+                    synth.triggerAttackRelease("C3", "8n", now + 0.12);
+                } else if (type === 'click') {
+                    synth.triggerAttackRelease("B4", "32n", now);
+                } else if (type === 'finish') {
+                    synth.triggerAttackRelease(["E5", "G#5", "B5", "E6"], "4n", now);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-btn').innerText = soundEnabled ? '🔊' : '🔇';
+        }
+
+        // Konfeti Salju saat jawaban benar
+        function triggerSnowConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 70,
+                    spread: 75,
+                    origin: { y: 0.55 },
+                    colors: ['#FFFFFF', '#BAE6FD', '#38BDF8', '#0284C7', '#FBBF24']
+                });
+            }
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            const classInput = document.getElementById('student-class').value.trim();
+
+            if (!nameInput) {
+                showModal("NAMA BELUM DIISI!", "Tulis namamu dulu sebelum mulai berhitung bersama Penguin!");
+                return;
+            }
+
+            studentName = nameInput;
+            studentClass = classInput || "1 SD";
+            userAnswers = new Array(questions.length).fill(null);
+            scratchDrawings = {};
+            currentIndex = 0;
+            isQuizCompleted = false;
+
+            saveQuizState();
+
+            document.getElementById('display-name').innerText = studentName;
+            document.getElementById('display-class').innerText = "Kelas " + studentClass;
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+
+            playSound('click');
+            updateScoreUI();
+            renderDots();
+            renderQuestion();
+        }
+
+        function calculateScore() {
+            let correctCount = 0;
+            userAnswers.forEach(ans => {
+                if (ans && ans.isCorrect) correctCount++;
+            });
+            return {
+                correct: correctCount,
+                points: Math.round((correctCount / questions.length) * 100)
+            };
+        }
+
+        function updateScoreUI() {
+            const scoreData = calculateScore();
+            document.getElementById('crystal-count').innerText = `${scoreData.correct}/${questions.length}`;
+            document.getElementById('score-display').innerText = scoreData.points;
+        }
+
+        function renderDots() {
+            const container = document.getElementById('dots-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const dot = document.createElement('button');
+                dot.onclick = () => {
+                    saveScratchpadSnapshot();
+                    currentIndex = idx;
+                    saveQuizState();
+                    renderQuestion();
+                };
+                
+                let bgClass = 'bg-sky-800 border-sky-500';
+                if (userAnswers[idx] !== null) {
+                    bgClass = userAnswers[idx].isCorrect 
+                        ? 'bg-emerald-400 border-emerald-200' 
+                        : 'bg-rose-500 border-rose-300';
+                }
+                if (idx === currentIndex) {
+                    bgClass += ' ring-2 ring-amber-300 scale-125';
+                }
+
+                dot.className = `w-3.5 h-3.5 rounded-full border transition-all cursor-pointer ${bgClass}`;
+                dot.title = `No. ${q.numLabel} - ${q.topic}`;
+                container.appendChild(dot);
+            });
+        }
+
+        // === PAPAN CORET-CORET HITUNG BESAR ===
+        function renderPenPalette() {
+            const container = document.getElementById('pen-palette');
+            container.innerHTML = '';
+            PEN_COLORS.forEach(c => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.title = c.name;
+                btn.style.backgroundColor = c.hex;
+                const isSelected = !isEraserMode && currentPenColor.toLowerCase() === c.hex.toLowerCase();
+                btn.className = `pen-color-btn w-6 h-6 sm:w-7 sm:h-7 rounded-full border-2 border-sky-950 cursor-pointer ${isSelected ? 'active' : ''}`;
+                btn.onclick = () => {
+                    isEraserMode = false;
+                    currentPenColor = c.hex;
+                    updateEraserButtonUI();
+                    renderPenPalette();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function toggleEraser() {
+            isEraserMode = !isEraserMode;
+            updateEraserButtonUI();
+            renderPenPalette();
+            playSound('click');
+        }
+
+        function updateEraserButtonUI() {
+            const btn = document.getElementById('eraser-btn');
+            if (!btn) return;
+            if (isEraserMode) {
+                btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-700 text-white border border-sky-950 cursor-pointer";
+            } else {
+                btn.className = "px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 cursor-pointer";
+            }
+        }
+
+        function drawGridLines(ctx, w, h) {
+            ctx.save();
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, w, h);
+            // Garis bantu kotak-kotak tipis agar anak kelas 1 mudah menulis angka & coret-coret
+            ctx.strokeStyle = '#E0F2FE';
+            ctx.lineWidth = 1;
+            const step = 28;
+            for (let x = step; x < w; x += step) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+            for (let y = step; y < h; y += step) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function saveScratchpadSnapshot() {
+            const canvas = document.getElementById('scratchpad-canvas');
+            if (canvas && canvas.width > 0) {
+                try {
+                    scratchDrawings[currentIndex] = canvas.toDataURL('image/png');
+                } catch (e) {}
+            }
+        }
+
+        function initScratchpad() {
+            const canvas = document.getElementById('scratchpad-canvas');
+            const wrapper = document.getElementById('canvas-wrapper');
+            if (!canvas || !wrapper) return;
+
+            const rect = wrapper.getBoundingClientRect();
+            canvas.width = Math.max(300, Math.floor(rect.width));
+            canvas.height = Math.max(250, Math.floor(rect.height));
+
+            const ctx = canvas.getContext('2d');
+
+            if (scratchDrawings[currentIndex]) {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
+                img.src = scratchDrawings[currentIndex];
+            } else {
+                drawGridLines(ctx, canvas.width, canvas.height);
+            }
+
+            const getPos = (e) => {
+                const r = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - r.left) * (canvas.width / r.width),
+                    y: (clientY - r.top) * (canvas.height / r.height)
+                };
+            };
+
+            const startDraw = (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.fillStyle = isEraserMode ? '#FFFFFF' : currentPenColor;
+                const radius = isEraserMode ? 12 : 3;
+                ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            };
+
+            const moveDraw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const pos = getPos(e);
+                ctx.strokeStyle = isEraserMode ? '#FFFFFF' : currentPenColor;
+                ctx.lineWidth = isEraserMode ? 24 : 5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            };
+
+            const endDraw = () => {
+                if (isDrawing) {
+                    isDrawing = false;
+                    saveScratchpadSnapshot();
+                }
+            };
+
+            canvas.onmousedown = startDraw;
+            canvas.onmousemove = moveDraw;
+            window.onmouseup = endDraw;
+
+            canvas.ontouchstart = startDraw;
+            canvas.ontouchmove = moveDraw;
+            canvas.ontouchend = endDraw;
+        }
+
+        // Menempelkan gambar benda sesuai jumlah angka pada soal ke kanvas agar anak bisa mencoret/menghitung visual
+        function stampItemOnCanvas() {
+            const canvas = document.getElementById('scratchpad-canvas');
+            const q = questions[currentIndex];
+            if (!canvas || !q) return;
+            const ctx = canvas.getContext('2d');
+
+            drawGridLines(ctx, canvas.width, canvas.height);
+
+            ctx.save();
+            ctx.font = '24px Fredoka, sans-serif';
+            ctx.textBaseline = 'middle';
+
+            const size = 28;
+            const cols = 10;
+            const startX = 18;
+            const startY = 30;
+
+            // Gambar kelompok pertama (num1)
+            for (let i = 0; i < q.num1; i++) {
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                ctx.fillText(q.emoji, startX + col * size, startY + row * 34);
+            }
+
+            if (q.opSymbol === '+') {
+                // Gambar kelompok kedua di bawahnya untuk dijumlahkan
+                const offsetY = startY + (Math.ceil(q.num1 / cols) * 34) + 18;
+                ctx.fillStyle = '#0369A1';
+                ctx.font = 'bold 14px Fredoka, sans-serif';
+                ctx.fillText(`+ ${q.num2} lagi:`, startX, offsetY - 12);
+                ctx.font = '24px Fredoka, sans-serif';
+                for (let j = 0; j < q.num2; j++) {
+                    const col = j % cols;
+                    const row = Math.floor(j / cols);
+                    ctx.fillText(q.emoji, startX + col * size, offsetY + 12 + row * 34);
+                }
+            } else {
+                // Beri tanda silang merah pada sebanyak num2 benda untuk pengurangan
+                ctx.strokeStyle = '#EF4444';
+                ctx.lineWidth = 3;
+                for (let k = q.num1 - q.num2; k < q.num1; k++) {
+                    const col = k % cols;
+                    const row = Math.floor(k / cols);
+                    const cx = startX + col * size + 12;
+                    const cy = startY + row * 34;
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 10, cy - 10);
+                    ctx.lineTo(cx + 10, cy + 10);
+                    ctx.moveTo(cx + 10, cy - 10);
+                    ctx.lineTo(cx - 10, cy + 10);
+                    ctx.stroke();
+                }
+            }
+
+            ctx.restore();
+            saveScratchpadSnapshot();
+            playSound('click');
+        }
+
+        function clearScratchpad() {
+            const canvas = document.getElementById('scratchpad-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            delete scratchDrawings[currentIndex];
+            drawGridLines(ctx, canvas.width, canvas.height);
+            playSound('click');
+        }
+
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const ansObj = userAnswers[currentIndex];
+            const isAnswered = ansObj !== null;
+
+            const card = document.getElementById('question-card');
+            card.classList.remove('card-enter', 'shake');
+            void card.offsetWidth;
+            card.classList.add('card-enter');
+
+            document.getElementById('section-badge').innerText = q.section;
+            document.getElementById('question-number').innerText = `No. ${q.numLabel} • ${q.topic}`;
+            const progText = document.getElementById('header-progress-text');
+            if (progText) progText.innerText = `${currentIndex + 1} / ${questions.length}`;
+
+            const statusBadge = document.getElementById('status-badge');
+            if (isAnswered) {
+                statusBadge.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-emerald-400 text-emerald-950 border-2 border-emerald-900";
+                    statusBadge.innerText = "❄️ +1 KRISTAL ES!";
+                } else {
+                    statusBadge.className = "font-bold px-3 py-1 rounded-lg text-xs bg-rose-500 text-white border-2 border-rose-950";
+                    statusBadge.innerText = "✖ BELUM TEPAT";
+                }
+            } else {
+                statusBadge.classList.add('hidden');
+            }
+
+            document.getElementById('story-emoji').innerText = q.emoji;
+            document.getElementById('question-text').innerText = `${q.numLabel}. ${q.q}`;
+
+            const stampBtn = document.getElementById('stamp-btn');
+            if (stampBtn) stampBtn.innerText = `+${q.emoji} Bantu Gambar`;
+
+            // Render Input Jawaban Akhir Saja (Cara menghitung dilakukan di kanvas coret-coret)
+            const ansVal = isAnswered ? escapeHTML(ansObj.ans) : '';
+
+            const answerArea = document.getElementById('answer-area');
+            answerArea.innerHTML = `
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-sky-900 mb-1.5 uppercase">
+                            Jawab (hasil akhir):
+                        </label>
+                        <input type="text" id="ans-input" value="${ansVal}" ${isAnswered ? 'disabled' : ''}
+                            placeholder="Ketik hasil akhirnya di sini..."
+                            onkeydown="if(event.key === 'Enter') submitEssayAnswer()"
+                            class="ice-input w-full px-4 py-3 text-lg sm:text-xl font-bold">
+                    </div>
+
+                    ${!isAnswered ? `
+                        <button onclick="submitEssayAnswer()" class="snow-btn snow-btn-amber w-full py-3 text-sm sm:text-base cursor-pointer mt-1">
+                            ✔ PERIKSA JAWABAN
+                        </button>
+                    ` : `
+                        <div class="bg-sky-950 rounded-xl border-2 border-emerald-400 text-emerald-300 px-3.5 py-2.5 text-xs sm:text-sm font-semibold space-y-0.5">
+                            <div>📌 Cara menghitung: <span class="text-amber-300 font-bold">${escapeHTML(q.sampleCalc)}</span></div>
+                            <div>📌 Jawaban tepat: <span class="text-amber-300 font-bold">${escapeHTML(q.sampleAns)}</span></div>
+                        </div>
+                    `}
+                </div>
+            `;
+
+            const feedbackBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                feedbackBox.classList.remove('hidden');
+                if (ansObj.isCorrect) {
+                    document.getElementById('feedback-emoji').innerText = "❄️";
+                    document.getElementById('feedback-title').innerText = "HEBAT SEKALI! (+1 KRISTAL ES)";
+                } else {
+                    document.getElementById('feedback-emoji').innerText = "🐧";
+                    document.getElementById('feedback-title').innerText = "YUK PELAJARI CARA MENGHITUNGNYA!";
+                }
+                document.getElementById('feedback-desc').innerText = q.explanation;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            const nextBtn = document.getElementById('next-btn');
+            if (currentIndex === questions.length - 1) {
+                nextBtn.innerText = "SELESAI 🏆";
+                nextBtn.className = "snow-btn snow-btn-amber flex-1 sm:flex-none px-6 py-3 text-sm sm:text-base flex items-center justify-center gap-2";
+            } else {
+                nextBtn.innerText = "SELANJUTNYA ▶";
+                nextBtn.className = "snow-btn snow-btn-cyan flex-1 sm:flex-none px-6 py-3 text-sm sm:text-base flex items-center justify-center gap-2";
+            }
+
+            renderPenPalette();
+            updateEraserButtonUI();
+            renderDots();
+            setTimeout(() => initScratchpad(), 40);
+        }
+
+        function submitEssayAnswer() {
+            if (userAnswers[currentIndex] !== null) return;
+            const q = questions[currentIndex];
+            const ansRaw = document.getElementById('ans-input').value.trim();
+
+            if (!ansRaw) {
+                showModal("BELUM DIISI!", "Hitung dulu di papan coret-coret lalu ketik hasil akhirnya di kotak Jawab ya!");
+                return;
+            }
+
+            // Ekstrak angka dari jawaban akhir siswa
+            const ansNums = (ansRaw.match(/\d+/g) || []).map(Number);
+            const isCorrect = ansNums.includes(q.resultNum);
+
+            saveScratchpadSnapshot();
+            userAnswers[currentIndex] = {
+                ans: ansRaw,
+                isCorrect
+            };
+            saveQuizState();
+
+            if (isCorrect) {
+                playSound('correct');
+                triggerSnowConfetti();
+            } else {
+                playSound('wrong');
+                document.getElementById('question-card').classList.add('shake');
+            }
+
+            updateScoreUI();
+            renderQuestion();
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                saveScratchpadSnapshot();
+                playSound('click');
+                currentIndex--;
+                saveQuizState();
+                renderQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            saveScratchpadSnapshot();
+            playSound('click');
+            if (currentIndex < questions.length - 1) {
+                currentIndex++;
+                saveQuizState();
+                renderQuestion();
+            } else {
+                const unansweredIndex = userAnswers.findIndex(ans => ans === null);
+                if (unansweredIndex !== -1) {
+                    const missingQ = questions[unansweredIndex];
+                    showModal(
+                        "ADA SOAL TERLEWAT!", 
+                        `Soal nomor ${missingQ.numLabel} (${missingQ.topic}) belum kamu kerjakan. Ayo kita selesaikan dulu!`
+                    );
+                    currentIndex = unansweredIndex;
+                    saveQuizState();
+                    renderQuestion();
+                    return;
+                }
+                showResultScreen();
+            }
+        }
+
+        function showResultScreen() {
+            isQuizCompleted = true;
+            clearQuizState();
+
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const scoreData = calculateScore();
+            document.getElementById('result-student-info').innerText = `${studentName} • Kelas ${studentClass}`;
+            document.getElementById('final-crystals').innerText = `${scoreData.correct} ❄️`;
+            document.getElementById('final-score').innerText = scoreData.points;
+            document.getElementById('final-stats').innerText = `Benar ${scoreData.correct} dari ${questions.length} soal`;
+
+            let msg = "";
+            if (scoreData.points === 100) {
+                msg = "LUAR BIASA SEMPURNA! Kamu berhasil mengumpulkan 10 Kristal Es dan jago berhitung soal cerita! 🐧🏆";
+                triggerSnowConfetti();
+                setTimeout(triggerSnowConfetti, 450);
+            } else if (scoreData.points >= 80) {
+                msg = "HEBAT SEKALI! Kamu sudah pintar menghitung penjumlahan dan pengurangan sampai 20! 👏❄️";
+                triggerSnowConfetti();
+            } else if (scoreData.points >= 60) {
+                msg = "BAGUS! Terus berlatih menghitung dengan papan coret-coret es ya! 💪✨";
+            } else {
+                msg = "AYO COBA LAGI! Gunakan tombol '+ Bantu Gambar' di papan coret-coret untuk memudahkan berhitung! 🐧❄️";
+            }
+            document.getElementById('result-message').innerText = msg;
+            playSound('finish');
+        }
+
+        function reviewQuiz() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            const indicator = document.getElementById('save-indicator');
+            if (indicator) indicator.innerText = '✅ SELESAI';
+            currentIndex = 0;
+            renderQuestion();
+        }
+
+        function restartQuiz() {
+            clearQuizState();
+            isQuizCompleted = false;
+            userAnswers = new Array(questions.length).fill(null);
+            scratchDrawings = {};
+            currentIndex = 0;
+            saveQuizState();
+            updateScoreUI();
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            playSound('click');
+            renderQuestion();
+        }
+
+        // Sesuaikan ulang ukuran kanvas saat orientasi tablet berubah (portrait <-> landscape)
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('quiz-screen').classList.contains('hidden')) {
+                initScratchpad();
+            }
+        });
+
+        let deferredPrompt = null;
+
+        function setupPWA() {
+            const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="110" fill="#0284C7"/><circle cx="256" cy="256" r="185" fill="#E0F2FE"/><text x="50%" y="56%" font-size="220" text-anchor="middle" dominant-baseline="middle">🐧</text></svg>';
+            const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+            const appleIcon = document.createElement('link');
+            appleIcon.rel = 'apple-touch-icon';
+            appleIcon.href = iconUrl;
+            document.head.appendChild(appleIcon);
+
+            const manifestData = {
+                name: "Matematika Musim Salju - Kelas 1 SD",
+                short_name: "Math Salju SD",
+                description: "Latihan Soal Cerita Matematika Kelas 1 SD dengan Papan Coret-Coret",
+                start_url: window.location.href,
+                display: "standalone",
+                background_color: "#E0F2FE",
+                theme_color: "#0284C7",
+                orientation: "any",
+                icons: [
+                    { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                    { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+                ]
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/manifest+json' });
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = URL.createObjectURL(manifestBlob);
+            document.head.appendChild(manifestLink);
+
+            if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+                const swCode = "const CACHE_NAME='math-salju-sd1-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(n=>{if(n&&n.status===200){const c=n.clone();caches.open(CACHE_NAME).then(ca=>ca.put(e.request,c));}return n;}).catch(()=>caches.match('./'))));});";
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+            }
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwa-install-container').classList.remove('hidden');
+        });
+
+        async function installPWA() {
+            if (!deferredPrompt) {
+                showModal("INFO INSTALASI", "Gunakan menu browser lalu pilih 'Tambahkan ke Layar Utama' (Add to Home Screen).");
+                return;
+            }
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') document.getElementById('pwa-install-container').classList.add('hidden');
+            deferredPrompt = null;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSnowfall();
+            setupPWA();
+            checkSavedProgressOnLoad();
+        });
+    </script>
+</body>
+</html>
